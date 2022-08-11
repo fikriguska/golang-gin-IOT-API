@@ -30,12 +30,6 @@ func Setup() config.Configuration {
 	return cfg
 }
 
-// func init() {
-// 	Setup()
-// 	models.Setup()
-// 	models.Cx()
-// }
-
 func main() {
 	cfg := Setup()
 	database := config.NewPostgresql(cfg)

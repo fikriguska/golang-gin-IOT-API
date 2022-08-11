@@ -1,7 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
+	"net/mail"
+	e "src/error"
 	"src/repository"
 	"src/service"
 
@@ -19,17 +22,56 @@ func NewUserController(userService *service.UserService) UserController {
 }
 
 func (controller *UserController) Route(r *gin.Engine) {
-	r.GET("/user", controller.Create)
+	r.POST("/user", controller.Create)
+	r.GET("/user", controller.Test)
 }
 
-func (controller *UserController) Create(ctx *gin.Context) {
-	// ctx.JSON(http.StatusOK, gin.H{
+func (controller *UserController) Create(c *gin.Context) {
+	// c.JSON(http.StatusOK, gin.H{
 	// 	"message": "pong",
 	// })
+	var user repository.User
 
-	res := controller.UserService.Create(repository.User{})
-	ctx.JSON(http.StatusOK, gin.H{
-		"Status": "OK",
-		"data":   res,
-	})
+	// Check required parameter
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"data":   e.ErrInvalidParams.Error(),
+		})
+		return
+	}
+
+	// Check email format
+	if !isEmailValid(user.Email) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"data":   e.ErrInvalidEmail.Error(),
+		})
+		return
+	}
+
+	controller.UserService.IsExist(user)
+
+	// res := controller.UserService.Create(user)
+	// c.JSON(http.StatusOK, gin.H{
+	// 	"status": "OK",
+	// 	"data":   res,
+	// })
+}
+
+// type Person struct {
+// Name     string    `form:"name"`
+// }
+
+func (controller *UserController) Test(c *gin.Context) {
+	// var p Person
+	// fmt.Println(c.QParam("email"))
+	// c.ShouldBind()
+	fmt.Println("xxxx")
+}
+
+func isEmailValid(email string) bool {
+	_, err := mail.ParseAddress(email)
+	return err == nil
 }

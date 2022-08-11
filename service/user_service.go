@@ -3,5 +3,6 @@ package service
 import "src/repository"
 
 type UserService interface {
-	Create(request repository.User) repository.User
+	Create(user repository.User) error
+	IsExist(user repository.User) (bool, error)
 }
