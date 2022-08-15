@@ -11,4 +11,5 @@ var (
 	ErrInvalidParams = errors.New("parameter is invalid")
 	ErrInvalidEmail  = errors.New("email is invalid")
 	ErrUserExist     = errors.New("email or Username already exists")
+	ErrAddUserFail   = errors.New("add user failed")
 )
