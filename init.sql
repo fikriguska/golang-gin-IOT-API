@@ -7,7 +7,7 @@ create table user_person(
     email varchar (255) not null,
     username varchar (255) not null,
     password varchar (255) not null,
-    status boolean,
+    status boolean not null,
     token varchar (255) not null
 
 );

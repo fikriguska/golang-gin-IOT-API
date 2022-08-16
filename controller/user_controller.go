@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	e "src/error"
 	"src/service/user_service"
@@ -11,6 +10,7 @@ import (
 
 func UserRoute(r *gin.Engine) {
 	r.POST("/user", AddUser)
+	// r.GET("/user/activation", ActivateUser)
 	// r.GET("/user", controller.Test)
 }
 
@@ -21,19 +21,13 @@ type AddUserStruct struct {
 }
 
 func AddUser(c *gin.Context) {
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"message": "pong",
-	// })
-	fmt.Println("XXXX")
+
 	var json AddUserStruct
 
 	// Check required parameter
 	err := c.ShouldBindJSON(&json)
-	fmt.Println("YYY")
 
 	if err != nil {
-		fmt.Println("ZZZ")
-
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": "error",
 			"data":   e.ErrInvalidParams.Error(),
@@ -92,6 +86,10 @@ func AddUser(c *gin.Context) {
 	// 	"data":   res,
 	// })
 }
+
+// func ActivateUser(c *gin.Context) {
+
+// }
 
 // type Person struct {
 // Name     string    `form:"name"`

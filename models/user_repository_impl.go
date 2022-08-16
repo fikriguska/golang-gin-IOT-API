@@ -22,8 +22,8 @@ func AddUser(data map[string]interface{}) error {
 		Token:    data["token"].(string),
 	}
 
-	statement := "insert into user_person (username, email, password, token) values ($1, $2, $3, $4)"
-	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Token)
+	statement := "insert into user_person (username, email, password, status, token) values ($1, $2, $3, $4, $5)"
+	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token)
 	return err
 }
 
@@ -40,6 +40,18 @@ func IsUserUsernameExist(username string) (bool, error) {
 	}
 	return true, nil
 
+}
+
+// ******
+func GetUserIdByUsername(username string) (int, error) {
+	statement := "select id_user from user_person where username = $1"
+
+	// **to do** gimana cara gak pakai var tmp
+	var id int
+	if err := db.QueryRow(statement, username).Scan(&id); err != nil {
+		return 0, err
+	}
+	return id, nil
 }
 
 // func GetByUsername(userName string) User {
