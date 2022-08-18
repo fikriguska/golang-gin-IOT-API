@@ -20,19 +20,11 @@ type User struct {
 	Token    string
 }
 
-func (u *User) IsExist() (bool, error) {
-	check, err := models.IsUserUsernameExist(u.Username)
-	if err != nil {
-		return false, err
-	}
-
-	if check {
-		return true, nil
-	}
-	return false, nil
+func (u *User) IsExist() bool {
+	return models.IsUserUsernameExist(u.Username)
 }
 
-func (u *User) Add() error {
+func (u *User) Add() {
 	hashedTokenByte := sha256.Sum256([]byte(u.Username + u.Email + u.Password))
 	hashedToken := hex.EncodeToString(hashedTokenByte[:])
 	hashedPassByte := sha256.Sum256([]byte(u.Password))
@@ -45,17 +37,22 @@ func (u *User) Add() error {
 		"status":   u.Status,
 		"token":    hashedToken,
 	}
-	err := models.AddUser(user)
-	if err != nil {
-		return err
-	}
-	id, err := models.GetUserIdByUsername(u.Username)
-	if err != nil {
+	models.AddUser(user)
+	id := models.GetUserIdByUsername(u.Username)
+	sendEmail(id, u.Username, u.Email, hashedToken)
+}
 
-		return err
-	}
-	err = sendEmail(id, u.Username, u.Email, hashedToken)
-	return err
+func (u *User) Activate() {
+	models.ActivateUser(u.Token)
+}
+
+func (u *User) IsTokenValid() bool {
+	exist := models.IsUserTokenExist(u.Token)
+
+	activated := models.IsUserActivatedCheckByToken(u.Token)
+
+	valid := exist && !activated
+	return valid
 }
 
 func genMessageWithheader(from string, to string, subject string, body string) string {
@@ -68,7 +65,7 @@ func genMessageWithheader(from string, to string, subject string, body string) s
 
 func sendEmail(id int, username string, to string, token string) error {
 
-	urlCode := "http://192.168.100.105:5000/user/activation?token=" + token
+	urlCode := "http://localhost:8080/user/activation?token=" + token
 
 	smtpHost := "smtp.gmail.com"
 	smtpPort := 587
@@ -96,4 +93,15 @@ func sendEmail(id int, username string, to string, token string) error {
 		return err
 	}
 	return nil
+}
+
+func (u *User) Auth() (bool, bool) {
+	hashedPassByte := sha256.Sum256([]byte(u.Password))
+	hashedPass := hex.EncodeToString(hashedPassByte[:])
+	credCorrect := models.AuthUser(u.Username, hashedPass)
+
+	activated := models.IsUserActivatedCheckByUsername(u.Username)
+	fmt.Println(activated)
+	return credCorrect, activated
+
 }

@@ -10,7 +10,8 @@ import (
 
 func UserRoute(r *gin.Engine) {
 	r.POST("/user", AddUser)
-	// r.GET("/user/activation", ActivateUser)
+	r.GET("/user/activation", ActivateUser)
+	r.POST("/user/login", Login)
 	// r.GET("/user", controller.Test)
 }
 
@@ -25,9 +26,7 @@ func AddUser(c *gin.Context) {
 	var json AddUserStruct
 
 	// Check required parameter
-	err := c.ShouldBindJSON(&json)
-
-	if err != nil {
+	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": "error",
 			"data":   e.ErrInvalidParams.Error(),
@@ -50,15 +49,15 @@ func AddUser(c *gin.Context) {
 		Password: json.Password,
 	}
 
-	exist, err := userService.IsExist()
+	exist := userService.IsExist()
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"data":   e.ErrAddUserFail.Error(),
-		})
-		return
-	}
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"status": "error",
+	// 		"data":   e.ErrAddUserFail.Error(),
+	// 	})
+	// 	return
+	// }
 
 	if exist {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -68,13 +67,7 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	if err := userService.Add(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"data":   e.ErrAddUserFail.Error(),
-		})
-		return
-	}
+	userService.Add()
 
 	c.JSON(http.StatusCreated, gin.H{
 		"status": "ok",
@@ -87,22 +80,81 @@ func AddUser(c *gin.Context) {
 	// })
 }
 
-// func ActivateUser(c *gin.Context) {
+// var ActivateUserStruct
+func ActivateUser(c *gin.Context) {
+	token, exist := c.GetQuery("token")
 
-// }
+	if !exist {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"data":   e.ErrInvalidParams.Error(),
+		})
+		return
+	}
 
-// type Person struct {
-// Name     string    `form:"name"`
-// }
+	userService := user_service.User{
+		Token: token,
+	}
 
-// func (controller *UserController) Test(c *gin.Context) {
-// 	// var p Person
-// 	// fmt.Println(c.QParam("email"))
-// 	// c.ShouldBind()
-// 	fmt.Println("xxxx")
-// }
+	valid := userService.IsTokenValid()
 
-// func isEmailValid(email string) bool {
-// 	_, err := mail.ParseAddress(email)
-// 	return err == nil
-// }
+	if !valid {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"data":   e.ErrInvalidToken.Error(),
+		})
+		return
+	}
+
+	userService.Activate()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ok",
+		"data":   "success",
+	})
+}
+
+type LoginUserStruct struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+func Login(c *gin.Context) {
+	var json LoginUserStruct
+
+	// Check required parameter
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"data":   e.ErrInvalidParams.Error(),
+		})
+		return
+	}
+
+	userService := user_service.User{
+		Username: json.Username,
+		Password: json.Password,
+	}
+
+	credCorrect, activated := userService.Auth()
+
+	if !credCorrect {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status": "error",
+			"data":   e.ErrUsernameOrPassIncorrect.Error(),
+		})
+		return
+	} else if !activated {
+		c.JSON(http.StatusForbidden, gin.H{
+			"status": "error",
+			"data":   e.ErrUserNotActive.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ok",
+		"data":   "Logged in",
+	})
+
+}

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"database/sql"
+	e "src/error"
 )
 
 type User struct {
@@ -13,7 +13,7 @@ type User struct {
 	Token    string `json:"token"`
 }
 
-func AddUser(data map[string]interface{}) error {
+func AddUser(data map[string]interface{}) {
 	user := User{
 		Email:    data["email"].(string),
 		Username: data["username"].(string),
@@ -24,55 +24,86 @@ func AddUser(data map[string]interface{}) error {
 
 	statement := "insert into user_person (username, email, password, status, token) values ($1, $2, $3, $4, $5)"
 	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token)
-	return err
+	e.PanicIfNeeded(err)
 }
 
-func IsUserUsernameExist(username string) (bool, error) {
+func IsUserUsernameExist(username string) bool {
 	statement := "select username from user_person where username = $1"
 
 	// **to do** gimana cara gak pakai var tmp
-	var tmp string
-	if err := db.QueryRow(statement, username).Scan(&tmp); err != nil {
-		if err == sql.ErrNoRows {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
+	// var tmp string
+	// if err := db.QueryRow(statement, username).Scan(&tmp); err != nil {
+	// 	if err == sql.ErrNoRows {
+	// 		return false, nil
+	// 	}
+	// 	return false, err
+	// }
+	// return true, nil
+	return isRowExist(statement, username)
 
 }
 
 // ******
-func GetUserIdByUsername(username string) (int, error) {
+func GetUserIdByUsername(username string) int {
 	statement := "select id_user from user_person where username = $1"
 
-	// **to do** gimana cara gak pakai var tmp
 	var id int
-	if err := db.QueryRow(statement, username).Scan(&id); err != nil {
-		return 0, err
-	}
-	return id, nil
+	err := db.QueryRow(statement, username).Scan(&id)
+	e.PanicIfNeeded(err)
+
+	return id
 }
 
-// func GetByUsername(userName string) User {
-// 	statement := "select * from user_person where username='$1'"
-// 	stmt, err := u.Conn.Prepare(statement)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return User{}
-// 	}
-// 	defer stmt.Close()
-// 	var res User
-// 	err = stmt.QueryRow(userName).Scan(&res)
-// 	fmt.Println(err)
-// 	// fmt.Println(res)
-// 	return res
-// }
+func IsUserTokenExist(token string) bool {
+	statement := "select token from user_person where token = $1"
 
-// func GetPassword(hashedPass string) string {
-// 	return "ss"
-// }
+	// var tmp string
+	// if err := db.QueryRow(statement, token).Scan(&tmp); err != nil {
+	// 	if err == sql.ErrNoRows {
+	// 		return false, nil
+	// 	}
+	// 	return false, err
+	// }
+	return isRowExist(statement, token)
+}
 
-// func GetStatusByUsername(userName string) bool {
-// 	return true
-// }
+func IsUserActivatedCheckByToken(token string) bool {
+	// ******
+	statement := "select id_user from user_person where token = $1 and status = true"
+	// var tmp string
+	// if err := db.QueryRow(statement, token).Scan(&tmp); err != nil {
+	// 	if err == sql.ErrNoRows {
+	// 		return false, nil
+	// 	}
+	// 	return false, err
+	// }
+	return isRowExist(statement, token)
+	// return true, nil
+}
+
+func IsUserActivatedCheckByUsername(username string) bool {
+	statement := "select status from user_person where username = $1"
+
+	var status bool
+	err := db.QueryRow(statement, username).Scan(&status)
+	e.PanicIfNeeded(err)
+
+	return status
+}
+
+func ActivateUser(token string) error {
+	statement := "update user_person set status = true where token = $1"
+	_, err := db.Exec(statement, token)
+	e.PanicIfNeeded(err)
+	return nil
+}
+
+func AuthUser(username string, password string) bool {
+	statement := "select token from user_person where username = $1 and password = $2"
+	// return isRowExist(statement, username, password)
+	// var token string
+	// err := db.QueryRow(statement, username, password).Scan(&token)
+	// return token
+	return isRowExist(statement, username, password)
+
+}

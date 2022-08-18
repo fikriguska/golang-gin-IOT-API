@@ -2,6 +2,7 @@ package models
 
 import (
 	"src/config"
+	e "src/error"
 
 	"database/sql"
 	"fmt"
@@ -21,4 +22,14 @@ func Setup(cfg config.Configuration) {
 	// db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	db, _ = sql.Open("postgres", dsn)
 	fmt.Println(db)
+}
+
+func isRowExist(query string, args ...interface{}) bool {
+	var exist bool
+	query = fmt.Sprintf("SELECT exists (%s)", query)
+	err := db.QueryRow(query, args...).Scan(&exist)
+	if err != nil && err != sql.ErrNoRows {
+		e.PanicIfNeeded(err)
+	}
+	return exist
 }
