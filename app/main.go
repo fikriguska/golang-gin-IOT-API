@@ -5,7 +5,8 @@ import (
 	"log"
 	"src/config"
 	"src/controller"
-	"src/models"
+	"src/repository"
+	"src/service"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/gin-gonic/gin"
@@ -31,11 +32,11 @@ func Setup() config.Configuration {
 
 func main() {
 	cfg := Setup()
-	models.Setup(cfg)
-	// UserRepository := repository.NewUserRepository(database)
-	// UserService := service.NewUserService(&UserRepository)
-	// UserController := controller.NewUserController(&UserService)
+	database := repository.Setup(cfg)
+	UserRepository := repository.NewUserRepository(database)
+	UserService := service.NewUserService(&UserRepository)
+	UserController := controller.NewUserController(&UserService)
 	r := gin.Default()
-	controller.UserRoute(r)
+	UserController.Route(r)
 	r.Run()
 }
