@@ -1,9 +1,11 @@
 package service
 
+import "src/model"
+
 type UserService interface {
-	IsExist(User) bool
-	Add(User)
-	Activate(User)
-	IsTokenValid(User) bool
-	Auth(User) (bool, bool)
+	IsExist(model.User) bool
+	Add(model.User) error
+	Activate(model.User)
+	IsTokenValid(model.User) bool
+	Auth(model.User) (bool, bool)
 }

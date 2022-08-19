@@ -1,6 +1,8 @@
 package service
 
 import (
+	e "src/error"
+
 	"crypto/sha256"
 	"net/smtp"
 
@@ -8,33 +10,32 @@ import (
 	"strconv"
 
 	"encoding/hex"
+	"src/model"
 	"src/repository"
 )
-
-type User struct {
-	Id       int
-	Email    string
-	Username string
-	Password string
-	Status   bool
-	Token    string
-}
 
 type userServiceImpl struct {
 	UserRepo repository.UserRepo
 }
 
-func NewUserService(userRepo *repository.UserRepo) UserService {
+func NewUserService(userRepo repository.UserRepo) UserService {
 	return &userServiceImpl{
-		UserRepo: *userRepo,
+		UserRepo: userRepo,
 	}
 }
 
-func (service *userServiceImpl) IsExist(request User) bool {
+func (service *userServiceImpl) IsExist(request model.User) bool {
 	return service.UserRepo.IsUsernameExist(request.Username)
 }
 
-func (service *userServiceImpl) Add(request User) {
+func (service *userServiceImpl) Add(request model.User) error {
+
+	exist := service.IsExist(request)
+
+	if exist {
+		return e.ErrUserExist
+	}
+
 	hashedTokenByte := sha256.Sum256([]byte(request.Username + request.Email + request.Password))
 	hashedToken := hex.EncodeToString(hashedTokenByte[:])
 	hashedPassByte := sha256.Sum256([]byte(request.Password))
@@ -49,13 +50,14 @@ func (service *userServiceImpl) Add(request User) {
 	service.UserRepo.Add(user)
 	id := service.UserRepo.GetIdByUsername(request.Username)
 	sendEmail(id, request.Username, request.Email, hashedToken)
+	return nil
 }
 
-func (service *userServiceImpl) Activate(request User) {
+func (service *userServiceImpl) Activate(request model.User) {
 	service.UserRepo.Activate(request.Token)
 }
 
-func (service *userServiceImpl) IsTokenValid(request User) bool {
+func (service *userServiceImpl) IsTokenValid(request model.User) bool {
 	exist := service.UserRepo.IsTokenExist(request.Token)
 
 	activated := service.UserRepo.IsActivatedCheckByToken(request.Token)
@@ -104,7 +106,7 @@ func sendEmail(id int, username string, to string, token string) error {
 	return nil
 }
 
-func (service *userServiceImpl) Auth(request User) (bool, bool) {
+func (service *userServiceImpl) Auth(request model.User) (bool, bool) {
 	hashedPassByte := sha256.Sum256([]byte(request.Password))
 	hashedPass := hex.EncodeToString(hashedPassByte[:])
 	credCorrect := service.UserRepo.Auth(request.Username, hashedPass)

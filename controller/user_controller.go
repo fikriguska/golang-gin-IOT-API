@@ -47,7 +47,7 @@ func (controller *UserController) Add(c *gin.Context) {
 	// 	return
 	// }
 
-	user := service.User{
+	user := model.User{
 		Email:    request.Email,
 		Username: request.Username,
 		Password: request.Password,
@@ -84,7 +84,7 @@ func (controller *UserController) Activate(c *gin.Context) {
 		return
 	}
 
-	user := service.User{
+	user := model.User{
 		Token: token,
 	}
 
@@ -118,7 +118,7 @@ func (controller *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	user := service.User{
+	user := model.User{
 		Username: json.Username,
 		Password: json.Password,
 	}

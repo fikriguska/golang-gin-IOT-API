@@ -3,23 +3,15 @@ package repository
 import (
 	"database/sql"
 	e "src/error"
+	"src/model"
 )
-
-type User struct {
-	Id       int    `json:"id"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Status   bool   `json:"status"`
-	Token    string `json:"token"`
-}
 
 type userRepoImpl struct {
 	Db *sql.DB
 }
 
 func (repository *userRepoImpl) Add(data map[string]interface{}) {
-	user := User{
+	user := model.User{
 		Email:    data["email"].(string),
 		Username: data["username"].(string),
 		Password: data["password"].(string),

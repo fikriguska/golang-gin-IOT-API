@@ -34,7 +34,7 @@ func main() {
 	cfg := Setup()
 	database := repository.Setup(cfg)
 	UserRepository := repository.NewUserRepository(database)
-	UserService := service.NewUserService(&UserRepository)
+	UserService := service.NewUserService(UserRepository)
 	UserController := controller.NewUserController(&UserService)
 	r := gin.Default()
 	UserController.Route(r)
