@@ -2,6 +2,9 @@ package controller
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,7 +13,9 @@ import (
 	// "net/http/httptest"
 
 	"src/config"
+	e "src/error"
 	"src/models"
+	"src/service/user_service"
 	"src/util"
 
 	"testing"
@@ -20,6 +25,12 @@ import (
 )
 
 var router *gin.Engine
+var db *sql.DB
+
+type testUser struct {
+	user_service.User
+	hashedPass string
+}
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
@@ -27,17 +38,31 @@ func SetupRouter() *gin.Engine {
 	return r
 }
 
-func randomUser() AddUserStruct {
+func randomUser() testUser {
 	password := util.RandomString(12)
 	email := util.RandomEmail()
 	username := util.RandomString(6)
 
-	return AddUserStruct{
-		Password: password,
-		Email:    email,
-		Username: username,
-	}
+	hashedTokenByte := sha256.Sum256([]byte(username + email + password))
+	hashedToken := hex.EncodeToString(hashedTokenByte[:])
+	hashedPassByte := sha256.Sum256([]byte(password))
+	hashedPass := hex.EncodeToString(hashedPassByte[:])
 
+	return testUser{
+		User: user_service.User{
+			Password: password,
+			Email:    email,
+			Username: username,
+			Status:   false,
+			Token:    hashedToken,
+		},
+		hashedPass: hashedPass,
+	}
+}
+
+func insertUser(u testUser) {
+	_, err := db.Exec("insert into user_person (username, email, password, status, token) values ($1, $2, $3, $4, $5)", u.Username, u.Email, u.hashedPass, u.Status, u.Token)
+	e.PanicIfNeeded(err)
 }
 
 func TestAddUser(t *testing.T) {
@@ -58,7 +83,6 @@ func TestAddUser(t *testing.T) {
 				"password": user1.Password,
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				fmt.Printf("code ===> %d", recorder.Code)
 				require.Equal(t, http.StatusCreated, recorder.Code)
 			},
 		},
@@ -70,8 +94,8 @@ func TestAddUser(t *testing.T) {
 				"password": user2.Password,
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				fmt.Printf("code ===> %d", recorder.Code)
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkBody(t, recorder, e.ErrUserExist)
 			},
 		},
 		{
@@ -82,8 +106,20 @@ func TestAddUser(t *testing.T) {
 				"password": user2.Password,
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				fmt.Printf("code ===> %d", recorder.Code)
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkBody(t, recorder, e.ErrUserExist)
+			},
+		},
+		{
+			name: "invalid email format",
+			body: gin.H{
+				"username": user1.Username,
+				"email":    "thisisnotan.email",
+				"password": user1.Password,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkBody(t, recorder, e.ErrInvalidEmail)
 			},
 		},
 	}
@@ -102,9 +138,129 @@ func TestAddUser(t *testing.T) {
 
 }
 
+func TestActivateUser(t *testing.T) {
+	user := randomUser()
+
+	insertUser(user)
+
+	testCases := []struct {
+		name          string
+		token         string
+		checkResponse func(recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name:  "ok",
+			token: user.Token,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name:  "user is activated",
+			token: user.Token,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkBody(t, recorder, e.ErrInvalidToken)
+			},
+		},
+		{
+			name:  "token doensn't exists",
+			token: "invalidtoken1337133713371337133713371337133713371337133713371337",
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkBody(t, recorder, e.ErrInvalidToken)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/user/activation?token="+tc.token, nil)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+		})
+	}
+}
+
+func TestUserLogin(t *testing.T) {
+
+	user := randomUser()
+	user2 := randomUser()
+
+	user.Status = true
+	insertUser(user)
+	insertUser(user2)
+
+	fmt.Println(user)
+	testCases := []struct {
+		name          string
+		body          gin.H
+		checkResponse func(recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "ok",
+			body: gin.H{
+				"username": user.Username,
+				"password": user.Password,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name: "wrong password",
+			body: gin.H{
+				"username": user.Username,
+				"password": "wrong_password",
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkBody(t, recorder, e.ErrUsernameOrPassIncorrect)
+			},
+		},
+		{
+			name: "wrong username",
+			body: gin.H{
+				"username": "wrong_username",
+				"password": user.Password,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkBody(t, recorder, e.ErrUsernameOrPassIncorrect)
+			},
+		},
+		{
+			name: "user is not activated",
+			body: gin.H{
+				"username": user2.Username,
+				"password": user2.Password,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkBody(t, recorder, e.ErrUserNotActive)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			data, _ := json.Marshal(tc.body)
+			req, _ := http.NewRequest("POST", "/user/login", bytes.NewBuffer(data))
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+		})
+	}
+}
+
 func TestMain(m *testing.M) {
 	cfg := config.Setup()
-	models.Setup(cfg)
+	db = models.Setup(cfg)
 	router = SetupRouter()
 	m.Run()
 }

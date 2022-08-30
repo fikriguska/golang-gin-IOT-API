@@ -2,6 +2,7 @@ package user_service
 
 import (
 	"crypto/sha256"
+	"net/mail"
 	"net/smtp"
 
 	"fmt"
@@ -18,6 +19,11 @@ type User struct {
 	Password string
 	Status   bool
 	Token    string
+}
+
+func (u *User) IsEmailValid() bool {
+	_, err := mail.ParseAddress(u.Email)
+	return err == nil
 }
 
 func (u *User) IsExist() bool {
@@ -99,8 +105,9 @@ func (u *User) Auth() (bool, bool) {
 	hashedPassByte := sha256.Sum256([]byte(u.Password))
 	hashedPass := hex.EncodeToString(hashedPassByte[:])
 	credCorrect := models.AuthUser(u.Username, hashedPass)
-
-	activated := models.IsUserActivatedCheckByUsername(u.Username)
-	fmt.Println(activated)
+	activated := false
+	if credCorrect {
+		activated = models.IsUserActivatedCheckByUsername(u.Username)
+	}
 	return credCorrect, activated
 }

@@ -34,19 +34,19 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	// Check email format
-	// if !isEmailValid(user.Email) {
-	// 	c.JSON(http.StatusBadRequest, gin.H{
-	// 		"status": "error",
-	// 		"data":   e.ErrInvalidEmail.Error(),
-	// 	})
-	// 	return
-	// }
-
 	userService := user_service.User{
 		Email:    json.Email,
 		Username: json.Username,
 		Password: json.Password,
+	}
+
+	// Check email format
+	if !userService.IsEmailValid() {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"data":   e.ErrInvalidEmail.Error(),
+		})
+		return
 	}
 
 	exist := userService.IsExist()
@@ -139,13 +139,13 @@ func Login(c *gin.Context) {
 	credCorrect, activated := userService.Auth()
 
 	if !credCorrect {
-		c.JSON(http.StatusUnauthorized, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"status": "error",
 			"data":   e.ErrUsernameOrPassIncorrect.Error(),
 		})
 		return
 	} else if !activated {
-		c.JSON(http.StatusForbidden, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"status": "error",
 			"data":   e.ErrUserNotActive.Error(),
 		})
