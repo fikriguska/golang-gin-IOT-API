@@ -19,6 +19,10 @@ func (h *Hardware) IsTypeValid() bool {
 	return false
 }
 
+func (h *Hardware) IsExist() bool {
+	return models.IsHardwareExistById(h.Id)
+}
+
 func (h *Hardware) Add() {
 	hardware := models.Hardware{
 		Name:        h.Name,

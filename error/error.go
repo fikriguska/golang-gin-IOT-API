@@ -19,6 +19,7 @@ var (
 	// ErrUserLoginFailed         = errors.New("user is act")
 
 	ErrInvalidHardwareType = errors.New("type must single-board computer, microcontroller unit, or sensor")
+	ErrHardwareNotFound    = errors.New("hardware not found")
 )
 
 func PanicIfNeeded(err interface{}) {

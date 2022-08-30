@@ -70,6 +70,14 @@ func DeleteHardware(c *gin.Context) {
 	hardwareService := hardware_service.Hardware{
 		Id: id,
 	}
+	exist := hardwareService.IsExist()
+	if !exist {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": "error",
+			"data":   e.ErrHardwareNotFound.Error(),
+		})
+		return
+	}
 
 	hardwareService.Delete()
 

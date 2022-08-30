@@ -98,6 +98,14 @@ func TestDeleteHardware(t *testing.T) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
 		},
+		{
+			name: "hardware doesn't exists",
+			id:   1337,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+				checkBody(t, recorder, e.ErrHardwareNotFound)
+			},
+		},
 	}
 
 	for i := range testCases {

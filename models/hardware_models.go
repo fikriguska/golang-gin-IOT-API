@@ -11,6 +11,11 @@ type Hardware struct {
 	Description string
 }
 
+func IsHardwareExistById(id int) bool {
+	statement := "select id_hardware from hardware where id_hardware = $1"
+	return isRowExist(statement, id)
+}
+
 func AddHardware(h Hardware) {
 	statement := "insert into hardware (name, type, description) values ($1, $2, $3)"
 	_, err := db.Exec(statement, h.Name, h.Type, h.Description)
