@@ -3,7 +3,6 @@ package controller
 import (
 	"bytes"
 	"crypto/sha256"
-	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -12,7 +11,6 @@ import (
 
 	// "net/http/httptest"
 
-	"src/config"
 	e "src/error"
 	"src/models"
 	"src/util"
@@ -23,18 +21,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var router *gin.Engine
-var db *sql.DB
-
 type testUser struct {
 	models.User
 	hashedPass string
-}
-
-func SetupRouter() *gin.Engine {
-	r := gin.Default()
-	UserRoute(r)
-	return r
 }
 
 func randomUser() testUser {
@@ -61,7 +50,8 @@ func randomUser() testUser {
 }
 
 func insertUser(u testUser) {
-	_, err := db.Exec("insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6)", u.Username, u.Email, u.hashedPass, u.Status, u.Token, u.Is_admin)
+	statement := "insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6)"
+	_, err := db.Exec(statement, u.Username, u.Email, u.hashedPass, u.Status, u.Token, u.Is_admin)
 	e.PanicIfNeeded(err)
 }
 
@@ -256,11 +246,4 @@ func TestUserLogin(t *testing.T) {
 			tc.checkResponse(w)
 		})
 	}
-}
-
-func TestMain(m *testing.M) {
-	cfg := config.Setup()
-	db = models.Setup(cfg)
-	router = SetupRouter()
-	m.Run()
 }

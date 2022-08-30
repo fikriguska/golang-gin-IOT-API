@@ -16,5 +16,6 @@ func main() {
 	// UserController := controller.NewUserController(&UserService)
 	r := gin.Default()
 	controller.UserRoute(r)
+	controller.HardwareRoute(r)
 	r.Run()
 }

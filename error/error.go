@@ -17,6 +17,8 @@ var (
 	ErrUsernameOrPassIncorrect = errors.New("username not found or password incorrect")
 	ErrUserNotActive           = errors.New("account is inactive, check email for activation")
 	// ErrUserLoginFailed         = errors.New("user is act")
+
+	ErrInvalidHardwareType = errors.New("type must single-board computer, microcontroller unit, or sensor")
 )
 
 func PanicIfNeeded(err interface{}) {
