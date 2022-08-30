@@ -42,6 +42,10 @@ func IsUserUsernameExist(username string) bool {
 	return isRowExist(statement, username)
 
 }
+func IsUserEmailExist(email string) bool {
+	statement := "select email from user_person where email = $1"
+	return isRowExist(statement, email)
+}
 
 // ******
 func GetUserIdByUsername(username string) int {

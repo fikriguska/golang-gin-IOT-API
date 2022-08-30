@@ -21,7 +21,7 @@ type User struct {
 }
 
 func (u *User) IsExist() bool {
-	return models.IsUserUsernameExist(u.Username)
+	return models.IsUserUsernameExist(u.Username) || models.IsUserEmailExist(u.Email)
 }
 
 func (u *User) Add() {
@@ -103,5 +103,4 @@ func (u *User) Auth() (bool, bool) {
 	activated := models.IsUserActivatedCheckByUsername(u.Username)
 	fmt.Println(activated)
 	return credCorrect, activated
-
 }
