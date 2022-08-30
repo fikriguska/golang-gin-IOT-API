@@ -8,8 +8,8 @@ create table user_person(
     username varchar (255) not null,
     password varchar (255) not null,
     status boolean not null,
-    token varchar (255) not null
-
+    token varchar (255) not null,
+    is_admin boolean not null
 );
 create table hardware(
     id_hardware serial primary key,

@@ -11,19 +11,21 @@ type User struct {
 	Password string `json:"password"`
 	Status   bool   `json:"status"`
 	Token    string `json:"token"`
+	Is_admin bool   `json:"is_admin"`
 }
 
-func AddUser(data map[string]interface{}) {
-	user := User{
-		Email:    data["email"].(string),
-		Username: data["username"].(string),
-		Password: data["password"].(string),
-		Status:   data["status"].(bool),
-		Token:    data["token"].(string),
-	}
+func AddUser(user User) {
+	// user := User{
+	// 	Email:    data["email"].(string),
+	// 	Username: data["username"].(string),
+	// 	Password: data["password"].(string),
+	// 	Status:   data["status"].(bool),
+	// 	Token:    data["token"].(string),
+	// 	Is_admin: data["is_admin"].(bool),
+	// }
 
-	statement := "insert into user_person (username, email, password, status, token) values ($1, $2, $3, $4, $5)"
-	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token)
+	statement := "insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6)"
+	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token, user.Is_admin)
 	e.PanicIfNeeded(err)
 }
 

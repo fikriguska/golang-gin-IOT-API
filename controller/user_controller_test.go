@@ -15,7 +15,6 @@ import (
 	"src/config"
 	e "src/error"
 	"src/models"
-	"src/service/user_service"
 	"src/util"
 
 	"testing"
@@ -28,7 +27,7 @@ var router *gin.Engine
 var db *sql.DB
 
 type testUser struct {
-	user_service.User
+	models.User
 	hashedPass string
 }
 
@@ -49,19 +48,20 @@ func randomUser() testUser {
 	hashedPass := hex.EncodeToString(hashedPassByte[:])
 
 	return testUser{
-		User: user_service.User{
+		User: models.User{
 			Password: password,
 			Email:    email,
 			Username: username,
 			Status:   false,
 			Token:    hashedToken,
+			Is_admin: false,
 		},
 		hashedPass: hashedPass,
 	}
 }
 
 func insertUser(u testUser) {
-	_, err := db.Exec("insert into user_person (username, email, password, status, token) values ($1, $2, $3, $4, $5)", u.Username, u.Email, u.hashedPass, u.Status, u.Token)
+	_, err := db.Exec("insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6)", u.Username, u.Email, u.hashedPass, u.Status, u.Token, u.Is_admin)
 	e.PanicIfNeeded(err)
 }
 
