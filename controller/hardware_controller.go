@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	e "src/error"
+	"src/models"
 	"src/service/hardware_service"
 	"strconv"
 
@@ -33,9 +34,11 @@ func AddHardware(c *gin.Context) {
 	}
 
 	hardwareService := hardware_service.Hardware{
-		Name:        json.Name,
-		Type:        json.Type,
-		Description: json.Description,
+		Hardware: models.Hardware{
+			Name:        json.Name,
+			Type:        json.Type,
+			Description: json.Description,
+		},
 	}
 
 	valid := hardwareService.IsTypeValid()
@@ -68,9 +71,13 @@ func DeleteHardware(c *gin.Context) {
 	}
 
 	hardwareService := hardware_service.Hardware{
-		Id: id,
+		Hardware: models.Hardware{
+			Id: id,
+		},
 	}
+
 	exist := hardwareService.IsExist()
+
 	if !exist {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": "error",

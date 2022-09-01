@@ -13,13 +13,7 @@ import (
 )
 
 type User struct {
-	Id       int
-	Email    string
-	Username string
-	Password string
-	Status   bool
-	Token    string
-	Is_admin bool
+	models.User
 }
 
 func (u *User) IsEmailValid() bool {
@@ -36,17 +30,13 @@ func (u *User) Add() {
 	hashedToken := hex.EncodeToString(hashedTokenByte[:])
 	hashedPassByte := sha256.Sum256([]byte(u.Password))
 	hashedPass := hex.EncodeToString(hashedPassByte[:])
+
 	u.Status = false
 	u.Is_admin = false
-	user := models.User{
-		Email:    u.Email,
-		Username: u.Username,
-		Password: hashedPass,
-		Status:   u.Status,
-		Token:    hashedToken,
-		Is_admin: u.Is_admin,
-	}
-	models.AddUser(user)
+	u.Password = hashedPass
+	u.Token = hashedToken
+
+	models.AddUser(u.User)
 	id := models.GetUserIdByUsername(u.Username)
 	sendEmail(id, u.Username, u.Email, hashedToken)
 }

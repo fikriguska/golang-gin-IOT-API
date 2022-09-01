@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	e "src/error"
+	"src/models"
 	"src/service/user_service"
 
 	"github.com/gin-gonic/gin"
@@ -35,9 +36,11 @@ func AddUser(c *gin.Context) {
 	}
 
 	userService := user_service.User{
-		Email:    json.Email,
-		Username: json.Username,
-		Password: json.Password,
+		User: models.User{
+			Email:    json.Email,
+			Username: json.Username,
+			Password: json.Password,
+		},
 	}
 
 	// Check email format
@@ -50,14 +53,6 @@ func AddUser(c *gin.Context) {
 	}
 
 	exist := userService.IsExist()
-
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{
-	// 		"status": "error",
-	// 		"data":   e.ErrAddUserFail.Error(),
-	// 	})
-	// 	return
-	// }
 
 	if exist {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -73,11 +68,7 @@ func AddUser(c *gin.Context) {
 		"status": "ok",
 		"data":   "Success sign up, check email for verification",
 	})
-	// res := controller.UserService.Create(user)
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"status": "OK",
-	// 	"data":   res,
-	// })
+
 }
 
 // var ActivateUserStruct
@@ -93,7 +84,9 @@ func ActivateUser(c *gin.Context) {
 	}
 
 	userService := user_service.User{
-		Token: token,
+		User: models.User{
+			Token: token,
+		},
 	}
 
 	valid := userService.IsTokenValid()
@@ -132,8 +125,10 @@ func Login(c *gin.Context) {
 	}
 
 	userService := user_service.User{
-		Username: json.Username,
-		Password: json.Password,
+		User: models.User{
+			Username: json.Username,
+			Password: json.Password,
+		},
 	}
 
 	credCorrect, activated := userService.Auth()

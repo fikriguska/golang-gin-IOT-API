@@ -6,10 +6,7 @@ import (
 )
 
 type Hardware struct {
-	Id          int
-	Name        string
-	Type        string
-	Description string
+	models.Hardware
 }
 
 func (h *Hardware) IsTypeValid() bool {
@@ -24,12 +21,7 @@ func (h *Hardware) IsExist() bool {
 }
 
 func (h *Hardware) Add() {
-	hardware := models.Hardware{
-		Name:        h.Name,
-		Type:        h.Type,
-		Description: h.Description,
-	}
-	models.AddHardware(hardware)
+	models.AddHardware(h.Hardware)
 }
 
 func (h *Hardware) Delete() {
