@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	e "src/error"
+	"src/models"
 	"src/service/hardware_service"
 	"strconv"
 
@@ -25,64 +26,53 @@ func AddHardware(c *gin.Context) {
 
 	// Check required parameter
 	if err := c.ShouldBindJSON(&json); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"data":   e.ErrInvalidParams.Error(),
-		})
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
 		return
 	}
 
 	hardwareService := hardware_service.Hardware{
-		Name:        json.Name,
-		Type:        json.Type,
-		Description: json.Description,
+		Hardware: models.Hardware{
+			Name:        json.Name,
+			Type:        json.Type,
+			Description: json.Description,
+		},
 	}
 
 	valid := hardwareService.IsTypeValid()
 
 	if !valid {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"data":   e.ErrInvalidHardwareType.Error(),
-		})
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidHardwareType)
 		return
 	}
 
 	hardwareService.Add()
 
-	c.JSON(http.StatusCreated, gin.H{
-		"status": "ok",
-		"data":   "Success add new hardware",
-	})
+	successResponse(c, http.StatusCreated, "success add new hardware")
 }
 
 func DeleteHardware(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"data":   e.ErrInvalidParams.Error(),
-		})
+		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
 		return
 	}
 
 	hardwareService := hardware_service.Hardware{
-		Id: id,
+		Hardware: models.Hardware{
+			Id: id,
+		},
 	}
+
 	exist := hardwareService.IsExist()
+
 	if !exist {
-		c.JSON(http.StatusNotFound, gin.H{
-			"status": "error",
-			"data":   e.ErrHardwareNotFound.Error(),
-		})
+		errorResponse(c, http.StatusNotFound, e.ErrHardwareNotFound)
 		return
 	}
 
 	hardwareService.Delete()
 
-	c.JSON(http.StatusOK, gin.H{
-		"status": "ok",
-		"data":   "Success add new hardware",
-	})
+	successResponse(c, http.StatusOK, "success delete hardware")
+
 }

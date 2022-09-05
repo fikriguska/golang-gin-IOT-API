@@ -1,0 +1,194 @@
+package controller
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
+
+	// "net/http/httptest"
+
+	e "src/error"
+	"src/models"
+	"src/util"
+
+	"log"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/require"
+)
+
+func randomNode() models.Node {
+	return models.Node{
+		Name:     util.RandomString(10),
+		Location: util.RandomString(7),
+	}
+}
+
+func insertNode(n models.Node) int {
+	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4) returning id_node"
+	var id int
+	err := db.QueryRow(statement, n.Name, n.Location, n.Id_user, n.Id_hardware).Scan(&id)
+	e.PanicIfNeeded(err)
+	return id
+}
+
+func TestAddNode(t *testing.T) {
+	node := randomNode()
+	hardware := randomHardware()
+	id_hardware := insertHardware(hardware)
+
+	user := randomUser()
+	user.Status = true
+	insertUser(user)
+	testCases := []struct {
+		name          string
+		body          gin.H
+		user          testUser
+		checkResponse func(recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "ok no hardware",
+			body: gin.H{
+				"name":     node.Name,
+				"location": node.Location,
+			},
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusCreated, recorder.Code)
+			},
+		},
+		{
+			name: "ok with hardware",
+			body: gin.H{
+				"name":        node.Name,
+				"location":    node.Location,
+				"id_hardware": id_hardware,
+			},
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusCreated, recorder.Code)
+			},
+		},
+		{
+			name: "not found hardware",
+			body: gin.H{
+				"name":        node.Name,
+				"location":    node.Location,
+				"id_hardware": 1337,
+			},
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+				checkBody(t, recorder, e.ErrHardwareNotFound)
+			},
+		},
+	}
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			data, _ := json.Marshal(tc.body)
+			req, _ := http.NewRequest("POST", "/node/", bytes.NewBuffer(data))
+			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			log.Println(req.Header)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+		})
+	}
+
+}
+
+func TestDeleteNode(t *testing.T) {
+
+	// create node user 1
+	node := randomNode()
+	hardware := randomHardware()
+	id_hardware := insertHardware(hardware)
+
+	user := randomUser()
+	user.Status = true
+
+	id_user := insertUser(user)
+
+	node.Id_hardware = id_hardware
+	node.Id_user = id_user
+	id_node := insertNode(node)
+	log.Println(id_node)
+	log.Println(node)
+
+	// create node user 2
+	node2 := randomNode()
+	hardware2 := randomHardware()
+	id_hardware2 := insertHardware(hardware2)
+
+	user2 := randomUser()
+	user2.Status = true
+
+	id_user2 := insertUser(user2)
+	node2.Id_hardware = id_hardware2
+	node2.Id_user = id_user2
+
+	id_node2 := insertNode(node2)
+	log.Println(id_node2)
+	log.Println(node2)
+
+	testCases := []struct {
+		name          string
+		user          testUser
+		id            int
+		checkResponse func(recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "forbidden to delete another user's node (1)",
+			user: user,
+			id:   id_node2,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkBody(t, recorder, e.ErrDeleteNodeNotPermitted)
+			},
+		},
+		{
+			name: "forbidden to delete another user's node (2)",
+			user: user2,
+			id:   id_node,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkBody(t, recorder, e.ErrDeleteNodeNotPermitted)
+			},
+		},
+		{
+			name: "ok",
+			user: user,
+			id:   id_node,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name: "not found node",
+			user: user,
+			id:   id_node,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+				checkBody(t, recorder, e.ErrNodeNotFound)
+			},
+		},
+	}
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("DELETE", "/node/"+strconv.Itoa(tc.id), nil)
+			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			log.Println(req.Header)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+		})
+	}
+
+}

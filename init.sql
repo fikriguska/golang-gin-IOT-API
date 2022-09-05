@@ -21,7 +21,7 @@ create table node(
     id_node serial primary key,
     name varchar (255) not null, 
     location varchar (255) not null, 
-    id_hardware integer not null, 
+    id_hardware integer, 
     id_user integer not null, 
     foreign key (id_hardware) references hardware (id_hardware) on update cascade on delete cascade,
     foreign key (id_user) references user_person (id_user) on update cascade on delete cascade
