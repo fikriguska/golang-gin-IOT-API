@@ -30,10 +30,7 @@ func AddNode(c *gin.Context) {
 
 	// Check required parameter
 	if err := c.BindJSON(&json); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"data":   e.ErrInvalidParams.Error(),
-		})
+		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
 		return
 	}
 
@@ -57,10 +54,7 @@ func AddNode(c *gin.Context) {
 		}
 		hardwareExist := hardwareService.IsExist()
 		if !hardwareExist {
-			c.JSON(http.StatusNotFound, gin.H{
-				"status": "error",
-				"data":   e.ErrHardwareNotFound.Error(),
-			})
+			errorResponse(c, http.StatusNotFound, e.ErrHardwareNotFound)
 			return
 		}
 
@@ -70,20 +64,15 @@ func AddNode(c *gin.Context) {
 
 	nodeService.Add()
 
-	c.JSON(http.StatusCreated, gin.H{
-		"status": "ok",
-		"data":   "success add node",
-	})
+	successResponse(c, http.StatusCreated, "success add new node")
+
 }
 
 func DeleteNode(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"data":   e.ErrInvalidParams.Error(),
-		})
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidEmail)
 		return
 	}
 
@@ -98,24 +87,15 @@ func DeleteNode(c *gin.Context) {
 	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
 
 	if !exist {
-		c.JSON(http.StatusNotFound, gin.H{
-			"status": "error",
-			"data":   e.ErrNodeNotFound.Error(),
-		})
+		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
 		return
 	} else if !owner {
-		c.JSON(http.StatusForbidden, gin.H{
-			"status": "error",
-			"data":   e.ErrDeleteNodeNotPermitted.Error(),
-		})
+		errorResponse(c, http.StatusForbidden, e.ErrDeleteNodeNotPermitted)
 		return
 	}
 
 	nodeService.Delete()
 
-	c.JSON(http.StatusOK, gin.H{
-		"status": "ok",
-		"data":   "success delete node",
-	})
+	successResponse(c, http.StatusOK, "success delete node")
 
 }
