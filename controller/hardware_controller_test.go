@@ -42,7 +42,7 @@ func TestAddHardware(t *testing.T) {
 	testCases := []struct {
 		name          string
 		body          gin.H
-		checkResponse func(recoder *httptest.ResponseRecorder)
+		checkResponse func(recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "ok",
@@ -99,7 +99,7 @@ func TestDeleteHardware(t *testing.T) {
 			},
 		},
 		{
-			name: "hardware doesn't exists",
+			name: "not found hardware",
 			id:   1337,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)

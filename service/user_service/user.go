@@ -104,3 +104,8 @@ func (u *User) Auth() (bool, bool) {
 	}
 	return credCorrect, activated
 }
+
+func (u *User) Get() (int, string, string, bool) {
+	res := models.GetUserByUsername(u.User)
+	return res.Id, res.Username, res.Password, res.Is_admin
+}

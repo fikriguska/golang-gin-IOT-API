@@ -15,18 +15,19 @@ type User struct {
 }
 
 func AddUser(user User) {
-	// user := User{
-	// 	Email:    data["email"].(string),
-	// 	Username: data["username"].(string),
-	// 	Password: data["password"].(string),
-	// 	Status:   data["status"].(bool),
-	// 	Token:    data["token"].(string),
-	// 	Is_admin: data["is_admin"].(bool),
-	// }
-
 	statement := "insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6)"
 	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token, user.Is_admin)
 	e.PanicIfNeeded(err)
+}
+
+func GetUserByUsername(user User) User {
+	statement := "select id_user, username, password, is_admin from user_person where username = $1"
+
+	var u User
+	err := db.QueryRow(statement, user.Username).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
+	e.PanicIfNeeded(err)
+
+	return u
 }
 
 func IsUserUsernameExist(username string) bool {
@@ -106,10 +107,6 @@ func ActivateUser(token string) error {
 
 func AuthUser(username string, password string) bool {
 	statement := "select token from user_person where username = $1 and password = $2"
-	// return isRowExist(statement, username, password)
-	// var token string
-	// err := db.QueryRow(statement, username, password).Scan(&token)
-	// return token
 	return isRowExist(statement, username, password)
 
 }

@@ -20,6 +20,9 @@ var (
 
 	ErrInvalidHardwareType = errors.New("type must single-board computer, microcontroller unit, or sensor")
 	ErrHardwareNotFound    = errors.New("hardware not found")
+
+	ErrNodeNotFound           = errors.New("node not found")
+	ErrDeleteNodeNotPermitted = errors.New("You can't delete another user's data")
 )
 
 func PanicIfNeeded(err interface{}) {

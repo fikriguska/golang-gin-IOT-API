@@ -17,5 +17,6 @@ func main() {
 	r := gin.Default()
 	controller.UserRoute(r)
 	controller.HardwareRoute(r)
+	controller.NodeRoute(r)
 	r.Run()
 }

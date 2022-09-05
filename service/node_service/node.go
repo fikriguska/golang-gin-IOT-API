@@ -1,25 +1,32 @@
 package node_service
 
-// import (
-// 	"src/models"
-// )
+import (
+	"src/models"
+)
 
-// type Node struct {
-// 	Id       int
-// 	Name     string
-// 	Location string
-// }
+type Node struct {
+	models.Node
+}
 
-// func (n *Node) Add() {
-// 	// node := Node{
-// 	// 	Name,
-// 	// }
-// 	node := models.Node{
-// 		Name:     n.Name,
-// 		Location: n.Location,
-// 	}
+func (n *Node) Add() {
 
-// 	models.AddNode(node)
+	// check if there is a hardware
+	if n.Id_hardware != -1 {
+		models.AddNode(n.Node)
+	} else {
+		models.AddNodeNoHardware(n.Node)
+	}
+}
 
-// 	return
-// }
+func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
+	exist = models.IsNodeExistById(n.Id)
+	if !exist {
+		return exist, false
+	}
+	owner = (models.GetUserIdByNodeId(n.Id) == id_user)
+	return exist, owner
+}
+
+func (n *Node) Delete() {
+	models.DeleteNode(n.Id)
+}
