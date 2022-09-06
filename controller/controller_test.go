@@ -32,6 +32,7 @@ func SetupRouter() *gin.Engine {
 	UserRoute(r)
 	HardwareRoute(r)
 	NodeRoute(r)
+	SensorRoute(r)
 	return r
 }
 

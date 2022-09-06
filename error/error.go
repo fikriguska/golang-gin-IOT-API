@@ -18,11 +18,13 @@ var (
 	ErrUserNotActive           = errors.New("account is inactive, check email for activation")
 	// ErrUserLoginFailed         = errors.New("user is act")
 
-	ErrInvalidHardwareType = errors.New("type must single-board computer, microcontroller unit, or sensor")
-	ErrHardwareNotFound    = errors.New("hardware not found")
+	ErrInvalidHardwareType  = errors.New("type must single-board computer, microcontroller unit, or sensor")
+	ErrHardwareNotFound     = errors.New("hardware not found")
+	ErrHardwareMustbeSensor = errors.New("hardware type not match, type should be sensor")
 
 	ErrNodeNotFound           = errors.New("node not found")
-	ErrDeleteNodeNotPermitted = errors.New("You can't delete another user's data")
+	ErrDeleteNodeNotPermitted = errors.New("you can't delete another user's node")
+	ErrUseNodeNotPermitted    = errors.New("you can't use another user's node")
 )
 
 func PanicIfNeeded(err interface{}) {

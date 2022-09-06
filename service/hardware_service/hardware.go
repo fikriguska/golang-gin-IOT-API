@@ -20,6 +20,14 @@ func (h *Hardware) IsExist() bool {
 	return models.IsHardwareExistById(h.Id)
 }
 
+func (h *Hardware) CheckHardwareType(type_ string) bool {
+	switch type_ {
+	case "sensor":
+		return models.IsHardwareTypeSensorById(h.Id)
+	}
+	return false
+}
+
 func (h *Hardware) Add() {
 	models.AddHardware(h.Hardware)
 }
