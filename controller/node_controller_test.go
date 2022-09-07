@@ -35,6 +35,22 @@ func insertNode(n models.Node) int {
 	return id
 }
 
+func autoInsertNode(hardwareType interface{}) (testUser, models.Hardware, models.Node) {
+	node := randomNode()
+	hardware := randomHardware()
+	if hardwareType != nil {
+		hardware.Type = hardwareType.(string)
+	}
+	hardware.Id = insertHardware(hardware)
+	user := randomUser()
+	user.Status = true
+	user.Id = insertUser(user)
+	node.Id_hardware = hardware.Id
+	node.Id_user = user.Id
+	node.Id = insertNode(node)
+	return user, hardware, node
+}
+
 func TestAddNode(t *testing.T) {
 	node := randomNode()
 	hardware := randomHardware()

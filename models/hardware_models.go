@@ -16,6 +16,11 @@ func IsHardwareExistById(id int) bool {
 	return isRowExist(statement, id)
 }
 
+func IsHardwareTypeSensorById(id int) bool {
+	statement := "select type from hardware where id_hardware = $1 and (lower(type) = 'sensor')"
+	return isRowExist(statement, id)
+}
+
 func AddHardware(h Hardware) {
 	statement := "insert into hardware (name, type, description) values ($1, $2, $3)"
 	_, err := db.Exec(statement, h.Name, h.Type, h.Description)
