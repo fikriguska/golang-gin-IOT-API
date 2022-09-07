@@ -56,6 +56,14 @@ func insertUser(u testUser) int {
 	e.PanicIfNeeded(err)
 	return id
 }
+
+// func autoInsertUser() testUser {
+// 	user := randomUser()
+
+// 	user.Status = true
+// 	user.Id = insertUser(user)
+// 	return user
+// }
 func TestAddUser(t *testing.T) {
 
 	user1 := randomUser()

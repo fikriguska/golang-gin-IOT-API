@@ -35,36 +35,23 @@ func insertSensor(s models.Sensor) int {
 	return id
 }
 
-// func autoInsertSensor() {
-// }
+func autoInsertSensor() (testUser, models.Hardware, models.Node, models.Sensor) {
+	sensor := randomSensor()
+
+	user, hardware, node := autoInsertNode("sensor")
+	sensor.Id_hardware = hardware.Id
+	sensor.Id_node = node.Id
+
+	sensor.Id = insertSensor(sensor)
+	return user, hardware, node, sensor
+}
 
 func TestAddSensor(t *testing.T) {
 	sensor := randomSensor()
 
-	node := randomNode()
-	hardware := randomHardware()
-	hardware.Type = "sensor"
-	id_hardware := insertHardware(hardware)
-	user := randomUser()
-	user.Status = true
-	id_user := insertUser(user)
-	node.Id_hardware = id_hardware
-	node.Id_user = id_user
-	id_node := insertNode(node)
+	user, hardware, node := autoInsertNode("sensor")
 
-	// another user
-	// sensor2 := randomSensor()
-
-	node2 := randomNode()
-	hardware2 := randomHardware()
-	hardware2.Type = "sensor"
-	id_hardware2 := insertHardware(hardware2)
-	user2 := randomUser()
-	user2.Status = true
-	id_user2 := insertUser(user2)
-	node2.Id_hardware = id_hardware2
-	node2.Id_user = id_user2
-	id_node2 := insertNode(node2)
+	_, _, node2 := autoInsertNode("sensor")
 
 	// another hardware typed not a sensor
 	hardware3 := randomHardware()
@@ -82,7 +69,7 @@ func TestAddSensor(t *testing.T) {
 			body: gin.H{
 				"name":    sensor.Name,
 				"unit":    sensor.Unit,
-				"id_node": id_node,
+				"id_node": node.Id,
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
@@ -94,8 +81,8 @@ func TestAddSensor(t *testing.T) {
 			body: gin.H{
 				"name":        sensor.Name,
 				"unit":        sensor.Unit,
-				"id_node":     id_node,
-				"id_hardware": id_hardware,
+				"id_node":     node.Id,
+				"id_hardware": hardware.Id,
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
@@ -108,7 +95,7 @@ func TestAddSensor(t *testing.T) {
 				"name":        sensor.Name,
 				"unit":        sensor.Unit,
 				"id_node":     1337,
-				"id_hardware": id_hardware,
+				"id_hardware": hardware.Id,
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
@@ -121,7 +108,7 @@ func TestAddSensor(t *testing.T) {
 			body: gin.H{
 				"name":        sensor.Name,
 				"unit":        sensor.Unit,
-				"id_node":     id_node,
+				"id_node":     node.Id,
 				"id_hardware": 1337,
 			},
 			user: user,
@@ -135,7 +122,7 @@ func TestAddSensor(t *testing.T) {
 			body: gin.H{
 				"name":        sensor.Name,
 				"unit":        sensor.Unit,
-				"id_node":     id_node,
+				"id_node":     node.Id,
 				"id_hardware": id_hardware3,
 			},
 			user: user,
@@ -149,8 +136,8 @@ func TestAddSensor(t *testing.T) {
 			body: gin.H{
 				"name":        sensor.Name,
 				"unit":        sensor.Unit,
-				"id_node":     id_node2,
-				"id_hardware": id_hardware,
+				"id_node":     node2.Id,
+				"id_hardware": hardware.Id,
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
@@ -175,22 +162,11 @@ func TestAddSensor(t *testing.T) {
 }
 
 func TestDeleteSensor(t *testing.T) {
-	sensor := randomSensor()
 
-	node := randomNode()
-	hardware := randomHardware()
-	hardware.Type = "sensor"
-	id_hardware := insertHardware(hardware)
-	user := randomUser()
-	user.Status = true
-	id_user := insertUser(user)
-	node.Id_hardware = id_hardware
-	node.Id_user = id_user
-	id_node := insertNode(node)
-	sensor.Id_hardware = id_hardware
-	sensor.Id_node = id_node
+	user, _, _, sensor := autoInsertSensor()
+	user2, _, _, sensor2 := autoInsertSensor()
 
-	id_sensor := insertSensor(sensor)
+	// user2 := autoInsertUser()
 
 	testCases := []struct {
 		name          string
@@ -208,8 +184,26 @@ func TestDeleteSensor(t *testing.T) {
 			},
 		},
 		{
+			name: "forbidden to delete another user's sensor (1)",
+			id:   sensor.Id,
+			user: user2,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkBody(t, recorder, e.ErrDeleteSensorNotPermitted)
+			},
+		},
+		{
+			name: "forbidden to delete another user's sensor (2)",
+			id:   sensor2.Id,
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkBody(t, recorder, e.ErrDeleteSensorNotPermitted)
+			},
+		},
+		{
 			name: "ok",
-			id:   id_sensor,
+			id:   sensor.Id,
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)

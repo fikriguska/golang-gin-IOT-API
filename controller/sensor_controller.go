@@ -127,9 +127,12 @@ func DeleteSensor(c *gin.Context) {
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrSensorNotFound)
 		return
-	} else if !owner && isAdmin.(bool) {
+	} else if !owner && !isAdmin.(bool) {
 		errorResponse(c, http.StatusForbidden, e.ErrDeleteSensorNotPermitted)
 		return
 	}
+
+	sensorService.Delete()
+	successResponse(c, http.StatusOK, "success delete sensor")
 
 }
