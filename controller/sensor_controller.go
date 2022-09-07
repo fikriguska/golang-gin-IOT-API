@@ -9,6 +9,7 @@ import (
 	"src/service/hardware_service"
 	"src/service/node_service"
 	"src/service/sensor_service"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,7 @@ func SensorRoute(r *gin.Engine) {
 	authorized := r.Group("/sensor", middleware.BasicAuth())
 
 	authorized.POST("/", AddSensor)
+	authorized.DELETE("/:id", DeleteSensor)
 }
 
 type AddSensorStruct struct {
@@ -51,10 +53,10 @@ func AddSensor(c *gin.Context) {
 
 	if !exist {
 		fmt.Println("[+] node not exist")
-		errorResponse(c, 200, e.ErrNodeNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
 		return
 	} else if !owner {
-		errorResponse(c, http.StatusForbidden, e.ErrDeleteNodeNotPermitted)
+		errorResponse(c, http.StatusForbidden, e.ErrUseNodeNotPermitted)
 		return
 	}
 
@@ -91,6 +93,7 @@ func AddSensor(c *gin.Context) {
 
 		if !isSensor {
 			errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeSensor)
+			return
 		}
 		sensorService.Id_hardware = *json.Id_hardware
 
@@ -101,5 +104,32 @@ func AddSensor(c *gin.Context) {
 	sensorService.Add()
 
 	successResponse(c, http.StatusCreated, "success add new sensor")
+
+}
+
+func DeleteSensor(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidEmail)
+		return
+	}
+
+	sensorService := sensor_service.Sensor{
+		Sensor: models.Sensor{
+			Id: id,
+		},
+	}
+	id_user, _ := c.Get("id_user")
+	isAdmin, _ := c.Get("is_admin")
+	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
+
+	if !exist {
+		errorResponse(c, http.StatusNotFound, e.ErrSensorNotFound)
+		return
+	} else if !owner && isAdmin.(bool) {
+		errorResponse(c, http.StatusForbidden, e.ErrDeleteSensorNotPermitted)
+		return
+	}
 
 }

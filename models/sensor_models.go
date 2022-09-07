@@ -21,3 +21,22 @@ func AddSensor(s Sensor) {
 	_, err := db.Exec(statement, s.Name, s.Unit, s.Id_node, s.Id_hardware)
 	e.PanicIfNeeded(err)
 }
+
+func GetUserIdBySensorId(id int) int {
+	statement := "select node.id_user from node left join sensor on sensor.id_node = node.id_node where id_sensor = $1"
+	var id_user int
+	err := db.QueryRow(statement, id).Scan(&id_user)
+	e.PanicIfNeeded(err)
+	return id_user
+}
+
+func IsSensorExistById(id int) bool {
+	statement := "select id_sensor from sensor where id_sensor = $1"
+	return isRowExist(statement, id)
+}
+
+func DeleteSensor(id int) {
+	statement := "delete from sensor where id_sensor = $1"
+	_, err := db.Exec(statement, id)
+	e.PanicIfNeeded(err)
+}
