@@ -19,5 +19,7 @@ func main() {
 	controller.HardwareRoute(r)
 	controller.NodeRoute(r)
 	controller.SensorRoute(r)
+	controller.ChannelRoute(r)
+
 	r.Run()
 }
