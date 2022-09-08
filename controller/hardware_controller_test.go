@@ -207,6 +207,8 @@ func TestGetHardwareSensor(t *testing.T) {
 
 func TestGetHardwareNode(t *testing.T) {
 	_, hardware, node := autoInsertNode([]string{"single-board computer", "microcontroller unit"}[rand.Int()%2])
+	hardware2 := randomHardware()
+	hardware2.Id = insertHardware(hardware2)
 
 	testCases := []struct {
 		name          string
@@ -234,6 +236,16 @@ func TestGetHardwareNode(t *testing.T) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 				// chekHardwareNodeBody(t, recorder, h, n)
 				checkBody(t, recorder, e.ErrHardwareNotFound)
+			},
+		},
+		{
+			name:     "ok but node is empty",
+			id:       hardware2.Id,
+			hardware: hardware2,
+			node:     models.Node{},
+			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				chekHardwareNodeBody(t, recorder, h, n)
 			},
 		},
 	}
