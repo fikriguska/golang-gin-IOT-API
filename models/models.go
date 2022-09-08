@@ -34,3 +34,7 @@ func isRowExist(query string, args ...interface{}) bool {
 	}
 	return exist
 }
+
+// func getRows(query string, model interface{}, args ...interface{}) {
+
+// }

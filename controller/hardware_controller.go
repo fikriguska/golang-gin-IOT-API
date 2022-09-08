@@ -12,17 +12,13 @@ import (
 
 func HardwareRoute(r *gin.Engine) {
 	r.POST("/hardware", AddHardware)
+	r.GET("/hardware", ListHardware)
+	r.GET("/hardware/:id", GetHardware)
 	r.DELETE("/hardware/:id", DeleteHardware)
 }
 
-type AddHardwareStruct struct {
-	Name        string
-	Type        string
-	Description string
-}
-
 func AddHardware(c *gin.Context) {
-	var json AddHardwareStruct
+	var json models.HardwareAdd
 
 	// Check required parameter
 	if err := c.ShouldBindJSON(&json); err != nil {
@@ -48,6 +44,40 @@ func AddHardware(c *gin.Context) {
 	hardwareService.Add()
 
 	successResponse(c, http.StatusCreated, "success add new hardware")
+}
+
+func ListHardware(c *gin.Context) {
+	hardwareService := hardware_service.Hardware{}
+	hardwares := hardwareService.GetAll()
+	// data, _ := json.Marshal(hardwares)
+	// successResponse(c, http.StatusOK, string(data))
+	c.IndentedJSON(http.StatusOK, hardwares)
+
+}
+
+func GetHardware(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
+		return
+	}
+
+	hardwareService := hardware_service.Hardware{
+		Hardware: models.Hardware{
+			Id: id,
+		},
+	}
+
+	exist := hardwareService.IsExist()
+
+	if !exist {
+		errorResponse(c, http.StatusNotFound, e.ErrHardwareNotFound)
+		return
+	}
+
+	hardware := hardwareService.Get()
+	c.IndentedJSON(http.StatusOK, hardware)
 }
 
 func DeleteHardware(c *gin.Context) {
