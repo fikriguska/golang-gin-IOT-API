@@ -1,6 +1,8 @@
 package controller
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func errorResponse(c *gin.Context, statusCode int, err error) {
 	c.IndentedJSON(statusCode, gin.H{

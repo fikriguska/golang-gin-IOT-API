@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -207,4 +208,35 @@ func TestDeleteNode(t *testing.T) {
 		})
 	}
 
+}
+
+func TestListNode(t *testing.T) {
+	user, _, _ := autoInsertNode([]string{"single-board computer", "microcontroller unit"}[rand.Int()%2])
+
+	testCases := []struct {
+		name          string
+		user          testUser
+		checkResponse func(recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "ok",
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/hardware", nil)
+			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			router.ServeHTTP(w, req)
+			log.Println(w.Body)
+			tc.checkResponse(w)
+		})
+	}
 }

@@ -16,17 +16,12 @@ func NodeRoute(r *gin.Engine) {
 	authorized := r.Group("/node", middleware.BasicAuth())
 
 	authorized.POST("/", AddNode)
+	authorized.GET("/", ListNode)
 	authorized.DELETE("/:id", DeleteNode)
 }
 
-type AddNodeStruct struct {
-	Name        string `json:"name" binding:"required"`
-	Location    string `json:"location" binding:"required"`
-	Id_hardware *int   `json:"id_hardware"`
-}
-
 func AddNode(c *gin.Context) {
-	var json AddNodeStruct
+	var json models.NodeAdd
 
 	// Check required parameter
 	if err := c.BindJSON(&json); err != nil {
@@ -66,6 +61,17 @@ func AddNode(c *gin.Context) {
 
 	successResponse(c, http.StatusCreated, "success add new node")
 
+}
+
+func ListNode(c *gin.Context) {
+	nodeService := node_service.Node{}
+
+	id_user, _ := c.Get("id_user")
+	is_admin, _ := c.Get("is_admin")
+
+	nodes := nodeService.GetAll(id_user.(int), is_admin.(bool))
+
+	c.IndentedJSON(http.StatusOK, nodes)
 }
 
 func DeleteNode(c *gin.Context) {

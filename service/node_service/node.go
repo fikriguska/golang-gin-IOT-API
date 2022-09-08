@@ -18,6 +18,16 @@ func (n *Node) Add() {
 	}
 }
 
+func (n *Node) GetAll(id_user int, is_admin bool) []models.NodeGet {
+	var nodes []models.NodeGet
+	if is_admin {
+		nodes = models.GetAllNode()
+	} else {
+		nodes = models.GetAllNodeByUserId(id_user)
+	}
+	return nodes
+}
+
 func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
 	exist = models.IsNodeExistById(n.Id)
 	if !exist {
