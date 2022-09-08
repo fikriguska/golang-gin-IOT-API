@@ -18,8 +18,8 @@ func ChannelRoute(r *gin.Engine) {
 }
 
 type AddChannelStruct struct {
-	Value     string `json:"value" binding:"required"`
-	Id_sensor int    `json:"id_sensor" binding:"required"`
+	Value     float64 `json:"value" binding:"required"`
+	Id_sensor int     `json:"id_sensor" binding:"required"`
 }
 
 func AddChannel(c *gin.Context) {
@@ -45,6 +45,7 @@ func AddChannel(c *gin.Context) {
 		return
 	} else if !owner {
 		errorResponse(c, http.StatusForbidden, e.ErrUseSensorNotPermitted)
+		return
 	}
 
 	channelService := channel_service.Channel{

@@ -3,12 +3,11 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
-	"log"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	e "src/error"
 	"src/models"
-	"src/util"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +16,7 @@ import (
 
 func randomChannel() models.Channel {
 	return models.Channel{
-		Value: util.RandomString(10),
+		Value: rand.Float64(),
 	}
 }
 
@@ -71,6 +70,17 @@ func TestAddChannel(t *testing.T) {
 				checkBody(t, recorder, e.ErrUseSensorNotPermitted)
 			},
 		},
+		{
+			name: "ok",
+			body: gin.H{
+				"value":     channel.Value,
+				"id_sensor": sensor.Id,
+			},
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusCreated, recorder.Code)
+			},
+		},
 	}
 	for i := range testCases {
 		tc := testCases[i]
@@ -80,7 +90,6 @@ func TestAddChannel(t *testing.T) {
 			data, _ := json.Marshal(tc.body)
 			req, _ := http.NewRequest("POST", "/channel/", bytes.NewBuffer(data))
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
-			log.Println(req.Header)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 		})
