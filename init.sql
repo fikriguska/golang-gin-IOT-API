@@ -36,6 +36,7 @@ create table sensor(
     foreign key (id_node) references node (id_node) on update cascade on delete cascade
 );
 create table channel(
+    id_channel serial primary key,
     time timestamp, 
     value float not null, 
     id_sensor integer not null, 

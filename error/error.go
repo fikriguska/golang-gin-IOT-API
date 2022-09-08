@@ -28,7 +28,8 @@ var (
 	ErrUseNodeNotPermitted    = errors.New("you can't use another user's node")
 
 	ErrSensorNotFound           = errors.New("node not found")
-	ErrDeleteSensorNotPermitted = errors.New("you can't delete another user's node")
+	ErrDeleteSensorNotPermitted = errors.New("you can't delete another user's sensor")
+	ErrUseSensorNotPermitted    = errors.New("you can't use another user's sensor")
 )
 
 func PanicIfNeeded(err interface{}) {

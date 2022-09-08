@@ -6,7 +6,6 @@ import (
 
 	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	e "src/error"
@@ -154,7 +153,6 @@ func TestAddSensor(t *testing.T) {
 			data, _ := json.Marshal(tc.body)
 			req, _ := http.NewRequest("POST", "/sensor/", bytes.NewBuffer(data))
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
-			log.Println(req.Header)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 		})
@@ -217,7 +215,6 @@ func TestDeleteSensor(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("DELETE", "/sensor/"+strconv.Itoa(tc.id), nil)
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
-			log.Println(req.Header)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 		})
