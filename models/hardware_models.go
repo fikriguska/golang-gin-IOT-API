@@ -73,7 +73,6 @@ func GetHardwareById(id int) Hardware {
 	}
 
 	return hardware
-
 }
 
 func GetAllHardwareTypeSensor() []Hardware {

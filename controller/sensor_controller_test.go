@@ -6,6 +6,7 @@ import (
 
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	e "src/error"
@@ -34,28 +35,34 @@ func insertSensor(s models.Sensor) int {
 	return id
 }
 
-func autoInsertSensor() (testUser, models.Hardware, models.Node, models.Sensor) {
+func autoInsertSensor() (testUser, models.Hardware, models.Node, models.Hardware, models.Sensor) {
 	sensor := randomSensor()
 
-	user, hardware, node := autoInsertNode("sensor")
-	sensor.Id_hardware = hardware.Id
+	user, hardwareNode, node := autoInsertNode(nil)
+
+	hardwareSensor := randomHardwareSensor()
+	hardwareSensor.Id = insertHardware(hardwareSensor)
+
+	sensor.Id_hardware = hardwareSensor.Id
 	sensor.Id_node = node.Id
 
 	sensor.Id = insertSensor(sensor)
-	return user, hardware, node, sensor
+	return user, hardwareNode, node, hardwareSensor, sensor
 }
 
 func TestAddSensor(t *testing.T) {
 	sensor := randomSensor()
+	hardwareSensor := randomHardwareSensor()
+	hardwareSensor.Id = insertHardware(hardwareSensor)
 
-	user, hardware, node := autoInsertNode("sensor")
+	user, _, node := autoInsertNode(nil)
 
-	_, _, node2 := autoInsertNode("sensor")
+	_, _, node2 := autoInsertNode(nil)
 
 	// another hardware typed not a sensor
-	hardware3 := randomHardware()
-	hardware3.Type = "single-board computer"
-	id_hardware3 := insertHardware(hardware3)
+	hardwareNotSensor := randomHardware()
+	hardwareNotSensor.Type = "single-board computer"
+	hardwareNotSensor.Id = insertHardware(hardwareNotSensor)
 
 	testCases := []struct {
 		name          string
@@ -81,10 +88,11 @@ func TestAddSensor(t *testing.T) {
 				"name":        sensor.Name,
 				"unit":        sensor.Unit,
 				"id_node":     node.Id,
-				"id_hardware": hardware.Id,
+				"id_hardware": hardwareSensor.Id,
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				log.Println(recorder.Body)
 				require.Equal(t, http.StatusCreated, recorder.Code)
 			},
 		},
@@ -94,7 +102,7 @@ func TestAddSensor(t *testing.T) {
 				"name":        sensor.Name,
 				"unit":        sensor.Unit,
 				"id_node":     1337,
-				"id_hardware": hardware.Id,
+				"id_hardware": hardwareSensor.Id,
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
@@ -122,7 +130,7 @@ func TestAddSensor(t *testing.T) {
 				"name":        sensor.Name,
 				"unit":        sensor.Unit,
 				"id_node":     node.Id,
-				"id_hardware": id_hardware3,
+				"id_hardware": hardwareNotSensor.Id,
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
@@ -136,7 +144,7 @@ func TestAddSensor(t *testing.T) {
 				"name":        sensor.Name,
 				"unit":        sensor.Unit,
 				"id_node":     node2.Id,
-				"id_hardware": hardware.Id,
+				"id_hardware": hardwareSensor.Id,
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
@@ -161,8 +169,8 @@ func TestAddSensor(t *testing.T) {
 
 func TestDeleteSensor(t *testing.T) {
 
-	user, _, _, sensor := autoInsertSensor()
-	user2, _, _, sensor2 := autoInsertSensor()
+	user, _, _, _, sensor := autoInsertSensor()
+	user2, _, _, _, sensor2 := autoInsertSensor()
 
 	// user2 := autoInsertUser()
 

@@ -24,7 +24,10 @@ func (h *Hardware) CheckHardwareType(type_ string) bool {
 	switch type_ {
 	case "sensor":
 		return models.IsHardwareTypeSensorById(h.Id)
+	case "node":
+		return models.IsHardwareTypeNodeById(h.Id)
 	}
+
 	return false
 }
 

@@ -23,10 +23,10 @@ func randomChannel() models.Channel {
 func TestAddChannel(t *testing.T) {
 
 	channel := randomChannel()
-	user, _, _, sensor := autoInsertSensor()
+	user, _, _, _, sensor := autoInsertSensor()
 	channel.Id_sensor = sensor.Id
 
-	user2, _, _, sensor2 := autoInsertSensor()
+	user2, _, _, _, sensor2 := autoInsertSensor()
 
 	testCases := []struct {
 		name          string

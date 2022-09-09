@@ -36,25 +36,32 @@ func insertNode(n models.Node) int {
 	return id
 }
 
+// create for user, hardware, node automatically, and insert it to db
 func autoInsertNode(hardwareType interface{}) (testUser, models.Hardware, models.Node) {
 	node := randomNode()
-	hardware := randomHardware()
+
+	hardwareNode := randomHardware()
 	if hardwareType != nil {
-		hardware.Type = hardwareType.(string)
+		hardwareNode.Type = hardwareType.(string)
+	} else {
+		hardwareNode.Type = []string{"single-board computer", "microcontroller unit"}[rand.Int()%2]
 	}
-	hardware.Id = insertHardware(hardware)
+
+	hardwareNode.Id = insertHardware(hardwareNode)
+
 	user := randomUser()
 	user.Status = true
 	user.Id = insertUser(user)
-	node.Id_hardware = hardware.Id
+
+	node.Id_hardware = hardwareNode.Id
 	node.Id_user = user.Id
 	node.Id = insertNode(node)
-	return user, hardware, node
+	return user, hardwareNode, node
 }
 
 func TestAddNode(t *testing.T) {
 	node := randomNode()
-	hardware := randomHardware()
+	hardware := randomHardwareNode()
 	id_hardware := insertHardware(hardware)
 
 	user := randomUser()
@@ -123,7 +130,7 @@ func TestDeleteNode(t *testing.T) {
 
 	// create node user 1
 	node := randomNode()
-	hardware := randomHardware()
+	hardware := randomHardwareNode()
 	id_hardware := insertHardware(hardware)
 
 	user := randomUser()
@@ -139,7 +146,7 @@ func TestDeleteNode(t *testing.T) {
 
 	// create node user 2
 	node2 := randomNode()
-	hardware2 := randomHardware()
+	hardware2 := randomHardwareNode()
 	id_hardware2 := insertHardware(hardware2)
 
 	user2 := randomUser()
@@ -211,7 +218,7 @@ func TestDeleteNode(t *testing.T) {
 }
 
 func TestListNode(t *testing.T) {
-	user, _, _ := autoInsertNode([]string{"single-board computer", "microcontroller unit"}[rand.Int()%2])
+	user, _, _ := autoInsertNode(nil)
 
 	testCases := []struct {
 		name          string
@@ -235,7 +242,6 @@ func TestListNode(t *testing.T) {
 			req, _ := http.NewRequest("GET", "/hardware", nil)
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
-			log.Println(w.Body)
 			tc.checkResponse(w)
 		})
 	}

@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -27,6 +28,18 @@ func randomHardware() models.Hardware {
 		Type:        hardwareType[rand.Intn(3)],
 		Description: util.RandomString(20),
 	}
+}
+
+func randomHardwareNode() models.Hardware {
+	hardware := randomHardware()
+	hardware.Type = []string{"single-board computer", "microcontroller unit"}[rand.Int()%2]
+	return hardware
+}
+
+func randomHardwareSensor() models.Hardware {
+	hardware := randomHardware()
+	hardware.Type = "sensor"
+	return hardware
 }
 
 func insertHardware(h models.Hardware) int {
@@ -145,8 +158,8 @@ func TestDeleteHardware(t *testing.T) {
 }
 
 func TestGetHardwareSensor(t *testing.T) {
-	_, hardware, _, sensor := autoInsertSensor()
-	hardware2 := randomHardware()
+	_, _, _, hardware, sensor := autoInsertSensor()
+	hardware2 := randomHardwareSensor()
 	hardware2.Id = insertHardware(hardware2)
 
 	testCases := []struct {
@@ -195,9 +208,9 @@ func TestGetHardwareSensor(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/hardware/"+strconv.Itoa(tc.id), nil)
 			router.ServeHTTP(w, req)
-			// log.Println(w.Body)
-			// log.Println(tc.hardware)
-			// log.Println(tc.sensor)
+			log.Println(w.Body)
+			log.Println(tc.hardware)
+			log.Println(tc.sensor)
 			tc.checkResponse(w, tc.hardware, tc.sensor)
 
 		})
@@ -206,8 +219,8 @@ func TestGetHardwareSensor(t *testing.T) {
 }
 
 func TestGetHardwareNode(t *testing.T) {
-	_, hardware, node := autoInsertNode([]string{"single-board computer", "microcontroller unit"}[rand.Int()%2])
-	hardware2 := randomHardware()
+	_, hardware, node := autoInsertNode(nil)
+	hardware2 := randomHardwareNode()
 	hardware2.Id = insertHardware(hardware2)
 
 	testCases := []struct {

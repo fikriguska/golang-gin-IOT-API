@@ -32,7 +32,7 @@ func TestMain(m *testing.M) {
 			Username: "fikriguska",
 			Status:   true,
 			Token:    "dea9d35db1b4b85bcf21ec8a3088720d0a50174193606da47a47ec0ff750f21d",
-			Is_admin: false,
+			Is_admin: true,
 		},
 		hashedPass: "4499c41eec361a4d8c208b5da66870e1f0ee57ef2cc6fd80d0df5fc9d81b7682",
 	}

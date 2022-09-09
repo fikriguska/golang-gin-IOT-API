@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	e "src/error"
 )
 
@@ -18,7 +19,7 @@ type NodeAdd struct {
 	Id_hardware *int   `json:"id_hardware"`
 }
 
-type NodeGet struct {
+type NodeList struct {
 	Id          int       `json:"id_node"`
 	Name        string    `json:"name"`
 	Location    string    `json:"location"`
@@ -26,23 +27,39 @@ type NodeGet struct {
 	Id_hardware NullInt64 `json:"id_hardware"`
 }
 
+type NodeSensorGet struct {
+	Id_sensor int    `json:"id_sensor"`
+	Name      string `json:"name"`
+	Unit      string `json:"unit"`
+}
+type NodeGet struct {
+	Id       int    `json:"id_node"`
+	Name     string `json:"name"`
+	Location string `json:"location"`
+	Id_user  int    `json:"id_user"`
+	Username string `json:"username"`
+	Hardware struct {
+		Name string `json:"name"`
+		Type string `json:"type"`
+	} `json:"hardware"`
+	Sensor []NodeSensorGet `json:"sensor"`
+}
+
 func AddNodeNoHardware(node Node) {
-	// tpdo: auth
 	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
 	_, err := db.Exec(statement, node.Name, node.Location, node.Id_user, nil)
 	e.PanicIfNeeded(err)
 }
 
 func AddNode(node Node) {
-	// tpdo: auth
 	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
 	_, err := db.Exec(statement, node.Name, node.Location, node.Id_user, node.Id_hardware)
 	e.PanicIfNeeded(err)
 }
 
-func GetAllNodeByUserId(id_user int) []NodeGet {
-	var node NodeGet
-	var nodes []NodeGet
+func GetAllNodeByUserId(id_user int) []NodeList {
+	var node NodeList
+	var nodes []NodeList
 	statement := "select id_node, name, location, id_hardware, id_user from node where id_user = $1"
 	rows, err := db.Query(statement, id_user)
 	e.PanicIfNeeded(err)
@@ -54,9 +71,9 @@ func GetAllNodeByUserId(id_user int) []NodeGet {
 	return nodes
 }
 
-func GetAllNode() []NodeGet {
-	var node NodeGet
-	var nodes []NodeGet
+func GetAllNode() []NodeList {
+	var node NodeList
+	var nodes []NodeList
 	statement := "select * from node"
 	rows, err := db.Query(statement)
 	e.PanicIfNeeded(err)
@@ -68,6 +85,40 @@ func GetAllNode() []NodeGet {
 	return nodes
 }
 
+func GetNodeAndUserByNodeId(id int) (Node, User) {
+	statement := "select node.id_node, node.name, node.location, user_person.id_user, user_person.username from node left join user_person on node.id_user = user_person.id_user where node.id_node = $1"
+	var node Node
+	var user User
+	err := db.QueryRow(statement, id).Scan(&node.Id, &node.Name, &node.Location, &user.Id, &user.Username)
+	if err != nil && err != sql.ErrNoRows {
+		e.PanicIfNeeded(err)
+	}
+	return node, user
+}
+
+func GetHardwareByNodeId(id int) Hardware {
+	statement := "select hardware.name, hardware.type from hardware left join node on hardware.id_hardware = node.id_hardware where id_node = $1"
+	var hardware Hardware
+	err := db.QueryRow(statement, id).Scan(&hardware.Name, &hardware.Type)
+	if err != nil && err != sql.ErrNoRows {
+		e.PanicIfNeeded(err)
+	}
+	return hardware
+}
+
+func GetSensorByNodeId(id int) []Sensor {
+	var sensors []Sensor
+	var sensor Sensor
+	statement := "select sensor.id_sensor, sensor.name, sensor.unit from sensor left join node on sensor.id_node = node.id_node where sensor.id_node = $1"
+	rows, err := db.Query(statement, id)
+	e.PanicIfNeeded(err)
+	for rows.Next() {
+		err := rows.Scan(&sensor.Id, &sensor.Name, &sensor.Unit)
+		e.PanicIfNeeded(err)
+		sensors = append(sensors, sensor)
+	}
+	return sensors
+}
 func IsNodeExistById(id int) bool {
 	statement := "select id_node from node where id_node = $1"
 	return isRowExist(statement, id)

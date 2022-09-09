@@ -17,6 +17,7 @@ func NodeRoute(r *gin.Engine) {
 
 	authorized.POST("/", AddNode)
 	authorized.GET("/", ListNode)
+	authorized.GET("/:id", GetNode)
 	authorized.DELETE("/:id", DeleteNode)
 }
 
@@ -53,6 +54,13 @@ func AddNode(c *gin.Context) {
 			return
 		}
 
+		isNode := hardwareService.CheckHardwareType("node")
+
+		if !isNode {
+			errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeSensor)
+			return
+		}
+
 	} else {
 		nodeService.Id_hardware = -1
 	}
@@ -60,6 +68,37 @@ func AddNode(c *gin.Context) {
 	nodeService.Add()
 
 	successResponse(c, http.StatusCreated, "success add new node")
+
+}
+
+func GetNode(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
+		return
+	}
+
+	nodeService := node_service.Node{
+		Node: models.Node{
+			Id: id,
+		},
+	}
+	id_user, _ := c.Get("id_user")
+	is_admin, _ := c.Get("is_admin")
+
+	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
+
+	if !exist {
+		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
+		return
+	} else if !owner && !is_admin.(bool) {
+		errorResponse(c, http.StatusForbidden, e.ErrDeleteNodeNotPermitted)
+		return
+	}
+
+	node := nodeService.Get()
+	c.IndentedJSON(http.StatusOK, node)
 
 }
 
