@@ -32,17 +32,18 @@ type NodeSensorGet struct {
 	Name      string `json:"name"`
 	Unit      string `json:"unit"`
 }
+type NodeHardwareGet struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
 type NodeGet struct {
-	Id       int    `json:"id_node"`
-	Name     string `json:"name"`
-	Location string `json:"location"`
-	Id_user  int    `json:"id_user"`
-	Username string `json:"username"`
-	Hardware struct {
-		Name string `json:"name"`
-		Type string `json:"type"`
-	} `json:"hardware"`
-	Sensor []NodeSensorGet `json:"sensor"`
+	Id       int               `json:"id_node"`
+	Name     string            `json:"name"`
+	Location string            `json:"location"`
+	Id_user  int               `json:"id_user"`
+	Username string            `json:"username"`
+	Hardware []NodeHardwareGet `json:"hardware"`
+	Sensor   []NodeSensorGet   `json:"sensor"`
 }
 
 func AddNodeNoHardware(node Node) {
@@ -90,9 +91,7 @@ func GetNodeAndUserByNodeId(id int) (Node, User) {
 	var node Node
 	var user User
 	err := db.QueryRow(statement, id).Scan(&node.Id, &node.Name, &node.Location, &user.Id, &user.Username)
-	if err != nil && err != sql.ErrNoRows {
-		e.PanicIfNeeded(err)
-	}
+	e.PanicIfNeeded(err)
 	return node, user
 }
 

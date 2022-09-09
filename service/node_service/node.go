@@ -41,13 +41,10 @@ func (n *Node) Get() models.NodeGet {
 	resp.Id_user = user.Id
 	resp.Username = user.Username
 
-	resp.Hardware.Name = hardware.Name
-	resp.Hardware.Type = hardware.Type
-
-	// resp.Sensor = sensors
-
+	resp.Hardware = append(resp.Hardware, models.NodeHardwareGet{})
+	resp.Hardware[0].Name = hardware.Name
+	resp.Hardware[0].Type = hardware.Type
 	for i, s := range sensors {
-		// resp.Sensor = append(resp.Sensor, reflect.TypeOf(resp.Sensor))
 		resp.Sensor = append(resp.Sensor, models.NodeSensorGet{})
 		resp.Sensor[i].Id_sensor = s.Id
 		resp.Sensor[i].Name = s.Name
