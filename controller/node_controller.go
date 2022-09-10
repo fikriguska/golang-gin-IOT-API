@@ -93,7 +93,7 @@ func GetNode(c *gin.Context) {
 		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
 		return
 	} else if !owner && !is_admin.(bool) {
-		errorResponse(c, http.StatusForbidden, e.ErrDeleteNodeNotPermitted)
+		errorResponse(c, http.StatusForbidden, e.ErrSeeNodeNotPermitted)
 		return
 	}
 

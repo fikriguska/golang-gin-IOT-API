@@ -126,6 +126,32 @@ func TestAddNode(t *testing.T) {
 
 }
 
+func TestGetNode(t *testing.T) {
+	user, hardware, node, _, sensor := autoInsertSensor()
+
+	testCases := []struct {
+		name          string
+		id            int
+		user 	testUser
+		hardware      models.Hardware
+		sensor      models.Sensor
+		node          models.Node
+		checkResponse func(recoder *httptest.ResponseRecorder, h models.Hardware, n models.Node)
+	}{
+		{
+			name: "ok",
+			id: node.Id,
+			user: user,
+			hardware: hardware,
+			sensor: sensor,
+			node: node,
+			checkResponse: func(recoder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
+				
+			},
+		},
+	}
+}
+
 func TestDeleteNode(t *testing.T) {
 
 	// create node user 1
@@ -239,7 +265,7 @@ func TestListNode(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/hardware", nil)
+			req, _ := http.NewRequest("GET", "/node", nil)
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
