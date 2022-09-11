@@ -50,6 +50,17 @@ func autoInsertSensor() (testUser, models.Hardware, models.Node, models.Hardware
 	return user, hardwareNode, node, hardwareSensor, sensor
 }
 
+func checkSensorChannel(sensor models.SensorGet, channel models.Channel) bool {
+	containsChannel := false
+	for _, v := range sensor.Channel {
+		if v.Value == channel.Value {
+			containsChannel = true
+			break
+		}
+	}
+	return containsChannel
+}
+
 func TestAddSensor(t *testing.T) {
 	sensor := randomSensor()
 	hardwareSensor := randomHardwareSensor()
@@ -163,6 +174,52 @@ func TestAddSensor(t *testing.T) {
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
+		})
+	}
+}
+
+func TestGetChannel(t *testing.T) {
+	channel := randomChannel()
+	user, _, _, _, sensor := autoInsertSensor()
+	channel.Id_sensor = sensor.Id
+	insertChannel(channel)
+
+	testCases := []struct {
+		name          string
+		id            int
+		user          testUser
+		checkResponse func(recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "ok",
+			id:   sensor.Id,
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				var s models.SensorGet
+				json.Unmarshal(recorder.Body.Bytes(), &s)
+				require.Equal(t, s.Id, sensor.Id)
+
+				require.Equal(t, true, checkSensorChannel(s, channel))
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/sensor/"+strconv.Itoa(tc.id), nil)
+			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			log.Println(req.Header)
+			router.ServeHTTP(w, req)
+			// log.Println(w.Body)
+			// log.Println(sensor)
+			// log.Println(channel)
+			// log.Println(node)
+			tc.checkResponse(w)
+
 		})
 	}
 }

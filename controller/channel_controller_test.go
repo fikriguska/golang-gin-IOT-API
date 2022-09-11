@@ -9,6 +9,7 @@ import (
 	e "src/error"
 	"src/models"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
@@ -18,6 +19,13 @@ func randomChannel() models.Channel {
 	return models.Channel{
 		Value: rand.Float64(),
 	}
+}
+
+func insertChannel(c models.Channel) {
+	c.Time = time.Now()
+	statement := "insert into channel (time, value, id_sensor) values (($1), $2, $3)"
+	_, err := db.Exec(statement, c.Time, c.Value, c.Id_sensor)
+	e.PanicIfNeeded(err)
 }
 
 func TestAddChannel(t *testing.T) {
@@ -89,6 +97,38 @@ func TestAddChannel(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
 			req, _ := http.NewRequest("POST", "/channel/", bytes.NewBuffer(data))
+			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+		})
+	}
+}
+
+func TestListChannel(t *testing.T) {
+	user := randomUser()
+	user.Status = true
+	user.Id = insertUser(user)
+	// todo testing to check listed node
+	testCases := []struct {
+		name          string
+		user          testUser
+		checkResponse func(recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "ok",
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/node/", nil)
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)

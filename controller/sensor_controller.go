@@ -18,6 +18,8 @@ func SensorRoute(r *gin.Engine) {
 	authorized := r.Group("/sensor", middleware.BasicAuth())
 
 	authorized.POST("/", AddSensor)
+	authorized.GET("/", ListSensor)
+	authorized.GET("/:id", GetSensor)
 	authorized.DELETE("/:id", DeleteSensor)
 }
 
@@ -101,6 +103,47 @@ func AddSensor(c *gin.Context) {
 
 	successResponse(c, http.StatusCreated, "success add new sensor")
 
+}
+
+func GetSensor(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
+		return
+	}
+
+	sensorService := sensor_service.Sensor{
+		Sensor: models.Sensor{
+			Id: id,
+		},
+	}
+
+	id_user, _ := c.Get("id_user")
+	is_admin, _ := c.Get("is_admin")
+
+	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
+
+	if !exist {
+		errorResponse(c, http.StatusNotFound, e.ErrSensorNotFound)
+		return
+	} else if !owner && !is_admin.(bool) {
+		errorResponse(c, http.StatusForbidden, e.ErrSeeSensorNotPermitted)
+		return
+	}
+
+	sensor := sensorService.Get()
+	c.IndentedJSON(http.StatusOK, sensor)
+}
+
+func ListSensor(c *gin.Context) {
+	sensorService := sensor_service.Sensor{}
+	id_user, _ := c.Get("id_user")
+	is_admin, _ := c.Get("is_admin")
+
+	sensors := sensorService.GetAll(id_user.(int), is_admin.(bool))
+
+	c.IndentedJSON(http.StatusOK, sensors)
 }
 
 func DeleteSensor(c *gin.Context) {

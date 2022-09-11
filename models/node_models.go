@@ -75,7 +75,7 @@ func GetAllNodeByUserId(id_user int) []NodeList {
 func GetAllNode() []NodeList {
 	var node NodeList
 	var nodes []NodeList
-	statement := "select * from node"
+	statement := "select id_node, name, location, id_hardware, id_user from node"
 	rows, err := db.Query(statement)
 	e.PanicIfNeeded(err)
 	for rows.Next() {
@@ -118,6 +118,7 @@ func GetSensorByNodeId(id int) []Sensor {
 	}
 	return sensors
 }
+
 func IsNodeExistById(id int) bool {
 	statement := "select id_node from node where id_node = $1"
 	return isRowExist(statement, id)

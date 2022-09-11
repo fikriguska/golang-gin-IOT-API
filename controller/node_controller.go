@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 	e "src/error"
 	"src/middleware"
@@ -87,7 +86,6 @@ func GetNode(c *gin.Context) {
 	}
 	id_user, _ := c.Get("id_user")
 	is_admin, _ := c.Get("is_admin")
-	log.Println(id_user, is_admin)
 
 	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
 
