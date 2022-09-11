@@ -59,6 +59,28 @@ func autoInsertNode(hardwareType interface{}) (testUser, models.Hardware, models
 	return user, hardwareNode, node
 }
 
+func checkNodeSensor(node models.NodeGet, sensor models.Sensor) bool {
+	containsSensor := false
+	for _, v := range node.Sensor {
+		if v.Id_sensor == sensor.Id {
+			containsSensor = true
+			break
+		}
+	}
+	return containsSensor
+}
+
+func checkNodeHardware(node models.NodeGet, hardware models.Hardware) bool {
+	containsHardware := false
+	for _, v := range node.Hardware {
+		if v.Name == hardware.Name && v.Type == hardware.Type {
+			containsHardware = true
+			break
+		}
+	}
+	return containsHardware
+}
+
 func TestAddNode(t *testing.T) {
 	node := randomNode()
 	hardware := randomHardwareNode()
@@ -129,26 +151,72 @@ func TestAddNode(t *testing.T) {
 func TestGetNode(t *testing.T) {
 	user, hardware, node, _, sensor := autoInsertSensor()
 
+	user2 := randomUser()
+	user2.Status = true
+	user2.Id = insertUser(user2)
+
+	user3 := randomUser()
+	user3.Status = true
+	user3.Is_admin = true
+	user3.Id = insertUser(user3)
+
 	testCases := []struct {
 		name          string
 		id            int
-		user 	testUser
-		hardware      models.Hardware
-		sensor      models.Sensor
-		node          models.Node
-		checkResponse func(recoder *httptest.ResponseRecorder, h models.Hardware, n models.Node)
+		user          testUser
+		checkResponse func(recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "ok",
-			id: node.Id,
+			id:   node.Id,
 			user: user,
-			hardware: hardware,
-			sensor: sensor,
-			node: node,
-			checkResponse: func(recoder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
-				
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				var node models.NodeGet
+				json.Unmarshal(recorder.Body.Bytes(), &node)
+				require.Equal(t, checkNodeSensor(node, sensor), true)
+				require.Equal(t, checkNodeHardware(node, hardware), true)
 			},
 		},
+		{
+			name: "forbidden to access another user's node",
+			id:   node.Id,
+			user: user2,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkBody(t, recorder, e.ErrSeeNodeNotPermitted)
+			},
+		},
+		{
+			name: "ok using admin",
+			id:   node.Id,
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				var node models.NodeGet
+				json.Unmarshal(recorder.Body.Bytes(), &node)
+				require.Equal(t, checkNodeSensor(node, sensor), true)
+				require.Equal(t, checkNodeHardware(node, hardware), true)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/node/"+strconv.Itoa(tc.id), nil)
+			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			log.Println(req.Header)
+			router.ServeHTTP(w, req)
+			// log.Println(w.Body)
+			// log.Println(hardware)
+			// log.Println(sensor)
+			// log.Println(node)
+			tc.checkResponse(w)
+
+		})
 	}
 }
 

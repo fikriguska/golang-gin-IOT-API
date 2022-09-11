@@ -21,7 +21,9 @@ func BasicAuth() gin.HandlerFunc {
 			})
 			return
 		}
+
 		payload, _ := base64.StdEncoding.DecodeString(auth[1])
+
 		pair := strings.SplitN(string(payload), ":", 2)
 
 		userService := user_service.User{
@@ -31,8 +33,8 @@ func BasicAuth() gin.HandlerFunc {
 			},
 		}
 		credCorrect, activated := userService.Auth()
-		// log.Println(credCorrect, activated)
 		if len(pair) != 2 || !(credCorrect && activated) {
+
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"status": "error",
 				"data":   "invalid authorization key",
