@@ -36,7 +36,7 @@ func AddSensor(c *gin.Context) {
 
 	// Check required parameter
 	if err := c.BindJSON(&json); err != nil {
-		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
 		return
 	}
 
@@ -55,13 +55,9 @@ func AddSensor(c *gin.Context) {
 		fmt.Println("[+] node not exist")
 		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
 		return
-	} else if !owner {
+	} else if !isAdmin.(bool) && !owner {
 		errorResponse(c, http.StatusForbidden, e.ErrUseNodeNotPermitted)
 		return
-	}
-
-	if !isAdmin.(bool) && !owner {
-		errorResponse(c, http.StatusForbidden, e.ErrUseNodeNotPermitted)
 	}
 
 	sensorService := sensor_service.Sensor{

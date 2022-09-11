@@ -26,6 +26,7 @@ var (
 	ErrNodeNotFound           = errors.New("node not found")
 	ErrDeleteNodeNotPermitted = errors.New("you can't delete another user's node")
 	ErrUseNodeNotPermitted    = errors.New("you can't use another user's node")
+	ErrSeeNodeNotPermitted    = errors.New("you can't see another user's node")
 
 	ErrSensorNotFound           = errors.New("node not found")
 	ErrDeleteSensorNotPermitted = errors.New("you can't delete another user's sensor")

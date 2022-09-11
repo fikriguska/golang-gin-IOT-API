@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -35,25 +36,54 @@ func insertNode(n models.Node) int {
 	return id
 }
 
+// create for user, hardware, node automatically, and insert it to db
 func autoInsertNode(hardwareType interface{}) (testUser, models.Hardware, models.Node) {
 	node := randomNode()
-	hardware := randomHardware()
+
+	hardwareNode := randomHardware()
 	if hardwareType != nil {
-		hardware.Type = hardwareType.(string)
+		hardwareNode.Type = hardwareType.(string)
+	} else {
+		hardwareNode.Type = []string{"single-board computer", "microcontroller unit"}[rand.Int()%2]
 	}
-	hardware.Id = insertHardware(hardware)
+
+	hardwareNode.Id = insertHardware(hardwareNode)
+
 	user := randomUser()
 	user.Status = true
 	user.Id = insertUser(user)
-	node.Id_hardware = hardware.Id
+
+	node.Id_hardware = hardwareNode.Id
 	node.Id_user = user.Id
 	node.Id = insertNode(node)
-	return user, hardware, node
+	return user, hardwareNode, node
+}
+
+func checkNodeSensor(node models.NodeGet, sensor models.Sensor) bool {
+	containsSensor := false
+	for _, v := range node.Sensor {
+		if v.Id_sensor == sensor.Id {
+			containsSensor = true
+			break
+		}
+	}
+	return containsSensor
+}
+
+func checkNodeHardware(node models.NodeGet, hardware models.Hardware) bool {
+	containsHardware := false
+	for _, v := range node.Hardware {
+		if v.Name == hardware.Name && v.Type == hardware.Type {
+			containsHardware = true
+			break
+		}
+	}
+	return containsHardware
 }
 
 func TestAddNode(t *testing.T) {
 	node := randomNode()
-	hardware := randomHardware()
+	hardware := randomHardwareNode()
 	id_hardware := insertHardware(hardware)
 
 	user := randomUser()
@@ -118,11 +148,83 @@ func TestAddNode(t *testing.T) {
 
 }
 
+func TestGetNode(t *testing.T) {
+	user, hardware, node, _, sensor := autoInsertSensor()
+
+	user2 := randomUser()
+	user2.Status = true
+	user2.Id = insertUser(user2)
+
+	user3 := randomUser()
+	user3.Status = true
+	user3.Is_admin = true
+	user3.Id = insertUser(user3)
+
+	testCases := []struct {
+		name          string
+		id            int
+		user          testUser
+		checkResponse func(recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "ok",
+			id:   node.Id,
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				var node models.NodeGet
+				json.Unmarshal(recorder.Body.Bytes(), &node)
+				require.Equal(t, checkNodeSensor(node, sensor), true)
+				require.Equal(t, checkNodeHardware(node, hardware), true)
+			},
+		},
+		{
+			name: "forbidden to access another user's node",
+			id:   node.Id,
+			user: user2,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkBody(t, recorder, e.ErrSeeNodeNotPermitted)
+			},
+		},
+		{
+			name: "ok using admin",
+			id:   node.Id,
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				var node models.NodeGet
+				json.Unmarshal(recorder.Body.Bytes(), &node)
+				require.Equal(t, checkNodeSensor(node, sensor), true)
+				require.Equal(t, checkNodeHardware(node, hardware), true)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/node/"+strconv.Itoa(tc.id), nil)
+			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			log.Println(req.Header)
+			router.ServeHTTP(w, req)
+			// log.Println(w.Body)
+			// log.Println(hardware)
+			// log.Println(sensor)
+			// log.Println(node)
+			tc.checkResponse(w)
+
+		})
+	}
+}
+
 func TestDeleteNode(t *testing.T) {
 
 	// create node user 1
 	node := randomNode()
-	hardware := randomHardware()
+	hardware := randomHardwareNode()
 	id_hardware := insertHardware(hardware)
 
 	user := randomUser()
@@ -138,7 +240,7 @@ func TestDeleteNode(t *testing.T) {
 
 	// create node user 2
 	node2 := randomNode()
-	hardware2 := randomHardware()
+	hardware2 := randomHardwareNode()
 	id_hardware2 := insertHardware(hardware2)
 
 	user2 := randomUser()
@@ -207,4 +309,34 @@ func TestDeleteNode(t *testing.T) {
 		})
 	}
 
+}
+
+func TestListNode(t *testing.T) {
+	user, _, _ := autoInsertNode(nil)
+
+	testCases := []struct {
+		name          string
+		user          testUser
+		checkResponse func(recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "ok",
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/node", nil)
+			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+		})
+	}
 }
