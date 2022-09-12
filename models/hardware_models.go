@@ -43,6 +43,18 @@ type HardwareNodeGet struct {
 	} `json:"node"`
 }
 
+type HardwareUpdate struct {
+	Name        *string `json:"name"`
+	Type        *string `json:"type"`
+	Description *string `json:"description"`
+}
+
+type HardwareUpdateSQL struct {
+	Name        NullString `json:"name"`
+	Type        NullString `json:"type"`
+	Description NullString `json:"description"`
+}
+
 func IsHardwareExistById(id int) bool {
 	statement := "select id_hardware from hardware where id_hardware = $1"
 	return isRowExist(statement, id)
@@ -121,6 +133,12 @@ func GetSensorByHardwareId(id int) Sensor {
 		e.PanicIfNeeded(err)
 	}
 	return sensor
+}
+
+func UpdateHardware(h HardwareUpdate, id int) {
+	statement := "update hardware SET name=COALESCE($1, name), type=COALESCE($2, type), description=COALESCE($3, description) where id_hardware=$4"
+	_, err := db.Exec(statement, h.Name, h.Type, h.Description, id)
+	e.PanicIfNeeded(err)
 }
 
 func DeleteHardware(id int) {

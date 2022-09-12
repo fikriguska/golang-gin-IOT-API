@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 	e "src/error"
 	"src/middleware"
@@ -19,6 +18,7 @@ func NodeRoute(r *gin.Engine) {
 	authorized.POST("/", AddNode)
 	authorized.GET("/", ListNode)
 	authorized.GET("/:id", GetNode)
+	authorized.PUT("/:id", UpdateNode)
 	authorized.DELETE("/:id", DeleteNode)
 }
 
@@ -87,7 +87,6 @@ func GetNode(c *gin.Context) {
 	}
 	id_user, _ := c.Get("id_user")
 	is_admin, _ := c.Get("is_admin")
-	log.Println(id_user, is_admin)
 
 	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
 
@@ -113,6 +112,44 @@ func ListNode(c *gin.Context) {
 	nodes := nodeService.GetAll(id_user.(int), is_admin.(bool))
 
 	c.IndentedJSON(http.StatusOK, nodes)
+}
+
+func UpdateNode(c *gin.Context) {
+	var json models.NodeUpdate
+
+	// Check required parameter
+	if err := c.ShouldBindJSON(&json); err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
+		return
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
+		return
+	}
+
+	nodeService := node_service.Node{
+		Node: models.Node{
+			Id: id,
+		},
+	}
+
+	id_user, _ := c.Get("id_user")
+	is_admin, _ := c.Get("is_admin")
+
+	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
+
+	if !exist {
+		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
+		return
+	} else if !owner && !is_admin.(bool) {
+		errorResponse(c, http.StatusForbidden, e.ErrEditNodeNotPermitted)
+		return
+	}
+
+	nodeService.Update(json)
 }
 
 func DeleteNode(c *gin.Context) {

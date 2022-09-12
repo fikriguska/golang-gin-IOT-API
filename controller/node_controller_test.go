@@ -172,10 +172,12 @@ func TestGetNode(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
-				var node models.NodeGet
-				json.Unmarshal(recorder.Body.Bytes(), &node)
-				require.Equal(t, checkNodeSensor(node, sensor), true)
-				require.Equal(t, checkNodeHardware(node, hardware), true)
+				var n models.NodeGet
+				json.Unmarshal(recorder.Body.Bytes(), &n)
+				require.Equal(t, n.Id, node.Id)
+
+				require.Equal(t, checkNodeSensor(n, sensor), true)
+				require.Equal(t, checkNodeHardware(n, hardware), true)
 			},
 		},
 		{
@@ -193,10 +195,11 @@ func TestGetNode(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
-				var node models.NodeGet
-				json.Unmarshal(recorder.Body.Bytes(), &node)
-				require.Equal(t, checkNodeSensor(node, sensor), true)
-				require.Equal(t, checkNodeHardware(node, hardware), true)
+				var n models.NodeGet
+				json.Unmarshal(recorder.Body.Bytes(), &n)
+				require.Equal(t, node.Id, n.Id)
+				require.Equal(t, true, checkNodeSensor(n, sensor))
+				require.Equal(t, true, checkNodeHardware(n, hardware))
 			},
 		},
 	}
@@ -314,6 +317,7 @@ func TestDeleteNode(t *testing.T) {
 func TestListNode(t *testing.T) {
 	user, _, _ := autoInsertNode(nil)
 
+	// todo testing to check listed node
 	testCases := []struct {
 		name          string
 		user          testUser
@@ -333,7 +337,7 @@ func TestListNode(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/node", nil)
+			req, _ := http.NewRequest("GET", "/node/", nil)
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)

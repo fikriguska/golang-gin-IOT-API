@@ -76,6 +76,10 @@ func (h *Hardware) Get() interface{} {
 	return nil
 }
 
+func (h *Hardware) Update(hardware models.HardwareUpdate) {
+	models.UpdateHardware(hardware, h.Id)
+}
+
 func (h *Hardware) Delete() {
 	models.DeleteHardware(h.Id)
 }

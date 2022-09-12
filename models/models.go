@@ -7,6 +7,7 @@ import (
 	e "src/error"
 
 	"database/sql"
+	"database/sql/driver"
 	"fmt"
 
 	_ "github.com/lib/pq"
@@ -62,4 +63,13 @@ func (ni *NullInt64) Scan(value interface{}) error {
 		*ni = NullInt64{i.Int64, true}
 	}
 	return nil
+}
+
+type NullString sql.NullString
+
+func (ns NullString) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return ns.String, nil
 }
