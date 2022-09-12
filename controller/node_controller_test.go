@@ -195,10 +195,11 @@ func TestGetNode(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
-				var node models.NodeGet
-				json.Unmarshal(recorder.Body.Bytes(), &node)
-				require.Equal(t, true, checkNodeSensor(node, sensor))
-				require.Equal(t, true, checkNodeHardware(node, hardware))
+				var n models.NodeGet
+				json.Unmarshal(recorder.Body.Bytes(), &n)
+				require.Equal(t, node.Id, n.Id)
+				require.Equal(t, true, checkNodeSensor(n, sensor))
+				require.Equal(t, true, checkNodeHardware(n, hardware))
 			},
 		},
 	}

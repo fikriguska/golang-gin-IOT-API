@@ -280,6 +280,115 @@ func TestGetHardwareNode(t *testing.T) {
 
 }
 
+func TestUpdateHardware(t *testing.T) {
+	hardware := randomHardware()
+	hardware.Id = insertHardware(hardware)
+
+	hardware2 := randomHardware()
+	hardware3 := randomHardware()
+
+	testCases := []struct {
+		name          string
+		id            int
+		body          gin.H
+		checkResponse func(recorder *httptest.ResponseRecorder)
+		checkInDB     func(id int)
+	}{
+		{
+			name: "ok update name",
+			id:   hardware.Id,
+			body: gin.H{
+				"name": hardware2.Name,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				h := models.GetHardwareById(id)
+				require.Equal(t, hardware2.Name, h.Name)
+			},
+		},
+
+		{
+			name: "ok update type",
+			id:   hardware.Id,
+			body: gin.H{
+				"type": hardware2.Type,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				h := models.GetHardwareById(id)
+				require.Equal(t, hardware2.Type, h.Type)
+			},
+		},
+
+		{
+			name: "update type not valid",
+			id:   hardware.Id,
+			body: gin.H{
+				"type": "bakugan",
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkBody(t, recorder, e.ErrInvalidHardwareType)
+			},
+			checkInDB: func(id int) {
+			},
+		},
+
+		{
+			name: "ok update description",
+			id:   hardware.Id,
+			body: gin.H{
+				"description": hardware2.Description,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				h := models.GetHardwareById(id)
+				require.Equal(t, hardware2.Description, h.Description)
+			},
+		},
+
+		{
+			name: "ok update all fields",
+			id:   hardware.Id,
+			body: gin.H{
+				"name":        hardware3.Name,
+				"type":        hardware3.Type,
+				"description": hardware3.Description,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				h := models.GetHardwareById(id)
+				require.Equal(t, hardware3.Name, h.Name)
+				require.Equal(t, hardware3.Type, h.Type)
+				require.Equal(t, hardware3.Description, h.Description)
+
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			data, _ := json.Marshal(tc.body)
+			req, _ := http.NewRequest("PUT", "/hardware/"+strconv.Itoa(tc.id), bytes.NewBuffer(data))
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+			tc.checkInDB(tc.id)
+		})
+	}
+
+}
+
 func TestListHardware(t *testing.T) {
 	hardware := randomHardware()
 

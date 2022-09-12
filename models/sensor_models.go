@@ -56,6 +56,7 @@ func GetAllSensor() []SensorList {
 		e.PanicIfNeeded(err)
 		sensors = append(sensors, sensor)
 	}
+
 	return sensors
 }
 

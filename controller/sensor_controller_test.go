@@ -199,7 +199,6 @@ func TestGetChannel(t *testing.T) {
 				var s models.SensorGet
 				json.Unmarshal(recorder.Body.Bytes(), &s)
 				require.Equal(t, s.Id, sensor.Id)
-
 				require.Equal(t, true, checkSensorChannel(s, channel))
 			},
 		},
