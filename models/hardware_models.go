@@ -136,10 +136,9 @@ func GetSensorByHardwareId(id int) Sensor {
 }
 
 func UpdateHardware(h HardwareUpdate, id int) {
-	statement := "update hardware SET name=COALESCE($1, name), type=COALESCE($2, type), description=COALESCE($3, description) WHERE id_hardware=$4"
+	statement := "update hardware SET name=COALESCE($1, name), type=COALESCE($2, type), description=COALESCE($3, description) where id_hardware=$4"
 	_, err := db.Exec(statement, h.Name, h.Type, h.Description, id)
 	e.PanicIfNeeded(err)
-
 }
 
 func DeleteHardware(id int) {

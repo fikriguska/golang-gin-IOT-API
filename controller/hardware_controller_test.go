@@ -21,7 +21,6 @@ import (
 )
 
 func randomHardware() models.Hardware {
-
 	hardwareType := []string{"single-board computer", "microcontroller unit", "sensor"}
 	return models.Hardware{
 		Name:        util.RandomString(10),

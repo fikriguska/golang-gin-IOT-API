@@ -91,7 +91,7 @@ func UpdateHardware(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
 		return
 	}
 

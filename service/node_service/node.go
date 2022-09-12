@@ -56,6 +56,10 @@ func (n *Node) Get() models.NodeGet {
 
 }
 
+func (n *Node) Update(node models.NodeUpdate) {
+	models.UpdateNode(node, n.Id)
+}
+
 func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
 	exist = models.IsNodeExistById(n.Id)
 	if !exist {

@@ -56,6 +56,10 @@ func (s *Sensor) Get() models.SensorGet {
 	return resp
 }
 
+func (s *Sensor) Update(sensor models.SensorUpdate) {
+	models.UpdateSensor(sensor, s.Id)
+}
+
 func (s *Sensor) Delete() {
 	models.DeleteSensor(s.Id)
 }

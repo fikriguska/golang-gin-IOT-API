@@ -27,10 +27,14 @@ type SensorGet struct {
 	Unit    string
 	Channel []SensorChannelGet
 }
-
 type SensorChannelGet struct {
 	Time  time.Time
 	Value float64
+}
+
+type SensorUpdate struct {
+	Name *string
+	Unit *string
 }
 
 func AddSensorNoHardware(s Sensor) {
@@ -107,6 +111,12 @@ func GetChannelBySensorId(id int) []Channel {
 func IsSensorExistById(id int) bool {
 	statement := "select id_sensor from sensor where id_sensor = $1"
 	return isRowExist(statement, id)
+}
+
+func UpdateSensor(s SensorUpdate, id int) {
+	statement := "update sensor SET name=COALESCE($1, name), unit=COALESCE($2, unit) where id_sensor=$3"
+	_, err := db.Exec(statement, s.Name, s.Unit, id)
+	e.PanicIfNeeded(err)
 }
 
 func DeleteSensor(id int) {

@@ -20,6 +20,7 @@ func SensorRoute(r *gin.Engine) {
 	authorized.POST("/", AddSensor)
 	authorized.GET("/", ListSensor)
 	authorized.GET("/:id", GetSensor)
+	authorized.PUT("/:id", UpdateSensor)
 	authorized.DELETE("/:id", DeleteSensor)
 }
 
@@ -144,6 +145,45 @@ func ListSensor(c *gin.Context) {
 	sensors := sensorService.GetAll(id_user.(int), is_admin.(bool))
 
 	c.IndentedJSON(http.StatusOK, sensors)
+}
+
+func UpdateSensor(c *gin.Context) {
+	var json models.SensorUpdate
+
+	// Check required parameter
+	if err := c.ShouldBindJSON(&json); err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
+		return
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
+		return
+	}
+
+	sensorService := sensor_service.Sensor{
+		Sensor: models.Sensor{
+			Id: id,
+		},
+	}
+
+	id_user, _ := c.Get("id_user")
+	is_admin, _ := c.Get("is_admin")
+
+	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
+
+	if !exist {
+		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
+		return
+	} else if !owner && !is_admin.(bool) {
+		errorResponse(c, http.StatusForbidden, e.ErrEditSensorNotPermitted)
+		return
+	}
+
+	sensorService.Update(json)
+
 }
 
 func DeleteSensor(c *gin.Context) {

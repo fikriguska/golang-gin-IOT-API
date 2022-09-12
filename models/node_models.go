@@ -46,6 +46,12 @@ type NodeGet struct {
 	Sensor   []NodeSensorGet   `json:"sensor"`
 }
 
+type NodeUpdate struct {
+	Name        *string `json:"name"`
+	Location    *string `json:"location"`
+	Id_hardware *int    `json:"id_hardware"`
+}
+
 func AddNodeNoHardware(node Node) {
 	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
 	_, err := db.Exec(statement, node.Name, node.Location, node.Id_user, nil)
@@ -122,6 +128,12 @@ func GetSensorByNodeId(id int) []Sensor {
 func IsNodeExistById(id int) bool {
 	statement := "select id_node from node where id_node = $1"
 	return isRowExist(statement, id)
+}
+
+func UpdateNode(n NodeUpdate, id int) {
+	statement := "update node SET name=COALESCE($1, name), location=COALESCE($2, location) where id_node=$3"
+	_, err := db.Exec(statement, n.Name, n.Location, id)
+	e.PanicIfNeeded(err)
 }
 
 func DeleteNode(id int) {
