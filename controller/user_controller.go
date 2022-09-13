@@ -13,6 +13,7 @@ func UserRoute(r *gin.Engine) {
 	r.POST("/user", AddUser)
 	r.GET("/user/activation", ActivateUser)
 	r.POST("/user/login", Login)
+	r.POST("/user/forget-password", ForgetPassword)
 	// r.GET("/user", controller.Test)
 }
 
@@ -119,5 +120,43 @@ func Login(c *gin.Context) {
 	}
 
 	successResponse(c, http.StatusOK, "logged in")
+
+}
+
+func ForgetPassword(c *gin.Context) {
+	var json models.UserForgetPassword
+
+	// Check required parameter
+	if err := c.ShouldBindJSON(&json); err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
+		return
+	}
+
+	userService := user_service.User{
+		User: models.User{
+			Email:    json.Email,
+			Username: json.Username,
+		},
+	}
+
+	// Check email format
+	if !userService.IsEmailValid() {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidEmail)
+		return
+	}
+
+	match, userActivated := userService.IsEmailAndUsernameMatched()
+
+	if !match {
+		errorResponse(c, http.StatusBadRequest, e.ErrUsernameOrEmailIncorrect)
+		return
+	}
+
+	if !userActivated {
+		errorResponse(c, http.StatusBadRequest, e.ErrUserNotActive)
+		return
+	}
+
+	userService.SetRandomPassword()
 
 }

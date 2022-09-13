@@ -2,6 +2,7 @@ package user_service
 
 import (
 	"crypto/sha256"
+	"log"
 	"net/mail"
 	"net/smtp"
 
@@ -10,6 +11,7 @@ import (
 
 	"encoding/hex"
 	"src/models"
+	"src/util"
 )
 
 type User struct {
@@ -38,7 +40,7 @@ func (u *User) Add() {
 
 	models.AddUser(u.User)
 	id := models.GetUserIdByUsername(u.Username)
-	sendEmail(id, u.Username, u.Email, hashedToken)
+	sendEmailActivation(id, u.Username, u.Email, hashedToken)
 }
 
 func (u *User) Activate() {
@@ -62,7 +64,7 @@ func genMessageWithheader(from string, to string, subject string, body string) s
 		body
 }
 
-func sendEmail(id int, username string, to string, token string) error {
+func sendEmailActivation(id int, username string, to string, token string) error {
 
 	urlCode := "http://localhost:8080/user/activation?token=" + token
 
@@ -108,4 +110,48 @@ func (u *User) Auth() (bool, bool) {
 func (u *User) Get() (int, string, string, bool) {
 	res := models.GetUserByUsername(u.User)
 	return res.Id, res.Username, res.Password, res.Is_admin
+}
+
+func (u *User) IsEmailAndUsernameMatched() (bool, bool) {
+	match := models.IsEmailAndUsernameExist(u.Email, u.Username)
+	activated := models.IsUserActivatedCheckByUsername(u.Username)
+	return match, activated
+}
+
+func (u *User) SetRandomPassword() {
+	newPass := util.RandomString(10)
+	hashedNewPass := util.Sha256String(newPass)
+	log.Println(newPass, hashedNewPass)
+	sendEmailForgetPassword(u.Email, u.Username, newPass)
+	models.UpdateUserPassword(u.Email, hashedNewPass)
+
+}
+
+func sendEmailForgetPassword(email string, username string, newPass string) error {
+
+	smtpHost := "smtp.gmail.com"
+	smtpPort := 587
+	smtpAddr := fmt.Sprintf("%s:%d", smtpHost, smtpPort)
+	body := `
+	<h3>Dear ` + username + `. </h3>
+
+	<p>We have accepted your forget password request. Use this password for log in.</p>
+
+	<p><h4>` + newPass + `</h4></p>
+
+	<p>Thank You</p>  
+	`
+	from := "skripsibintang@gmail.com"
+	password := "vytfhtsgzxsnpbao"
+
+	subject := "New Password"
+	auth := smtp.PlainAuth("", from, password, smtpHost)
+
+	message := genMessageWithheader(from, email, subject, body)
+
+	err := smtp.SendMail(smtpAddr, auth, from, []string{email}, []byte(message))
+	if err != nil {
+		return err
+	}
+	return nil
 }

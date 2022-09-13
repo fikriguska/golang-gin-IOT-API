@@ -14,6 +14,11 @@ type User struct {
 	Is_admin bool   `json:"is_admin"`
 }
 
+type UserForgetPassword struct {
+	Email    string `json:"email" binding:"required"`
+	Username string `json:"username" binding:"required"`
+}
+
 func AddUser(user User) {
 	statement := "insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6)"
 	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token, user.Is_admin)
@@ -109,4 +114,15 @@ func AuthUser(username string, password string) bool {
 	statement := "select token from user_person where username = $1 and password = $2"
 	return isRowExist(statement, username, password)
 
+}
+
+func IsEmailAndUsernameExist(email string, username string) bool {
+	statement := "select id_user from user_person where email = $1 and username = $2"
+	return isRowExist(statement, email, username)
+}
+
+func UpdateUserPassword(email string, password string) {
+	statement := "update user_person set password = $1 where email = $2"
+	_, err := db.Exec(statement, password, email)
+	e.PanicIfNeeded(err)
 }
