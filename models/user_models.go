@@ -55,6 +55,11 @@ func IsUserEmailExist(email string) bool {
 	return isRowExist(statement, email)
 }
 
+func IsUserExistById(id int) bool {
+	statement := "select id_user from user_person where id_user = $1"
+	return isRowExist(statement, id)
+}
+
 // ******
 func GetUserIdByUsername(username string) int {
 	statement := "select id_user from user_person where username = $1"
@@ -124,5 +129,16 @@ func IsEmailAndUsernameExist(email string, username string) bool {
 func UpdateUserPassword(email string, password string) {
 	statement := "update user_person set password = $1 where email = $2"
 	_, err := db.Exec(statement, password, email)
+	e.PanicIfNeeded(err)
+}
+
+func IsNodeExistByUserId(id int) bool {
+	statement := "select id_node from node where id_user = $1"
+	return isRowExist(statement, id)
+}
+
+func DeleteUser(id int) {
+	statement := "delete from user_person where id_user = $1"
+	_, err := db.Exec(statement, id)
 	e.PanicIfNeeded(err)
 }

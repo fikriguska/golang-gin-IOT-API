@@ -17,6 +17,9 @@ var (
 	ErrUsernameOrPassIncorrect  = errors.New("username not found or password incorrect")
 	ErrUsernameOrEmailIncorrect = errors.New("username or email incorrect")
 	ErrUserNotActive            = errors.New("account is inactive, check email for activation")
+	ErrUserNotFound             = errors.New("user not found")
+	ErrDeleteUserNotPermitted   = errors.New("you can't delete another user's sensor account")
+	ErrUserStillUsingNode       = errors.New("you can't delete, the user still using node")
 	// ErrUserLoginFailed         = errors.New("user is act")
 
 	ErrInvalidHardwareType     = errors.New("type must single-board computer, microcontroller unit, or sensor")
@@ -35,6 +38,8 @@ var (
 	ErrUseSensorNotPermitted    = errors.New("you can't use another user's sensor")
 	ErrSeeSensorNotPermitted    = errors.New("you can't see another user's sensor")
 	ErrEditSensorNotPermitted   = errors.New("you can't edit another user's sensor")
+
+	ErrNotAdministrator = errors.New("you are not administrator")
 )
 
 func PanicIfNeeded(err interface{}) {
