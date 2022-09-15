@@ -137,7 +137,7 @@ func (u *User) SetRandomPassword() {
 	hashedNewPass := util.Sha256String(newPass)
 	log.Println(newPass, hashedNewPass)
 	sendEmailForgetPassword(u.Email, u.Username, newPass)
-	models.UpdateUserPassword(u.Email, hashedNewPass)
+	models.UpdateUserPasswordByEmail(u.Email, hashedNewPass)
 
 }
 
@@ -147,6 +147,11 @@ func (u *User) IsUsingNode() bool {
 
 func (u *User) Delete() {
 	models.DeleteUser(u.Id)
+}
+
+func (u *User) SetPassword() {
+	hashedPasswd := util.Sha256String(u.Password)
+	models.UpdateUserPasswordById(u.Id, hashedPasswd)
 }
 
 func sendEmailForgetPassword(email string, username string, newPass string) error {

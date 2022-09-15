@@ -19,6 +19,11 @@ type UserForgetPassword struct {
 	Username string `json:"username" binding:"required"`
 }
 
+type UserUpdate struct {
+	OldPasswd string `json:"old password" binding:"required"`
+	NewPasswd string `json:"new password" binding:"required"`
+}
+
 func AddUser(user User) {
 	statement := "insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6)"
 	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token, user.Is_admin)
@@ -126,7 +131,7 @@ func IsEmailAndUsernameExist(email string, username string) bool {
 	return isRowExist(statement, email, username)
 }
 
-func UpdateUserPassword(email string, password string) {
+func UpdateUserPasswordByEmail(email string, password string) {
 	statement := "update user_person set password = $1 where email = $2"
 	_, err := db.Exec(statement, password, email)
 	e.PanicIfNeeded(err)
@@ -135,6 +140,12 @@ func UpdateUserPassword(email string, password string) {
 func IsNodeExistByUserId(id int) bool {
 	statement := "select id_node from node where id_user = $1"
 	return isRowExist(statement, id)
+}
+
+func UpdateUserPasswordById(id int, password string) {
+	statement := "update user_person set password = $1 where id_user = $2"
+	_, err := db.Exec(statement, password, id)
+	e.PanicIfNeeded(err)
 }
 
 func DeleteUser(id int) {

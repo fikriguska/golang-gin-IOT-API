@@ -18,8 +18,10 @@ var (
 	ErrUsernameOrEmailIncorrect = errors.New("username or email incorrect")
 	ErrUserNotActive            = errors.New("account is inactive, check email for activation")
 	ErrUserNotFound             = errors.New("user not found")
-	ErrDeleteUserNotPermitted   = errors.New("you can't delete another user's sensor account")
+	ErrEditUserNotPermitted     = errors.New("you can't edit another user's account")
+	ErrDeleteUserNotPermitted   = errors.New("you can't delete another user's account")
 	ErrUserStillUsingNode       = errors.New("you can't delete, the user still using node")
+	ErrOldPasswordIncorrect     = errors.New("old password is incorrect")
 	// ErrUserLoginFailed         = errors.New("user is act")
 
 	ErrInvalidHardwareType     = errors.New("type must single-board computer, microcontroller unit, or sensor")

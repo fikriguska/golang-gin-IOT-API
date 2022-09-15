@@ -7,6 +7,7 @@ import (
 	"src/middleware"
 	"src/models"
 	"src/service/user_service"
+	"src/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -21,6 +22,7 @@ func UserRoute(r *gin.Engine) {
 
 	authorized := r.Group("/user/:id", middleware.BasicAuth())
 	authorized.DELETE("", DeleteUser)
+	authorized.PUT("", UpdateUser)
 	// r.GET("/user", controller.Test)
 }
 
@@ -204,6 +206,54 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	userService.Delete()
+
+}
+
+func UpdateUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
+		return
+	}
+
+	var json models.UserUpdate
+
+	// Check required parameter
+	if err := c.ShouldBindJSON(&json); err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
+		return
+	}
+
+	userService := user_service.User{
+		User: models.User{
+			Id: id,
+		},
+	}
+
+	exist := userService.IsExist()
+
+	if !exist {
+		errorResponse(c, http.StatusNotFound, e.ErrUserNotFound)
+		return
+	}
+
+	idUser, _ := c.Get("id_user")
+
+	if idUser.(int) != id {
+		errorResponse(c, http.StatusForbidden, e.ErrEditUserNotPermitted)
+		return
+	}
+
+	oldPasswdHash := util.Sha256String(json.OldPasswd)
+	RealOldPasswdHash, _ := c.Get("password")
+	if oldPasswdHash != RealOldPasswdHash {
+		errorResponse(c, http.StatusBadRequest, e.ErrOldPasswordIncorrect)
+		return
+	}
+
+	userService.Password = json.NewPasswd
+	userService.SetPassword()
 
 }
 
