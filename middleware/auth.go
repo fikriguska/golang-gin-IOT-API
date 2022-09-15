@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"encoding/base64"
+	"log"
 	"net/http"
 	"src/models"
 	"src/service/user_service"
@@ -19,8 +20,10 @@ func BasicAuth() gin.HandlerFunc {
 				"status": "error",
 				"data":   "invalid authorization key",
 			})
+			c.Abort()
 			return
 		}
+		log.Println(auth)
 
 		payload, _ := base64.StdEncoding.DecodeString(auth[1])
 
@@ -39,6 +42,7 @@ func BasicAuth() gin.HandlerFunc {
 				"status": "error",
 				"data":   "invalid authorization key",
 			})
+			c.Abort()
 			return
 		}
 		id, _, pass, isAdmin := userService.Get()

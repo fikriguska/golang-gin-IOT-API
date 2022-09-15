@@ -24,7 +24,21 @@ func (u *User) IsEmailValid() bool {
 }
 
 func (u *User) IsExist() bool {
-	return models.IsUserUsernameExist(u.Username) || models.IsUserEmailExist(u.Email)
+	exist := false
+
+	if u.Username != "" {
+		exist = exist || models.IsUserUsernameExist(u.Username)
+	}
+
+	if u.Email != "" {
+		exist = exist || models.IsUserEmailExist(u.Email)
+	}
+
+	if u.Id > 0 {
+		exist = exist || models.IsUserExistById(u.Id)
+	}
+
+	return exist
 }
 
 func (u *User) Add() {
@@ -123,8 +137,21 @@ func (u *User) SetRandomPassword() {
 	hashedNewPass := util.Sha256String(newPass)
 	log.Println(newPass, hashedNewPass)
 	sendEmailForgetPassword(u.Email, u.Username, newPass)
-	models.UpdateUserPassword(u.Email, hashedNewPass)
+	models.UpdateUserPasswordByEmail(u.Email, hashedNewPass)
 
+}
+
+func (u *User) IsUsingNode() bool {
+	return models.IsNodeExistByUserId(u.Id)
+}
+
+func (u *User) Delete() {
+	models.DeleteUser(u.Id)
+}
+
+func (u *User) SetPassword() {
+	hashedPasswd := util.Sha256String(u.Password)
+	models.UpdateUserPasswordById(u.Id, hashedPasswd)
 }
 
 func sendEmailForgetPassword(email string, username string, newPass string) error {
