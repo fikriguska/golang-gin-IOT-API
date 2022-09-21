@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	e "src/error"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type Hardware struct {
@@ -72,15 +73,15 @@ func IsHardwareTypedNodeById(id int) bool {
 
 func AddHardware(h Hardware) {
 	statement := "insert into hardware (name, type, description) values ($1, $2, $3)"
-	_, err := db.Exec(statement, h.Name, h.Type, h.Description)
+	_, err := db.Exec(cb(), statement, h.Name, h.Type, h.Description)
 	e.PanicIfNeeded(err)
 }
 
 func GetHardwareById(id int) Hardware {
 	var hardware Hardware
 	statement := "select id_hardware, name, type, description from hardware where id_hardware = $1"
-	err := db.QueryRow(statement, id).Scan(&hardware.Id, &hardware.Name, &hardware.Type, &hardware.Description)
-	if err != nil && err != sql.ErrNoRows {
+	err := db.QueryRow(cb(), statement, id).Scan(&hardware.Id, &hardware.Name, &hardware.Type, &hardware.Description)
+	if err != nil && err != pgx.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
 
@@ -91,7 +92,7 @@ func GetAllHardwareTypedSensor() []Hardware {
 	var hardware Hardware
 	var hardwares []Hardware
 	statement := "select id_hardware, name, type, description from hardware where lower(type) = 'sensor'"
-	rows, err := db.Query(statement)
+	rows, err := db.Query(cb(), statement)
 	e.PanicIfNeeded(err)
 	for rows.Next() {
 		err := rows.Scan(&hardware.Id, &hardware.Name, &hardware.Type, &hardware.Description)
@@ -105,7 +106,7 @@ func GetAllHardwareTypedNode() []Hardware {
 	var hardware Hardware
 	var hardwares []Hardware
 	statement := "select id_hardware, name, type, description from hardware where lower(type) = 'single-board computer' or lower(type) = 'microcontroller unit'"
-	rows, err := db.Query(statement)
+	rows, err := db.Query(cb(), statement)
 	e.PanicIfNeeded(err)
 	for rows.Next() {
 		err := rows.Scan(&hardware.Id, &hardware.Name, &hardware.Type, &hardware.Description)
@@ -118,8 +119,8 @@ func GetAllHardwareTypedNode() []Hardware {
 func GetNodeByHardwareId(id int) Node {
 	var node Node
 	statement := "select name, location from node where id_hardware = $1"
-	err := db.QueryRow(statement, id).Scan(&node.Name, &node.Location)
-	if err != nil && err != sql.ErrNoRows {
+	err := db.QueryRow(cb(), statement, id).Scan(&node.Name, &node.Location)
+	if err != nil && err != pgx.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
 	return node
@@ -128,8 +129,8 @@ func GetNodeByHardwareId(id int) Node {
 func GetSensorByHardwareId(id int) Sensor {
 	var sensor Sensor
 	statement := "select name, unit from sensor where id_hardware = $1"
-	err := db.QueryRow(statement, id).Scan(&sensor.Name, &sensor.Unit)
-	if err != nil && err != sql.ErrNoRows {
+	err := db.QueryRow(cb(), statement, id).Scan(&sensor.Name, &sensor.Unit)
+	if err != nil && err != pgx.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
 	return sensor
@@ -137,13 +138,13 @@ func GetSensorByHardwareId(id int) Sensor {
 
 func UpdateHardware(h HardwareUpdate, id int) {
 	statement := "update hardware SET name=COALESCE($1, name), type=COALESCE($2, type), description=COALESCE($3, description) where id_hardware=$4"
-	_, err := db.Exec(statement, h.Name, h.Type, h.Description, id)
+	_, err := db.Exec(cb(), statement, h.Name, h.Type, h.Description, id)
 	e.PanicIfNeeded(err)
 }
 
 func DeleteHardware(id int) error {
 	statement := "delete from hardware where id_hardware = $1"
-	_, err := db.Exec(statement, id)
+	_, err := db.Exec(cb(), statement, id)
 	// e.PanicIfNeeded(err)
 	return err
 }

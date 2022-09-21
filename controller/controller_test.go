@@ -1,18 +1,18 @@
 package controller
 
 import (
-	"database/sql"
 	"net/http/httptest"
 	"src/config"
 	"src/models"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 )
 
 var router *gin.Engine
-var db *sql.DB
+var db *pgxpool.Pool
 
 // type response struct {
 // 	Status string
