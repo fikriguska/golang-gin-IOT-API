@@ -20,9 +20,9 @@ type HardwareList struct {
 
 // POST /hardware
 type HardwareAdd struct {
-	Name        string
-	Type        string
-	Description string
+	Name        string `json:"name" binding:"required"`
+	Type        string `json:"type" binding:"required"`
+	Description string `json:"description" binding:"required"`
 }
 
 // GET /hardware/:id
@@ -60,12 +60,12 @@ func IsHardwareExistById(id int) bool {
 	return isRowExist(statement, id)
 }
 
-func IsHardwareTypeSensorById(id int) bool {
+func IsHardwareTypedSensorById(id int) bool {
 	statement := "select type from hardware where id_hardware = $1 and (lower(type) = 'sensor')"
 	return isRowExist(statement, id)
 }
 
-func IsHardwareTypeNodeById(id int) bool {
+func IsHardwareTypedNodeById(id int) bool {
 	statement := "select type from hardware where id_hardware = $1 and (lower(type) = 'single-board computer' or lower(type) = 'microcontroller unit')"
 	return isRowExist(statement, id)
 }
@@ -87,7 +87,7 @@ func GetHardwareById(id int) Hardware {
 	return hardware
 }
 
-func GetAllHardwareTypeSensor() []Hardware {
+func GetAllHardwareTypedSensor() []Hardware {
 	var hardware Hardware
 	var hardwares []Hardware
 	statement := "select id_hardware, name, type, description from hardware where lower(type) = 'sensor'"
@@ -101,7 +101,7 @@ func GetAllHardwareTypeSensor() []Hardware {
 	return hardwares
 }
 
-func GetAllHardwareTypeNode() []Hardware {
+func GetAllHardwareTypedNode() []Hardware {
 	var hardware Hardware
 	var hardwares []Hardware
 	statement := "select id_hardware, name, type, description from hardware where lower(type) = 'single-board computer' or lower(type) = 'microcontroller unit'"
@@ -141,8 +141,9 @@ func UpdateHardware(h HardwareUpdate, id int) {
 	e.PanicIfNeeded(err)
 }
 
-func DeleteHardware(id int) {
+func DeleteHardware(id int) error {
 	statement := "delete from hardware where id_hardware = $1"
 	_, err := db.Exec(statement, id)
-	e.PanicIfNeeded(err)
+	// e.PanicIfNeeded(err)
+	return err
 }

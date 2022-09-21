@@ -118,7 +118,7 @@ func TestAddSensor(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkErrorBody(t, recorder, e.ErrNodeNotFound)
+				checkErrorBody(t, recorder, e.ErrNodeIdNotFound)
 			},
 		},
 		{
@@ -132,7 +132,7 @@ func TestAddSensor(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkErrorBody(t, recorder, e.ErrHardwareNotFound)
+				checkErrorBody(t, recorder, e.ErrHardwareIdNotFound)
 			},
 		},
 		{
@@ -242,7 +242,7 @@ func TestDeleteSensor(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkErrorBody(t, recorder, e.ErrSensorNotFound)
+				checkErrorBody(t, recorder, e.ErrSensorIdNotFound)
 			},
 		},
 		{

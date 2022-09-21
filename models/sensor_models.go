@@ -13,12 +13,19 @@ type Sensor struct {
 	Id_hardware int
 }
 
+type SensorAdd struct {
+	Name        string `json:"name" binding:"required"`
+	Unit        string `json:"unit" binding:"required"`
+	Id_Node     int    `json:"id_node" binding:"required"`
+	Id_hardware *int   `json:"id_hardware"`
+}
+
 type SensorList struct {
-	Id          int
-	Name        string
-	Unit        string
-	Id_node     int
-	Id_hardware NullInt64
+	Id          int       `json:"id_sensor"`
+	Name        string    `json:"name"`
+	Unit        string    `json:"unit"`
+	Id_node     int       `json:"id_node"`
+	Id_hardware NullInt64 `json:"id_hardware"`
 }
 
 type SensorGet struct {
@@ -33,8 +40,8 @@ type SensorChannelGet struct {
 }
 
 type SensorUpdate struct {
-	Name *string
-	Unit *string
+	Name *string `json:"name"`
+	Unit *string `json:"unit"`
 }
 
 func AddSensorNoHardware(s Sensor) {

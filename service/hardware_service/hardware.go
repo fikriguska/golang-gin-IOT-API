@@ -23,9 +23,9 @@ func (h *Hardware) IsExist() bool {
 func (h *Hardware) CheckHardwareType(type_ string) bool {
 	switch type_ {
 	case "sensor":
-		return models.IsHardwareTypeSensorById(h.Id)
+		return models.IsHardwareTypedSensorById(h.Id)
 	case "node":
-		return models.IsHardwareTypeNodeById(h.Id)
+		return models.IsHardwareTypedNodeById(h.Id)
 	}
 
 	return false
@@ -37,16 +37,16 @@ func (h *Hardware) Add() {
 
 func (h *Hardware) GetAll() models.HardwareList {
 	var list models.HardwareList
-	list.Sensor = models.GetAllHardwareTypeSensor()
-	list.Node = models.GetAllHardwareTypeNode()
+	list.Sensor = models.GetAllHardwareTypedSensor()
+	list.Node = models.GetAllHardwareTypedNode()
 
 	return list
 }
 
 func (h *Hardware) Get() interface{} {
 
-	isSensor := models.IsHardwareTypeSensorById(h.Id)
-	IsNode := models.IsHardwareTypeNodeById(h.Id)
+	isSensor := models.IsHardwareTypedSensorById(h.Id)
+	IsNode := models.IsHardwareTypedNodeById(h.Id)
 	hw := models.GetHardwareById(h.Id)
 
 	if isSensor {
@@ -67,6 +67,7 @@ func (h *Hardware) Get() interface{} {
 		hardware.Name = hw.Name
 		hardware.Type = hw.Type
 		hardware.Description = hw.Description
+
 		node := models.GetNodeByHardwareId(h.Id)
 		hardware.Node.Name = node.Name
 		hardware.Node.Location = node.Location
@@ -80,6 +81,10 @@ func (h *Hardware) Update(hardware models.HardwareUpdate) {
 	models.UpdateHardware(hardware, h.Id)
 }
 
-func (h *Hardware) Delete() {
-	models.DeleteHardware(h.Id)
+func (h *Hardware) Delete() error {
+	return models.DeleteHardware(h.Id)
 }
+
+// func (h *Hardware) IsStillUsed {
+// 	models.
+// }

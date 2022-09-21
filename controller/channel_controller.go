@@ -14,16 +14,11 @@ import (
 func ChannelRoute(r *gin.Engine) {
 	authorized := r.Group("/channel", middleware.BasicAuth())
 
-	authorized.POST("/", AddChannel)
-}
-
-type AddChannelStruct struct {
-	Value     float64 `json:"value" binding:"required"`
-	Id_sensor int     `json:"id_sensor" binding:"required"`
+	authorized.POST("", AddChannel)
 }
 
 func AddChannel(c *gin.Context) {
-	var json AddChannelStruct
+	var json models.ChannelAdd
 
 	// Check required parameter
 	if err := c.BindJSON(&json); err != nil {
@@ -41,7 +36,7 @@ func AddChannel(c *gin.Context) {
 	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrSensorNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrSensorIdNotFound)
 		return
 	} else if !owner {
 		errorResponse(c, http.StatusForbidden, e.ErrUseSensorNotPermitted)
@@ -56,6 +51,7 @@ func AddChannel(c *gin.Context) {
 	}
 
 	channelService.Add()
-	successResponse(c, http.StatusCreated, "success add new channel")
+
+	successResponse(c, http.StatusCreated, "success add channel")
 
 }
