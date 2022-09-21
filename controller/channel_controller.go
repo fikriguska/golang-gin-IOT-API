@@ -27,7 +27,7 @@ func AddChannel(c *gin.Context) {
 
 	// Check required parameter
 	if err := c.BindJSON(&json); err != nil {
-		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
 		return
 	}
 

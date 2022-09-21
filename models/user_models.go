@@ -14,6 +14,17 @@ type User struct {
 	Is_admin bool   `json:"is_admin"`
 }
 
+type UserAdd struct {
+	Email    string `json:"email" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type UserLogin struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 type UserForgetPassword struct {
 	Email    string `json:"email" binding:"required"`
 	Username string `json:"username" binding:"required"`
@@ -42,19 +53,9 @@ func GetUserByUsername(user User) User {
 
 func IsUserUsernameExist(username string) bool {
 	statement := "select username from user_person where username = $1"
-
-	// **to do** gimana cara gak pakai var tmp
-	// var tmp string
-	// if err := db.QueryRow(statement, username).Scan(&tmp); err != nil {
-	// 	if err == sql.ErrNoRows {
-	// 		return false, nil
-	// 	}
-	// 	return false, err
-	// }
-	// return true, nil
 	return isRowExist(statement, username)
-
 }
+
 func IsUserEmailExist(email string) bool {
 	statement := "select email from user_person where email = $1"
 	return isRowExist(statement, email)
@@ -78,14 +79,6 @@ func GetUserIdByUsername(username string) int {
 
 func IsUserTokenExist(token string) bool {
 	statement := "select token from user_person where token = $1"
-
-	// var tmp string
-	// if err := db.QueryRow(statement, token).Scan(&tmp); err != nil {
-	// 	if err == sql.ErrNoRows {
-	// 		return false, nil
-	// 	}
-	// 	return false, err
-	// }
 	return isRowExist(statement, token)
 }
 
@@ -120,8 +113,8 @@ func ActivateUser(token string) error {
 	return nil
 }
 
-func AuthUser(username string, password string) bool {
-	statement := "select token from user_person where username = $1 and password = $2"
+func IsUsernameAndPasswordExist(username string, password string) bool {
+	statement := "select id_user from user_person where username = $1 and password = $2"
 	return isRowExist(statement, username, password)
 
 }

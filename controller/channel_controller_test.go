@@ -51,7 +51,7 @@ func TestAddChannel(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkBody(t, recorder, e.ErrSensorNotFound)
+				checkErrorBody(t, recorder, e.ErrSensorNotFound)
 			},
 		},
 		{
@@ -63,7 +63,7 @@ func TestAddChannel(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
-				checkBody(t, recorder, e.ErrUseSensorNotPermitted)
+				checkErrorBody(t, recorder, e.ErrUseSensorNotPermitted)
 			},
 		},
 		{
@@ -75,7 +75,7 @@ func TestAddChannel(t *testing.T) {
 			user: user2,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
-				checkBody(t, recorder, e.ErrUseSensorNotPermitted)
+				checkErrorBody(t, recorder, e.ErrUseSensorNotPermitted)
 			},
 		},
 		{
