@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 	e "src/error"
 	"src/middleware"
@@ -27,7 +28,7 @@ func AddNode(c *gin.Context) {
 
 	// Check required parameter
 	if err := c.BindJSON(&json); err != nil {
-		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
 		return
 	}
 
@@ -50,6 +51,7 @@ func AddNode(c *gin.Context) {
 			},
 		}
 		hardwareExist := hardwareService.IsExist()
+		log.Println(hardwareExist)
 		if !hardwareExist {
 			errorResponse(c, http.StatusNotFound, e.ErrHardwareNotFound)
 			return
@@ -76,7 +78,7 @@ func GetNode(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, e.ErrUserExist)
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
 		return
 	}
 
@@ -156,7 +158,7 @@ func DeleteNode(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, e.ErrInvalidEmail)
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
 		return
 	}
 

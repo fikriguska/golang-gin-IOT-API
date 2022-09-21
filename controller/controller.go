@@ -5,15 +5,13 @@ import (
 )
 
 func errorResponse(c *gin.Context, statusCode int, err error) {
-	c.IndentedJSON(statusCode, gin.H{
-		"status": "error",
-		"data":   err.Error(),
-	})
+	// c.IndentedJSON(statusCode, gin.H{
+	// 	"status": "error",
+	// 	"data":   err.Error(),
+	// })
+	c.String(statusCode, err.Error())
 }
 
 func successResponse(c *gin.Context, statusCode int, msg string) {
-	c.IndentedJSON(statusCode, gin.H{
-		"status": "ok",
-		"data":   msg,
-	})
+	c.IndentedJSON(statusCode, msg)
 }

@@ -94,7 +94,7 @@ func TestAddUser(t *testing.T) {
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrUserExist)
+				checkErrorBody(t, recorder, e.ErrEmailUsernameAlreadyUsed)
 			},
 		},
 		{
@@ -106,7 +106,7 @@ func TestAddUser(t *testing.T) {
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrUserExist)
+				checkErrorBody(t, recorder, e.ErrEmailUsernameAlreadyUsed)
 			},
 		},
 		{
@@ -118,7 +118,7 @@ func TestAddUser(t *testing.T) {
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrInvalidEmail)
+				checkErrorBody(t, recorder, e.ErrInvalidEmail)
 			},
 		},
 	}
@@ -129,7 +129,7 @@ func TestAddUser(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
-			req, _ := http.NewRequest("POST", "/user", bytes.NewBuffer(data))
+			req, _ := http.NewRequest("POST", "/user/signup", bytes.NewBuffer(data))
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 		})
@@ -159,15 +159,15 @@ func TestActivateUser(t *testing.T) {
 			token: user.Token,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrInvalidToken)
+				checkErrorBody(t, recorder, e.ErrUserAlreadyActive)
 			},
 		},
 		{
 			name:  "token doensn't exists",
 			token: "invalidtoken1337133713371337133713371337133713371337133713371337",
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrInvalidToken)
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrTokenNotFound)
 			},
 		},
 	}
@@ -217,7 +217,7 @@ func TestUserLogin(t *testing.T) {
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrUsernameOrPassIncorrect)
+				checkErrorBody(t, recorder, e.ErrUsernameOrPassIncorrect)
 			},
 		},
 		{
@@ -228,7 +228,7 @@ func TestUserLogin(t *testing.T) {
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrUsernameOrPassIncorrect)
+				checkErrorBody(t, recorder, e.ErrUsernameOrPassIncorrect)
 			},
 		},
 		{
@@ -239,7 +239,7 @@ func TestUserLogin(t *testing.T) {
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrUserNotActive)
+				checkErrorBody(t, recorder, e.ErrUserNotActive)
 			},
 		},
 	}

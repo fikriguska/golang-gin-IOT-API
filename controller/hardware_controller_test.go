@@ -100,7 +100,7 @@ func TestAddHardware(t *testing.T) {
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrInvalidHardwareType)
+				checkErrorBody(t, recorder, e.ErrInvalidHardwareType)
 			},
 		},
 	}
@@ -139,7 +139,7 @@ func TestDeleteHardware(t *testing.T) {
 			id:   1337,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkBody(t, recorder, e.ErrHardwareNotFound)
+				checkErrorBody(t, recorder, e.ErrHardwareNotFound)
 			},
 		},
 	}
@@ -185,7 +185,7 @@ func TestGetHardwareSensor(t *testing.T) {
 			sensor:   sensor,
 			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, s models.Sensor) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkBody(t, recorder, e.ErrHardwareNotFound)
+				checkErrorBody(t, recorder, e.ErrHardwareNotFound)
 			},
 		},
 		{
@@ -247,7 +247,7 @@ func TestGetHardwareNode(t *testing.T) {
 			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 				// chekHardwareNodeBody(t, recorder, h, n)
-				checkBody(t, recorder, e.ErrHardwareNotFound)
+				checkErrorBody(t, recorder, e.ErrHardwareNotFound)
 			},
 		},
 		{
@@ -331,7 +331,7 @@ func TestUpdateHardware(t *testing.T) {
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrInvalidHardwareType)
+				checkErrorBody(t, recorder, e.ErrInvalidHardwareType)
 			},
 			checkInDB: func(id int) {
 			},

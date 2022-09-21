@@ -2,7 +2,6 @@ package controller
 
 import (
 	"database/sql"
-	"encoding/json"
 	"net/http/httptest"
 	"src/config"
 	"src/models"
@@ -15,10 +14,10 @@ import (
 var router *gin.Engine
 var db *sql.DB
 
-type response struct {
-	Status string
-	Data   string
-}
+// type response struct {
+// 	Status string
+// 	Data   string
+// }
 
 func TestMain(m *testing.M) {
 	cfg := config.Setup()
@@ -51,8 +50,6 @@ func SetupRouter() *gin.Engine {
 	return r
 }
 
-func checkBody(t *testing.T, recorder *httptest.ResponseRecorder, e error) {
-	var resp response
-	json.Unmarshal(recorder.Body.Bytes(), &resp)
-	require.Equal(t, e.Error(), resp.Data)
+func checkErrorBody(t *testing.T, recorder *httptest.ResponseRecorder, e error) {
+	require.Equal(t, e.Error(), recorder.Body.String())
 }

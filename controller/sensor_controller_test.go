@@ -118,7 +118,7 @@ func TestAddSensor(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkBody(t, recorder, e.ErrNodeNotFound)
+				checkErrorBody(t, recorder, e.ErrNodeNotFound)
 			},
 		},
 		{
@@ -132,7 +132,7 @@ func TestAddSensor(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkBody(t, recorder, e.ErrHardwareNotFound)
+				checkErrorBody(t, recorder, e.ErrHardwareNotFound)
 			},
 		},
 		{
@@ -146,7 +146,7 @@ func TestAddSensor(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkBody(t, recorder, e.ErrHardwareMustbeSensor)
+				checkErrorBody(t, recorder, e.ErrHardwareMustbeSensor)
 			},
 		},
 		{
@@ -160,7 +160,7 @@ func TestAddSensor(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
-				checkBody(t, recorder, e.ErrUseNodeNotPermitted)
+				checkErrorBody(t, recorder, e.ErrUseNodeNotPermitted)
 			},
 		},
 	}
@@ -242,7 +242,7 @@ func TestDeleteSensor(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkBody(t, recorder, e.ErrSensorNotFound)
+				checkErrorBody(t, recorder, e.ErrSensorNotFound)
 			},
 		},
 		{
@@ -251,7 +251,7 @@ func TestDeleteSensor(t *testing.T) {
 			user: user2,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
-				checkBody(t, recorder, e.ErrDeleteSensorNotPermitted)
+				checkErrorBody(t, recorder, e.ErrDeleteSensorNotPermitted)
 			},
 		},
 		{
@@ -260,7 +260,7 @@ func TestDeleteSensor(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
-				checkBody(t, recorder, e.ErrDeleteSensorNotPermitted)
+				checkErrorBody(t, recorder, e.ErrDeleteSensorNotPermitted)
 			},
 		},
 		{

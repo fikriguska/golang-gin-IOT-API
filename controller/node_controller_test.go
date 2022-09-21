@@ -128,7 +128,7 @@ func TestAddNode(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkBody(t, recorder, e.ErrHardwareNotFound)
+				checkErrorBody(t, recorder, e.ErrHardwareNotFound)
 			},
 		},
 	}
@@ -186,7 +186,7 @@ func TestGetNode(t *testing.T) {
 			user: user2,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
-				checkBody(t, recorder, e.ErrSeeNodeNotPermitted)
+				checkErrorBody(t, recorder, e.ErrSeeNodeNotPermitted)
 			},
 		},
 		{
@@ -269,7 +269,7 @@ func TestDeleteNode(t *testing.T) {
 			id:   id_node2,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
-				checkBody(t, recorder, e.ErrDeleteNodeNotPermitted)
+				checkErrorBody(t, recorder, e.ErrDeleteNodeNotPermitted)
 			},
 		},
 		{
@@ -278,7 +278,7 @@ func TestDeleteNode(t *testing.T) {
 			id:   id_node,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
-				checkBody(t, recorder, e.ErrDeleteNodeNotPermitted)
+				checkErrorBody(t, recorder, e.ErrDeleteNodeNotPermitted)
 			},
 		},
 		{
@@ -295,7 +295,7 @@ func TestDeleteNode(t *testing.T) {
 			id:   id_node,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkBody(t, recorder, e.ErrNodeNotFound)
+				checkErrorBody(t, recorder, e.ErrNodeNotFound)
 			},
 		},
 	}
