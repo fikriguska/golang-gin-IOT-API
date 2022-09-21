@@ -96,7 +96,7 @@ func TestAddChannel(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
-			req, _ := http.NewRequest("POST", "/channel/", bytes.NewBuffer(data))
+			req, _ := http.NewRequest("POST", "/channel", bytes.NewBuffer(data))
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
@@ -128,7 +128,7 @@ func TestListChannel(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/node/", nil)
+			req, _ := http.NewRequest("GET", "/node", nil)
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)

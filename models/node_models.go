@@ -47,9 +47,8 @@ type NodeGet struct {
 }
 
 type NodeUpdate struct {
-	Name        *string `json:"name"`
-	Location    *string `json:"location"`
-	Id_hardware *int    `json:"id_hardware"`
+	Name     *string `json:"name"`
+	Location *string `json:"location"`
 }
 
 func AddNodeNoHardware(node Node) {

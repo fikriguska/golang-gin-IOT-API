@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	e "src/error"
 	"src/models"
@@ -71,7 +72,7 @@ func GetHardware(c *gin.Context) {
 	exist := hardwareService.IsExist()
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrHardwareNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
 		return
 	}
 
@@ -104,7 +105,7 @@ func UpdateHardware(c *gin.Context) {
 	exist := hardwareService.IsExist()
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrHardwareNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
 		return
 	}
 
@@ -119,6 +120,8 @@ func UpdateHardware(c *gin.Context) {
 	}
 
 	hardwareService.Update(json)
+
+	successResponse(c, http.StatusOK, "success edit hardware")
 
 }
 
@@ -139,12 +142,19 @@ func DeleteHardware(c *gin.Context) {
 	exist := hardwareService.IsExist()
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrHardwareNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
 		return
 	}
 
-	hardwareService.Delete()
+	// stillUsed := hardwareService.IsStillUsed()
 
-	successResponse(c, http.StatusOK, "success delete hardware")
+	err = hardwareService.Delete()
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrHardwareStillUsed)
+		return
+	}
+
+	successResponse(c, http.StatusOK, fmt.Sprintf("delete hardware, id: %d", id))
 
 }

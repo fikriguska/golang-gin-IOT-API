@@ -128,7 +128,7 @@ func TestAddNode(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkErrorBody(t, recorder, e.ErrHardwareNotFound)
+				checkErrorBody(t, recorder, e.ErrHardwareIdNotFound)
 			},
 		},
 	}
@@ -138,7 +138,7 @@ func TestAddNode(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
-			req, _ := http.NewRequest("POST", "/node/", bytes.NewBuffer(data))
+			req, _ := http.NewRequest("POST", "/node", bytes.NewBuffer(data))
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
 			log.Println(req.Header)
 			router.ServeHTTP(w, req)
@@ -295,7 +295,7 @@ func TestDeleteNode(t *testing.T) {
 			id:   id_node,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkErrorBody(t, recorder, e.ErrNodeNotFound)
+				checkErrorBody(t, recorder, e.ErrNodeIdNotFound)
 			},
 		},
 	}
@@ -337,7 +337,7 @@ func TestListNode(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/node/", nil)
+			req, _ := http.NewRequest("GET", "/node", nil)
 			req.SetBasicAuth(tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)

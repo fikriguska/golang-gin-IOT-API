@@ -14,7 +14,7 @@ import (
 func ChannelRoute(r *gin.Engine) {
 	authorized := r.Group("/channel", middleware.BasicAuth())
 
-	authorized.POST("/", AddChannel)
+	authorized.POST("", AddChannel)
 }
 
 type AddChannelStruct struct {

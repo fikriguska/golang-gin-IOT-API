@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	e "src/error"
 	"src/middleware"
@@ -16,8 +16,8 @@ import (
 func NodeRoute(r *gin.Engine) {
 	authorized := r.Group("/node", middleware.BasicAuth())
 
-	authorized.POST("/", AddNode)
-	authorized.GET("/", ListNode)
+	authorized.POST("", AddNode)
+	authorized.GET("", ListNode)
 	authorized.GET("/:id", GetNode)
 	authorized.PUT("/:id", UpdateNode)
 	authorized.DELETE("/:id", DeleteNode)
@@ -51,16 +51,15 @@ func AddNode(c *gin.Context) {
 			},
 		}
 		hardwareExist := hardwareService.IsExist()
-		log.Println(hardwareExist)
 		if !hardwareExist {
-			errorResponse(c, http.StatusNotFound, e.ErrHardwareNotFound)
+			errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
 			return
 		}
 
 		isNode := hardwareService.CheckHardwareType("node")
 
 		if !isNode {
-			errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeSensor)
+			errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeNode)
 			return
 		}
 
@@ -93,7 +92,7 @@ func GetNode(c *gin.Context) {
 	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
 	} else if !owner && !is_admin.(bool) {
 		errorResponse(c, http.StatusForbidden, e.ErrSeeNodeNotPermitted)
@@ -144,7 +143,7 @@ func UpdateNode(c *gin.Context) {
 	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
 	} else if !owner && !is_admin.(bool) {
 		errorResponse(c, http.StatusForbidden, e.ErrEditNodeNotPermitted)
@@ -152,6 +151,8 @@ func UpdateNode(c *gin.Context) {
 	}
 
 	nodeService.Update(json)
+
+	successResponse(c, http.StatusOK, "success edit node")
 }
 
 func DeleteNode(c *gin.Context) {
@@ -173,7 +174,7 @@ func DeleteNode(c *gin.Context) {
 	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
 	} else if !owner {
 		errorResponse(c, http.StatusForbidden, e.ErrDeleteNodeNotPermitted)
@@ -182,6 +183,6 @@ func DeleteNode(c *gin.Context) {
 
 	nodeService.Delete()
 
-	successResponse(c, http.StatusOK, "success delete node")
+	successResponse(c, http.StatusOK, fmt.Sprintf("success delete node, id: %d", id))
 
 }

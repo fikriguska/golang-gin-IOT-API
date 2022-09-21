@@ -56,7 +56,7 @@ func AddSensor(c *gin.Context) {
 
 	if !exist {
 		fmt.Println("[+] node not exist")
-		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
 	} else if !isAdmin.(bool) && !owner {
 		errorResponse(c, http.StatusForbidden, e.ErrUseNodeNotPermitted)
@@ -85,7 +85,7 @@ func AddSensor(c *gin.Context) {
 			// resp.status = falcon.HTTP_400
 			// resp.body = 'Id hardware is invalid'
 			fmt.Println("[+] hardware not exist")
-			errorResponse(c, http.StatusNotFound, e.ErrHardwareNotFound)
+			errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
 			return
 		}
 		isSensor := hardwareService.CheckHardwareType("sensor")
@@ -175,7 +175,7 @@ func UpdateSensor(c *gin.Context) {
 	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrNodeNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
 	} else if !owner && !is_admin.(bool) {
 		errorResponse(c, http.StatusForbidden, e.ErrEditSensorNotPermitted)
