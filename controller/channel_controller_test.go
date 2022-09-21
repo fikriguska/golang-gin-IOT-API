@@ -51,7 +51,7 @@ func TestAddChannel(t *testing.T) {
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkErrorBody(t, recorder, e.ErrSensorNotFound)
+				checkErrorBody(t, recorder, e.ErrSensorIdNotFound)
 			},
 		},
 		{

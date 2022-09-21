@@ -24,16 +24,9 @@ func SensorRoute(r *gin.Engine) {
 	authorized.DELETE("/:id", DeleteSensor)
 }
 
-type AddSensorStruct struct {
-	Name        string `json:"name" binding:"required"`
-	Unit        string `json:"unit" binding:"required"`
-	Id_Node     int    `json:"id_node" binding:"required"`
-	Id_hardware *int   `json:"id_hardware"`
-}
-
 func AddSensor(c *gin.Context) {
 
-	var json AddSensorStruct
+	var json models.SensorAdd
 	// var id_user int
 	// var isAdmin bool
 
@@ -55,7 +48,6 @@ func AddSensor(c *gin.Context) {
 	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
 
 	if !exist {
-		fmt.Println("[+] node not exist")
 		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
 	} else if !isAdmin.(bool) && !owner {
@@ -80,11 +72,6 @@ func AddSensor(c *gin.Context) {
 		}
 		hardwareExist := hardwareService.IsExist()
 		if !hardwareExist {
-
-			// falcon
-			// resp.status = falcon.HTTP_400
-			// resp.body = 'Id hardware is invalid'
-			fmt.Println("[+] hardware not exist")
 			errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
 			return
 		}
@@ -126,7 +113,7 @@ func GetSensor(c *gin.Context) {
 	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrSensorNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrSensorIdNotFound)
 		return
 	} else if !owner && !is_admin.(bool) {
 		errorResponse(c, http.StatusForbidden, e.ErrSeeSensorNotPermitted)
@@ -184,6 +171,8 @@ func UpdateSensor(c *gin.Context) {
 
 	sensorService.Update(json)
 
+	successResponse(c, http.StatusOK, "success edit sensor data")
+
 }
 
 func DeleteSensor(c *gin.Context) {
@@ -204,7 +193,7 @@ func DeleteSensor(c *gin.Context) {
 	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrSensorNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrSensorIdNotFound)
 		return
 	} else if !owner && !isAdmin.(bool) {
 		errorResponse(c, http.StatusForbidden, e.ErrDeleteSensorNotPermitted)
@@ -212,6 +201,7 @@ func DeleteSensor(c *gin.Context) {
 	}
 
 	sensorService.Delete()
-	successResponse(c, http.StatusOK, "success delete sensor")
+
+	successResponse(c, http.StatusOK, fmt.Sprintf("success delete sensor, id: %d", id))
 
 }
