@@ -139,7 +139,7 @@ func TestAddNode(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
 			req, _ := http.NewRequest("POST", "/node", bytes.NewBuffer(data))
-			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			setAuth(req, tc.user.Username, tc.user.Password)
 			log.Println(req.Header)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
@@ -210,7 +210,7 @@ func TestGetNode(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/node/"+strconv.Itoa(tc.id), nil)
-			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			setAuth(req, tc.user.Username, tc.user.Password)
 			log.Println(req.Header)
 			router.ServeHTTP(w, req)
 			// log.Println(w.Body)
@@ -305,7 +305,7 @@ func TestDeleteNode(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("DELETE", "/node/"+strconv.Itoa(tc.id), nil)
-			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			setAuth(req, tc.user.Username, tc.user.Password)
 			log.Println(req.Header)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
@@ -338,7 +338,7 @@ func TestListNode(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/node", nil)
-			req.SetBasicAuth(tc.user.Username, tc.user.Password)
+			setAuth(req, tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 		})

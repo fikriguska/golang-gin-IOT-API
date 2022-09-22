@@ -2,6 +2,7 @@ package controller
 
 import (
 	"database/sql"
+	"net/http"
 	"net/http/httptest"
 	"src/config"
 	"src/models"
@@ -48,6 +49,10 @@ func SetupRouter() *gin.Engine {
 	SensorRoute(r)
 	ChannelRoute(r)
 	return r
+}
+
+func setAuth(req *http.Request, username string, password string) {
+	req.SetBasicAuth(username, password)
 }
 
 func checkErrorBody(t *testing.T, recorder *httptest.ResponseRecorder, e error) {
