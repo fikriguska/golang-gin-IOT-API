@@ -1,9 +1,6 @@
 package user_service
 
 import (
-	"crypto/sha256"
-
-	"encoding/hex"
 	"src/models"
 	"src/util"
 )
@@ -31,10 +28,8 @@ func (u *User) IsExist() bool {
 }
 
 func (u *User) Add() {
-	hashedTokenByte := sha256.Sum256([]byte(u.Username + u.Email + u.Password))
-	hashedToken := hex.EncodeToString(hashedTokenByte[:])
-	hashedPassByte := sha256.Sum256([]byte(u.Password))
-	hashedPass := hex.EncodeToString(hashedPassByte[:])
+	hashedToken := util.Sha256String(u.Username + u.Email + u.Password)
+	hashedPass := util.Sha256String(u.Password)
 
 	u.Status = false
 	u.Is_admin = false
