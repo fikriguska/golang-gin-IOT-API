@@ -5,6 +5,7 @@ import (
 	// "net/http/httptest"
 
 	"bytes"
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -30,7 +31,7 @@ func randomSensor() models.Sensor {
 func insertSensor(s models.Sensor) int {
 	statement := "insert into sensor (name, unit, id_node, id_hardware) values ($1, $2, $3, $4) returning id_sensor"
 	var id int
-	err := db.QueryRow(statement, s.Name, s.Unit, s.Id_node, s.Id_hardware).Scan(&id)
+	err := db.QueryRow(context.Background(), statement, s.Name, s.Unit, s.Id_node, s.Id_hardware).Scan(&id)
 	e.PanicIfNeeded(err)
 	return id
 }
@@ -90,6 +91,7 @@ func TestAddSensor(t *testing.T) {
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				log.Println(recorder.Body)
 				require.Equal(t, http.StatusCreated, recorder.Code)
 			},
 		},
@@ -170,7 +172,9 @@ func TestAddSensor(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
-			req, _ := http.NewRequest("POST", "/sensor/", bytes.NewBuffer(data))
+
+			req, _ := http.NewRequest("POST", "/sensor", bytes.NewBuffer(data))
+
 			setAuth(req, tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)

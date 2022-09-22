@@ -1,19 +1,19 @@
 package controller
 
 import (
-	"database/sql"
-	"net/http"
 	"net/http/httptest"
 	"src/config"
+	"src/middleware"
 	"src/models"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 )
 
 var router *gin.Engine
-var db *sql.DB
+var db *pgxpool.Pool
 
 // type response struct {
 // 	Status string
@@ -22,6 +22,7 @@ var db *sql.DB
 
 func TestMain(m *testing.M) {
 	cfg := config.Setup()
+	middleware.JwtAuth()
 	db = models.Setup(cfg)
 	router = SetupRouter()
 

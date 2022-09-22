@@ -10,11 +10,12 @@ import (
 	"src/service/node_service"
 	"strconv"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
 func NodeRoute(r *gin.Engine) {
-	authorized := r.Group("/node", middleware.BasicAuth())
+	authorized := r.Group("/node", middleware.JwtMiddleware.MiddlewareFunc())
 
 	authorized.POST("", AddNode)
 	authorized.GET("", ListNode)
@@ -32,11 +33,12 @@ func AddNode(c *gin.Context) {
 		return
 	}
 
-	id_user, _ := c.Get("id_user")
+	jwt.ExtractClaims(c)
+	idUser, _ := extractJwt(c)
 
 	nodeService := node_service.Node{
 		Node: models.Node{
-			Id_user:  id_user.(int),
+			Id_user:  idUser,
 			Name:     json.Name,
 			Location: json.Location,
 		},
@@ -86,15 +88,14 @@ func GetNode(c *gin.Context) {
 			Id: id,
 		},
 	}
-	id_user, _ := c.Get("id_user")
-	is_admin, _ := c.Get("is_admin")
+	idUser, isAdmin := extractJwt(c)
 
-	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
+	exist, owner := nodeService.IsExistAndOwner(idUser)
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
-	} else if !owner && !is_admin.(bool) {
+	} else if !owner && !isAdmin {
 		errorResponse(c, http.StatusForbidden, e.ErrSeeNodeNotPermitted)
 		return
 	}
@@ -107,10 +108,9 @@ func GetNode(c *gin.Context) {
 func ListNode(c *gin.Context) {
 	nodeService := node_service.Node{}
 
-	id_user, _ := c.Get("id_user")
-	is_admin, _ := c.Get("is_admin")
+	idUser, isAdmin := extractJwt(c)
 
-	nodes := nodeService.GetAll(id_user.(int), is_admin.(bool))
+	nodes := nodeService.GetAll(idUser, isAdmin)
 
 	c.IndentedJSON(http.StatusOK, nodes)
 }
@@ -137,15 +137,14 @@ func UpdateNode(c *gin.Context) {
 		},
 	}
 
-	id_user, _ := c.Get("id_user")
-	is_admin, _ := c.Get("is_admin")
+	idUser, isAdmin := extractJwt(c)
 
-	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
+	exist, owner := nodeService.IsExistAndOwner(idUser)
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
-	} else if !owner && !is_admin.(bool) {
+	} else if !owner && !isAdmin {
 		errorResponse(c, http.StatusForbidden, e.ErrEditNodeNotPermitted)
 		return
 	}
@@ -169,9 +168,9 @@ func DeleteNode(c *gin.Context) {
 		},
 	}
 
-	id_user, _ := c.Get("id_user")
+	idUser, _ := extractJwt(c)
 
-	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
+	exist, owner := nodeService.IsExistAndOwner(idUser)
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
