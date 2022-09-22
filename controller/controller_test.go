@@ -1,9 +1,15 @@
 package controller
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
 	"net/http/httptest"
 	"src/config"
+	"src/middleware"
 	"src/models"
 	"testing"
 
@@ -21,6 +27,7 @@ var db *sql.DB
 
 func TestMain(m *testing.M) {
 	cfg := config.Setup()
+	middleware.JwtAuth()
 	db = models.Setup(cfg)
 	router = SetupRouter()
 
@@ -48,6 +55,39 @@ func SetupRouter() *gin.Engine {
 	SensorRoute(r)
 	ChannelRoute(r)
 	return r
+}
+
+var jwtToken = make(map[string]string)
+
+type TokenResponse struct {
+	Token string
+}
+
+func login(username string, password string) string {
+	body := gin.H{
+		"username": username,
+		"password": password,
+	}
+	w := httptest.NewRecorder()
+	data, _ := json.Marshal(body)
+	req, _ := http.NewRequest("POST", "/user/login", bytes.NewBuffer(data))
+	router.ServeHTTP(w, req)
+
+	var tokenResp TokenResponse
+	json.Unmarshal(w.Body.Bytes(), &tokenResp)
+	log.Println(tokenResp.Token)
+
+	return tokenResp.Token
+}
+
+func setAuth(req *http.Request, username string, password string) {
+	var token string
+	if _, ok := jwtToken[username]; !ok {
+		token = login(username, password)
+		jwtToken[username] = token
+	}
+	log.Println(jwtToken[username])
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken[username]))
 }
 
 func checkErrorBody(t *testing.T, recorder *httptest.ResponseRecorder, e error) {

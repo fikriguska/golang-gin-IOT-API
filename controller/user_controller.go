@@ -10,18 +10,32 @@ import (
 	"src/util"
 	"strconv"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
 func UserRoute(r *gin.Engine) {
 	r.POST("/user/signup", AddUser)
 	r.GET("/user/activation", ActivateUser)
-	r.POST("/user/login", Login)
+	r.POST("/user/login", middleware.JwtMiddleware.LoginHandler)
 	r.POST("/user/forget-password", ForgetPassword)
+
+	r.GET("/user/hello", middleware.JwtMiddleware.MiddlewareFunc(), helloHandler)
+	// r.POST("/user/auth")
 
 	authorized := r.Group("/user/:id", middleware.BasicAuth())
 	authorized.DELETE("", DeleteUser)
 	authorized.PUT("", UpdateUser)
+}
+
+func helloHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	// user, _ := c.Get("identity")
+	c.JSON(200, gin.H{
+		"id":       claims["id"],
+		"is_admin": claims["is_admin"],
+		"text":     "Hello World.",
+	})
 }
 
 func AddUser(c *gin.Context) {
@@ -193,9 +207,9 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	idUser, _ := c.Get("id_user")
+	idUser, _ := extractJwt(c)
 
-	if idUser.(int) != id {
+	if idUser != id {
 		errorResponse(c, http.StatusForbidden, e.ErrEditUserNotPermitted)
 		return
 	}
@@ -222,10 +236,9 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	idUser, _ := c.Get("id_user")
-	isAdmin, _ := c.Get("is_admin")
+	idUser, isAdmin := extractJwt(c)
 
-	if idUser != id && !isAdmin.(bool) {
+	if idUser != id && !isAdmin {
 		errorResponse(c, http.StatusForbidden, e.ErrDeleteUserNotPermitted)
 		return
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"src/config"
 	"src/controller"
+	"src/middleware"
 	"src/models"
 
 	"github.com/gin-gonic/gin"
@@ -10,10 +11,8 @@ import (
 
 func main() {
 	cfg := config.Setup()
+	middleware.JwtAuth()
 	models.Setup(cfg)
-	// UserRepository := repository.NewUserRepository(database)
-	// UserService := service.NewUserService(&UserRepository)
-	// UserController := controller.NewUserController(&UserService)
 	r := gin.Default()
 	controller.UserRoute(r)
 	controller.HardwareRoute(r)
