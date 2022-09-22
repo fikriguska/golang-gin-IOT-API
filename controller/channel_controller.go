@@ -12,7 +12,7 @@ import (
 )
 
 func ChannelRoute(r *gin.Engine) {
-	authorized := r.Group("/channel", middleware.BasicAuth())
+	authorized := r.Group("/channel", middleware.JwtMiddleware.MiddlewareFunc())
 
 	authorized.POST("", AddChannel)
 }
@@ -31,9 +31,10 @@ func AddChannel(c *gin.Context) {
 			Id: json.Id_sensor,
 		},
 	}
-	id_user, _ := c.Get("id_user")
 
-	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
+	idUser, _ := extractJwt(c)
+
+	exist, owner := sensorService.IsExistAndOwner(idUser)
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrSensorIdNotFound)
