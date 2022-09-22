@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -52,7 +53,7 @@ func randomUser() testUser {
 func insertUser(u testUser) int {
 	statement := "insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6) returning id_user"
 	var id int
-	err := db.QueryRow(statement, u.Username, u.Email, u.hashedPass, u.Status, u.Token, u.Is_admin).Scan(&id)
+	err := db.QueryRow(context.Background(), statement, u.Username, u.Email, u.hashedPass, u.Status, u.Token, u.Is_admin).Scan(&id)
 	e.PanicIfNeeded(err)
 	return id
 }

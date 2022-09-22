@@ -37,7 +37,7 @@ type UserUpdate struct {
 
 func AddUser(user User) {
 	statement := "insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6)"
-	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token, user.Is_admin)
+	_, err := db.Exec(cb(), statement, user.Username, user.Email, user.Password, user.Status, user.Token, user.Is_admin)
 	e.PanicIfNeeded(err)
 }
 
@@ -45,7 +45,7 @@ func GetUserByUsername(user User) User {
 	statement := "select id_user, username, password, is_admin from user_person where username = $1"
 
 	var u User
-	err := db.QueryRow(statement, user.Username).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
+	err := db.QueryRow(cb(), statement, user.Username).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
 	e.PanicIfNeeded(err)
 
 	return u
@@ -71,7 +71,7 @@ func GetUserIdByUsername(username string) int {
 	statement := "select id_user from user_person where username = $1"
 
 	var id int
-	err := db.QueryRow(statement, username).Scan(&id)
+	err := db.QueryRow(cb(), statement, username).Scan(&id)
 	e.PanicIfNeeded(err)
 
 	return id
@@ -86,7 +86,7 @@ func IsUserActivatedCheckByToken(token string) bool {
 	// ******
 	statement := "select id_user from user_person where token = $1 and status = true"
 	// var tmp string
-	// if err := db.QueryRow(statement, token).Scan(&tmp); err != nil {
+	// if err := db.QueryRow(cb(), statement, token).Scan(&tmp); err != nil {
 	// 	if err == sql.ErrNoRows {
 	// 		return false, nil
 	// 	}
@@ -100,7 +100,7 @@ func IsUserActivatedCheckByUsername(username string) bool {
 	statement := "select status from user_person where username = $1"
 
 	var status bool
-	err := db.QueryRow(statement, username).Scan(&status)
+	err := db.QueryRow(cb(), statement, username).Scan(&status)
 	e.PanicIfNeeded(err)
 
 	return status
@@ -108,7 +108,7 @@ func IsUserActivatedCheckByUsername(username string) bool {
 
 func ActivateUser(token string) error {
 	statement := "update user_person set status = true where token = $1"
-	_, err := db.Exec(statement, token)
+	_, err := db.Exec(cb(), statement, token)
 	e.PanicIfNeeded(err)
 	return nil
 }
@@ -126,7 +126,7 @@ func IsEmailAndUsernameExist(email string, username string) bool {
 
 func UpdateUserPasswordByEmail(email string, password string) {
 	statement := "update user_person set password = $1 where email = $2"
-	_, err := db.Exec(statement, password, email)
+	_, err := db.Exec(cb(), statement, password, email)
 	e.PanicIfNeeded(err)
 }
 
@@ -137,12 +137,12 @@ func IsNodeExistByUserId(id int) bool {
 
 func UpdateUserPasswordById(id int, password string) {
 	statement := "update user_person set password = $1 where id_user = $2"
-	_, err := db.Exec(statement, password, id)
+	_, err := db.Exec(cb(), statement, password, id)
 	e.PanicIfNeeded(err)
 }
 
 func DeleteUser(id int) {
 	statement := "delete from user_person where id_user = $1"
-	_, err := db.Exec(statement, id)
+	_, err := db.Exec(cb(), statement, id)
 	e.PanicIfNeeded(err)
 }
