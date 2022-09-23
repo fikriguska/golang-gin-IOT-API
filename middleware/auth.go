@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"encoding/base64"
-	"log"
 	"net/http"
 	"src/models"
 	"src/service/user_service"
 	"strings"
+
+	e "src/error"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,14 +17,10 @@ func BasicAuth() gin.HandlerFunc {
 		auth := strings.SplitN(c.Request.Header.Get("Authorization"), " ", 2)
 
 		if len(auth) != 2 || auth[0] != "Basic" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"status": "error",
-				"data":   "invalid authorization key",
-			})
+			c.String(http.StatusUnauthorized, "your auth method is not right")
 			c.Abort()
 			return
 		}
-		log.Println(auth)
 
 		payload, _ := base64.StdEncoding.DecodeString(auth[1])
 
@@ -36,12 +33,21 @@ func BasicAuth() gin.HandlerFunc {
 			},
 		}
 		credCorrect, activated := userService.Auth()
-		if len(pair) != 2 || !(credCorrect && activated) {
 
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"status": "error",
-				"data":   "invalid authorization key",
-			})
+		if len(pair) != 2 {
+			c.String(http.StatusUnauthorized, "invalid authorization key")
+			c.Abort()
+			return
+		}
+
+		if !credCorrect {
+			c.String(http.StatusUnauthorized, e.ErrUsernameOrPassIncorrect.Error())
+			c.Abort()
+			return
+		}
+
+		if !activated {
+			c.String(http.StatusForbidden, e.ErrUserNotActive.Error())
 			c.Abort()
 			return
 		}
