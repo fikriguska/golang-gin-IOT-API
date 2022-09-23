@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"src/config"
-	"src/middleware"
 	"src/models"
 	"testing"
 
@@ -27,7 +26,6 @@ var db *sql.DB
 
 func TestMain(m *testing.M) {
 	cfg := config.Setup()
-	middleware.JwtAuth()
 	db = models.Setup(cfg)
 	router = SetupRouter()
 
