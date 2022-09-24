@@ -13,7 +13,7 @@ import (
 )
 
 var router *gin.Engine
-var db *sql.DB
+var db *pgxpool.Pool
 
 // type response struct {
 // 	Status string
