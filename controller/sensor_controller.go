@@ -17,8 +17,8 @@ import (
 func SensorRoute(r *gin.Engine) {
 	authorized := r.Group("/sensor", middleware.BasicAuth())
 
-	authorized.POST("/", AddSensor)
-	authorized.GET("/", ListSensor)
+	authorized.POST("", AddSensor)
+	authorized.GET("", ListSensor)
 	authorized.GET("/:id", GetSensor)
 	authorized.PUT("/:id", UpdateSensor)
 	authorized.DELETE("/:id", DeleteSensor)
