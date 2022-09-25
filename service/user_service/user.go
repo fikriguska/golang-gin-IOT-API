@@ -64,7 +64,14 @@ func (u *User) Auth() (bool, bool) {
 }
 
 func (u *User) Get() (int, string, string, bool) {
-	res := models.GetUserByUsername(u.User)
+
+	var res models.User
+
+	if u.Id > 0 {
+		res = models.GetUserById(u.Id)
+	} else {
+		res = models.GetUserByUsername(u.User)
+	}
 	return res.Id, res.Username, res.Password, res.Is_admin
 }
 
