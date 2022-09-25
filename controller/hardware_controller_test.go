@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"log"
 	"math/rand"
@@ -44,7 +45,7 @@ func randomHardwareSensor() models.Hardware {
 func insertHardware(h models.Hardware) int {
 	statement := "insert into hardware (name, type, description) values ($1, $2, $3) returning id_hardware"
 	var id int
-	err := db.QueryRow(statement, h.Name, h.Type, h.Description).Scan(&id)
+	err := db.QueryRow(context.Background(), statement, h.Name, h.Type, h.Description).Scan(&id)
 	e.PanicIfNeeded(err)
 	return id
 }
