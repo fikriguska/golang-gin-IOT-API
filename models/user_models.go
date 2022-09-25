@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	e "src/error"
 )
 
@@ -46,6 +47,16 @@ func GetUserByUsername(user User) User {
 
 	var u User
 	err := db.QueryRow(statement, user.Username).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
+	e.PanicIfNeeded(err)
+
+	return u
+}
+
+func GetUserById(id int) User {
+	statement := "select id_user, username, password, is_admin from user_person where id_user = $1"
+
+	var u User
+	err := db.QueryRow(statement, id).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
 	e.PanicIfNeeded(err)
 
 	return u
@@ -101,6 +112,9 @@ func IsUserActivatedCheckByUsername(username string) bool {
 
 	var status bool
 	err := db.QueryRow(statement, username).Scan(&status)
+	if err == sql.ErrNoRows {
+		return false
+	}
 	e.PanicIfNeeded(err)
 
 	return status
@@ -130,19 +144,15 @@ func UpdateUserPasswordByEmail(email string, password string) {
 	e.PanicIfNeeded(err)
 }
 
-func IsNodeExistByUserId(id int) bool {
-	statement := "select id_node from node where id_user = $1"
-	return isRowExist(statement, id)
-}
-
 func UpdateUserPasswordById(id int, password string) {
 	statement := "update user_person set password = $1 where id_user = $2"
 	_, err := db.Exec(statement, password, id)
 	e.PanicIfNeeded(err)
 }
 
-func DeleteUser(id int) {
+func DeleteUser(id int) error {
 	statement := "delete from user_person where id_user = $1"
 	_, err := db.Exec(statement, id)
-	e.PanicIfNeeded(err)
+	// e.PanicIfNeeded(err)
+	return err
 }

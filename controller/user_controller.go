@@ -256,14 +256,12 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	isUsingNode := userService.IsUsingNode()
+	err = userService.Delete()
 
-	if isUsingNode {
+	if err != nil {
 		errorResponse(c, http.StatusBadRequest, e.ErrUserStillUsingNode)
 		return
 	}
-
-	userService.Delete()
 
 	successResponse(c, http.StatusOK, fmt.Sprintf("delete user, id: %d", id))
 

@@ -23,8 +23,8 @@ create table node(
     location varchar (255) not null, 
     id_hardware integer, 
     id_user integer not null, 
-    foreign key (id_hardware) references hardware (id_hardware) on update cascade on delete cascade,
-    foreign key (id_user) references user_person (id_user) on update cascade on delete cascade
+    foreign key (id_hardware) references hardware (id_hardware) on update cascade,
+    foreign key (id_user) references user_person (id_user) on update cascade
 );
 create table sensor(
     id_sensor serial primary key, 
