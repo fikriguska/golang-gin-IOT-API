@@ -171,7 +171,7 @@ func TestAddSensor(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
-			req, _ := http.NewRequest("POST", "/sensor/", bytes.NewBuffer(data))
+			req, _ := http.NewRequest("POST", "/sensor", bytes.NewBuffer(data))
 			setAuth(req, tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
