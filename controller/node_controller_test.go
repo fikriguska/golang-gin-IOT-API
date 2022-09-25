@@ -365,3 +365,111 @@ func TestListNode(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateNode(t *testing.T) {
+	user, hardware, node := autoInsertNode(nil)
+	node2 := randomNode()
+	user2 := randomUser()
+	user2.Status = true
+	user2.Id = insertUser(user2)
+
+	admin := randomUser()
+	admin.Status = true
+	admin.Is_admin = true
+	admin.Id = insertUser(admin)
+	testCases := []struct {
+		name          string
+		id            int
+		user          testUser
+		body          gin.H
+		checkResponse func(recorder *httptest.ResponseRecorder)
+		checkInDB     func(id int)
+	}{
+		{
+			name: "ok update name",
+			id:   node.Id,
+			user: user,
+			body: gin.H{
+				"name": node2.Name,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				n := models.GetNodeByHardwareId(hardware.Id)
+				require.Equal(t, node2.Name, n.Name)
+			},
+		},
+		{
+			name: "ok update location",
+			id:   node.Id,
+			user: user,
+			body: gin.H{
+				"location": node2.Location,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				n := models.GetNodeByHardwareId(hardware.Id)
+				require.Equal(t, node2.Location, n.Location)
+			},
+		},
+		{
+			name: "using another user",
+			id:   node.Id,
+			user: user2,
+			body: gin.H{
+				"location": node2.Location,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrEditNodeNotPermitted)
+			},
+			checkInDB: func(id int) {},
+		},
+		{
+			name: "node is not exists",
+			id:   1337,
+			user: user,
+			body: gin.H{
+				"location": node2.Location,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrNodeIdNotFound)
+			},
+			checkInDB: func(id int) {},
+		},
+		{
+			name: "using admin",
+			id:   node.Id,
+			user: admin,
+			body: gin.H{
+				"location": node.Location,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				n := models.GetNodeByHardwareId(hardware.Id)
+				require.Equal(t, node.Location, n.Location)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			data, _ := json.Marshal(tc.body)
+			req, _ := http.NewRequest("PUT", "/node/"+strconv.Itoa(tc.id), bytes.NewBuffer(data))
+			setAuth(req, tc.user.Username, tc.user.Password)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+			tc.checkInDB(tc.id)
+		})
+	}
+
+}
