@@ -84,7 +84,3 @@ func (h *Hardware) Update(hardware models.HardwareUpdate) {
 func (h *Hardware) Delete() error {
 	return models.DeleteHardware(h.Id)
 }
-
-// func (h *Hardware) IsStillUsed {
-// 	models.
-// }
