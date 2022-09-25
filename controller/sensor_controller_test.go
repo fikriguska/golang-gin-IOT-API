@@ -178,12 +178,15 @@ func TestAddSensor(t *testing.T) {
 	}
 }
 
-func TestGetChannel(t *testing.T) {
+func TestGetSensor(t *testing.T) {
 	channel := randomChannel()
 	user, _, _, _, sensor := autoInsertSensor()
 	channel.Id_sensor = sensor.Id
 	insertChannel(channel)
 
+	user2 := randomUser()
+	user2.Status = true
+	insertUser(user2)
 	testCases := []struct {
 		name          string
 		id            int
@@ -202,6 +205,24 @@ func TestGetChannel(t *testing.T) {
 				require.Equal(t, true, checkSensorChannel(s, channel))
 			},
 		},
+		{
+			name: "sensor not found",
+			id:   1337,
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrSensorIdNotFound)
+			},
+		},
+		{
+			name: "access another user's sensor",
+			id:   sensor.Id,
+			user: user2,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrSeeSensorNotPermitted)
+			},
+		},
 	}
 
 	for i := range testCases {
@@ -213,10 +234,6 @@ func TestGetChannel(t *testing.T) {
 			setAuth(req, tc.user.Username, tc.user.Password)
 			log.Println(req.Header)
 			router.ServeHTTP(w, req)
-			// log.Println(w.Body)
-			// log.Println(sensor)
-			// log.Println(channel)
-			// log.Println(node)
 			tc.checkResponse(w)
 
 		})

@@ -122,6 +122,8 @@ func TestDeleteHardware(t *testing.T) {
 
 	id := insertHardware(hardware)
 
+	_, hardware2, _ := autoInsertNode(nil)
+
 	testCases := []struct {
 		name          string
 		id            int
@@ -140,6 +142,14 @@ func TestDeleteHardware(t *testing.T) {
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 				checkErrorBody(t, recorder, e.ErrHardwareIdNotFound)
+			},
+		},
+		{
+			name: "hardware is still used",
+			id:   hardware2.Id,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrHardwareStillUsed)
 			},
 		},
 	}
@@ -306,6 +316,17 @@ func TestUpdateHardware(t *testing.T) {
 				h := models.GetHardwareById(id)
 				require.Equal(t, hardware2.Name, h.Name)
 			},
+		},
+
+		{
+			name: "hardware not found",
+			id:   1337,
+			body: gin.H{},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrHardwareIdNotFound)
+			},
+			checkInDB: func(id int) {},
 		},
 
 		{
