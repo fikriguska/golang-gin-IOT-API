@@ -301,3 +301,142 @@ func TestDeleteSensor(t *testing.T) {
 		})
 	}
 }
+
+func TestListSensor(t *testing.T) {
+
+	user, _, _, _, _ := autoInsertSensor()
+
+	testCases := []struct {
+		name          string
+		user          testUser
+		checkResponse func(recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "ok",
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/sensor", nil)
+			setAuth(req, tc.user.Username, tc.user.Password)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+		})
+	}
+}
+
+func TestUpdateSensor(t *testing.T) {
+	user, _, _, _, sensor := autoInsertSensor()
+	sensor2 := randomSensor()
+
+	user2 := randomUser()
+	user2.Status = true
+	user2.Id = insertUser(user2)
+
+	admin := randomUser()
+	admin.Status = true
+	admin.Is_admin = true
+	admin.Id = insertUser(admin)
+
+	testCases := []struct {
+		name          string
+		id            int
+		user          testUser
+		body          gin.H
+		checkResponse func(recorder *httptest.ResponseRecorder)
+		checkInDB     func(id int)
+	}{
+		{
+			name: "ok update name",
+			id:   sensor.Id,
+			user: user,
+			body: gin.H{
+				"name": sensor2.Name,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				s := models.GetSensorById(id)
+				require.Equal(t, sensor2.Name, s.Name)
+			},
+		},
+		{
+			name: "ok update unit",
+			id:   sensor.Id,
+			user: user,
+			body: gin.H{
+				"unit": sensor2.Unit,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				s := models.GetSensorById(id)
+				require.Equal(t, sensor2.Unit, s.Unit)
+			},
+		},
+		{
+			name: "using another user",
+			id:   sensor.Id,
+			user: user2,
+			body: gin.H{
+				"unit": sensor2.Unit,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrEditSensorNotPermitted)
+			},
+			checkInDB: func(id int) {},
+		},
+		{
+			name: "sensor is not exists",
+			id:   1337,
+			user: user,
+			body: gin.H{
+				"unit": sensor2.Unit,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrNodeIdNotFound)
+			},
+			checkInDB: func(id int) {},
+		},
+		{
+			name: "using admin",
+			id:   sensor.Id,
+			user: admin,
+			body: gin.H{
+				"unit": sensor.Unit,
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			checkInDB: func(id int) {
+				s := models.GetSensorById(id)
+				require.Equal(t, sensor.Unit, s.Unit)
+			},
+		},
+	}
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			data, _ := json.Marshal(tc.body)
+			req, _ := http.NewRequest("PUT", "/sensor/"+strconv.Itoa(tc.id), bytes.NewBuffer(data))
+			setAuth(req, tc.user.Username, tc.user.Password)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+			tc.checkInDB(tc.id)
+		})
+	}
+}
