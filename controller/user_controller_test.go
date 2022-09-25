@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	// "net/http/httptest"
-
 	e "src/error"
 	"src/models"
 	"src/util"
