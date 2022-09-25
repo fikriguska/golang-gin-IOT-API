@@ -104,35 +104,3 @@ func TestAddChannel(t *testing.T) {
 		})
 	}
 }
-
-func TestListChannel(t *testing.T) {
-	user := randomUser()
-	user.Status = true
-	user.Id = insertUser(user)
-	// todo testing to check listed node
-	testCases := []struct {
-		name          string
-		user          testUser
-		checkResponse func(recoder *httptest.ResponseRecorder)
-	}{
-		{
-			name: "ok",
-			user: user,
-			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusOK, recorder.Code)
-			},
-		},
-	}
-
-	for i := range testCases {
-		tc := testCases[i]
-
-		t.Run(tc.name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/node", nil)
-			setAuth(req, tc.user.Username, tc.user.Password)
-			router.ServeHTTP(w, req)
-			tc.checkResponse(w)
-		})
-	}
-}

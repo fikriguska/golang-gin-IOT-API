@@ -2,9 +2,6 @@ package controller
 
 import (
 	"bytes"
-	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -32,10 +29,8 @@ func randomUser() testUser {
 	email := util.RandomEmail()
 	username := util.RandomString(6)
 
-	hashedTokenByte := sha256.Sum256([]byte(username + email + password))
-	hashedToken := hex.EncodeToString(hashedTokenByte[:])
-	hashedPassByte := sha256.Sum256([]byte(password))
-	hashedPass := hex.EncodeToString(hashedPassByte[:])
+	hashedToken := util.Sha256String(username + email + password)
+	hashedPass := util.Sha256String(password)
 
 	return testUser{
 		User: models.User{
@@ -58,13 +53,6 @@ func insertUser(u testUser) int {
 	return id
 }
 
-// func autoInsertUser() testUser {
-// 	user := randomUser()
-
-//		user.Status = true
-//		user.Id = insertUser(user)
-//		return user
-//	}
 func TestAddUser(t *testing.T) {
 
 	user1 := randomUser()
