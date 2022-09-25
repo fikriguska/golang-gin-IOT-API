@@ -81,12 +81,8 @@ func (u *User) SetRandomPassword() {
 	models.UpdateUserPasswordByEmail(u.Email, hashedNewPass)
 }
 
-func (u *User) IsUsingNode() bool {
-	return models.IsNodeExistByUserId(u.Id)
-}
-
-func (u *User) Delete() {
-	models.DeleteUser(u.Id)
+func (u *User) Delete() error {
+	return models.DeleteUser(u.Id)
 }
 
 func (u *User) SetPassword() {
