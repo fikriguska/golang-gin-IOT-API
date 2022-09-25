@@ -84,7 +84,11 @@ func checkNodeHardware(node models.NodeGet, hardware models.Hardware) bool {
 func TestAddNode(t *testing.T) {
 	node := randomNode()
 	hardware := randomHardwareNode()
-	id_hardware := insertHardware(hardware)
+	hardware.Id = insertHardware(hardware)
+
+	hardware2 := randomHardware()
+	hardware2.Type = "sensor"
+	hardware2.Id = insertHardware(hardware2)
 
 	user := randomUser()
 	user.Status = true
@@ -111,11 +115,24 @@ func TestAddNode(t *testing.T) {
 			body: gin.H{
 				"name":        node.Name,
 				"location":    node.Location,
-				"id_hardware": id_hardware,
+				"id_hardware": hardware.Id,
 			},
 			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusCreated, recorder.Code)
+			},
+		},
+		{
+			name: "wrong type hardware",
+			body: gin.H{
+				"name":        node.Name,
+				"location":    node.Location,
+				"id_hardware": hardware2.Id,
+			},
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrHardwareMustbeNode)
 			},
 		},
 		{
@@ -139,7 +156,6 @@ func TestAddNode(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
 			req, _ := http.NewRequest("POST", "/node", bytes.NewBuffer(data))
-
 			setAuth(req, tc.user.Username, tc.user.Password)
 			log.Println(req.Header)
 			router.ServeHTTP(w, req)
@@ -203,6 +219,13 @@ func TestGetNode(t *testing.T) {
 				require.Equal(t, true, checkNodeHardware(n, hardware))
 			},
 		},
+		{
+			name: "node not found",
+			id:   1337,
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+			},
+		},
 	}
 
 	for i := range testCases {
@@ -214,10 +237,6 @@ func TestGetNode(t *testing.T) {
 			setAuth(req, tc.user.Username, tc.user.Password)
 			log.Println(req.Header)
 			router.ServeHTTP(w, req)
-			// log.Println(w.Body)
-			// log.Println(hardware)
-			// log.Println(sensor)
-			// log.Println(node)
 			tc.checkResponse(w)
 
 		})
@@ -307,6 +326,7 @@ func TestDeleteNode(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("DELETE", "/node/"+strconv.Itoa(tc.id), nil)
 			setAuth(req, tc.user.Username, tc.user.Password)
+			log.Println(req.Header)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 		})
