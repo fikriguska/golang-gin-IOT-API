@@ -62,6 +62,7 @@ func GetAllSensor() []SensorList {
 	statement := "select id_sensor, name, unit, id_hardware, id_node from sensor"
 	rows, err := db.Query(statement)
 	e.PanicIfNeeded(err)
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&sensor.Id, &sensor.Name, &sensor.Unit, &sensor.Id_hardware, &sensor.Id_node)
 		e.PanicIfNeeded(err)
@@ -77,6 +78,7 @@ func GetAllSensorByUserId(id_user int) []SensorList {
 	statement := "select sensor.id_sensor, sensor.name, sensor.unit, sensor.id_hardware, sensor.id_node from sensor left join node on sensor.id_node = node.id_node where node.id_user = $1"
 	rows, err := db.Query(statement, id_user)
 	e.PanicIfNeeded(err)
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&sensor.Id, &sensor.Name, &sensor.Unit, &sensor.Id_hardware, &sensor.Id_node)
 		e.PanicIfNeeded(err)
@@ -107,6 +109,7 @@ func GetChannelBySensorId(id int) []Channel {
 	statement := "select time, value from channel where id_sensor = $1"
 	rows, err := db.Query(statement, id)
 	e.PanicIfNeeded(err)
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&channel.Time, &channel.Value)
 		e.PanicIfNeeded(err)
