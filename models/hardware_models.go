@@ -93,6 +93,7 @@ func GetAllHardwareTypedSensor() []Hardware {
 	statement := "select id_hardware, name, type, description from hardware where lower(type) = 'sensor'"
 	rows, err := db.Query(statement)
 	e.PanicIfNeeded(err)
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&hardware.Id, &hardware.Name, &hardware.Type, &hardware.Description)
 		e.PanicIfNeeded(err)
@@ -107,6 +108,7 @@ func GetAllHardwareTypedNode() []Hardware {
 	statement := "select id_hardware, name, type, description from hardware where lower(type) = 'single-board computer' or lower(type) = 'microcontroller unit'"
 	rows, err := db.Query(statement)
 	e.PanicIfNeeded(err)
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&hardware.Id, &hardware.Name, &hardware.Type, &hardware.Description)
 		e.PanicIfNeeded(err)
