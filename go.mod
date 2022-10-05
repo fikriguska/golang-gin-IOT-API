@@ -3,10 +3,8 @@ module src
 go 1.17
 
 require (
-	github.com/caarlos0/env/v6 v6.9.3
 	github.com/gin-gonic/gin v1.8.1
 	github.com/jackc/pgx/v5 v5.0.0
-	github.com/joho/godotenv v1.4.0
 	github.com/stretchr/testify v1.8.0
 )
 
