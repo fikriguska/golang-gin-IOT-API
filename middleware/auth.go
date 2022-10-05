@@ -17,7 +17,7 @@ func BasicAuth() gin.HandlerFunc {
 		auth := strings.SplitN(c.Request.Header.Get("Authorization"), " ", 2)
 
 		if len(auth) != 2 || auth[0] != "Basic" {
-			c.String(http.StatusUnauthorized, "your auth method is not right")
+			c.String(http.StatusUnauthorized, "invalid authorization key")
 			c.Abort()
 			return
 		}
