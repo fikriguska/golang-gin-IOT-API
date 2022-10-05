@@ -70,6 +70,7 @@ func GetAllNodeByUserId(id_user int) []NodeList {
 	statement := "select id_node, name, location, id_hardware, id_user from node where id_user = $1"
 	rows, err := db.Query(cb(), statement, id_user)
 	e.PanicIfNeeded(err)
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&node.Id, &node.Name, &node.Location, &node.Id_hardware, &node.Id_user)
 		e.PanicIfNeeded(err)
@@ -84,6 +85,7 @@ func GetAllNode() []NodeList {
 	statement := "select id_node, name, location, id_hardware, id_user from node"
 	rows, err := db.Query(cb(), statement)
 	e.PanicIfNeeded(err)
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&node.Id, &node.Name, &node.Location, &node.Id_hardware, &node.Id_user)
 		e.PanicIfNeeded(err)
@@ -117,6 +119,7 @@ func GetSensorByNodeId(id int) []Sensor {
 	statement := "select sensor.id_sensor, sensor.name, sensor.unit from sensor left join node on sensor.id_node = node.id_node where sensor.id_node = $1"
 	rows, err := db.Query(cb(), statement, id)
 	e.PanicIfNeeded(err)
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&sensor.Id, &sensor.Name, &sensor.Unit)
 		e.PanicIfNeeded(err)
