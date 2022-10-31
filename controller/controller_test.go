@@ -29,15 +29,30 @@ func TestMain(m *testing.M) {
 		User: models.User{
 			Password: "wkwk",
 			Email:    "bintangf00code@gmail.com",
-			Username: "fikriguska",
+			Username: "perftest",
 			Status:   true,
-			Token:    "dea9d35db1b4b85bcf21ec8a3088720d0a50174193606da47a47ec0ff750f21d",
-			Is_admin: true,
+			Token:    "dbb68d97021afbdb7bf0f2beb87705ecd9073a5737a7ced8c9be4680ee9d3549",
+			Is_admin: false,
 		},
-		hashedPass: "4499c41eec361a4d8c208b5da66870e1f0ee57ef2cc6fd80d0df5fc9d81b7682",
+		hashedPass: "3c31bc6fa467cea84245bf86d594f17936880674f320b94b2cef9f73ac71e51f",
 	}
-	insertUser(user)
+	user.Id = insertUser(user)
+	hardwareNode := randomHardwareNode()
+	hardwareNode.Id = insertHardware(hardwareNode)
 
+	node := randomNode()
+	node.Id_hardware = hardwareNode.Id
+	node.Id_user = user.Id
+	node.Id = insertNode(node)
+
+	hardwareSensor := randomHardwareSensor()
+	hardwareSensor.Id = insertHardware(hardwareSensor)
+
+	sensor := randomSensor()
+	sensor.Id_hardware = hardwareSensor.Id
+	sensor.Id_node = node.Id
+
+	sensor.Id = insertSensor(sensor)
 	m.Run()
 }
 

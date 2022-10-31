@@ -69,7 +69,7 @@ func AddNode(c *gin.Context) {
 
 	nodeService.Add()
 
-	successResponse(c, http.StatusCreated, "success add new node")
+	successResponse(c, http.StatusCreated, "Success add new node")
 
 }
 
@@ -152,7 +152,7 @@ func UpdateNode(c *gin.Context) {
 
 	nodeService.Update(json)
 
-	successResponse(c, http.StatusOK, "success edit node")
+	successResponse(c, http.StatusOK, "Success edit node")
 }
 
 func DeleteNode(c *gin.Context) {
@@ -183,6 +183,6 @@ func DeleteNode(c *gin.Context) {
 
 	nodeService.Delete()
 
-	successResponse(c, http.StatusOK, fmt.Sprintf("success delete node, id: %d", id))
+	successResponse(c, http.StatusOK, fmt.Sprintf("Success delete node, id: %d", id))
 
 }

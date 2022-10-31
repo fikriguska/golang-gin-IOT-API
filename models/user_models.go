@@ -37,13 +37,13 @@ type UserUpdate struct {
 }
 
 func AddUser(user User) {
-	statement := "insert into user_person (username, email, password, status, token, is_admin) values ($1, $2, $3, $4, $5, $6)"
+	statement := "insert into user_person (username, email, password, status, token, isadmin) values ($1, $2, $3, $4, $5, $6)"
 	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token, user.Is_admin)
 	e.PanicIfNeeded(err)
 }
 
 func GetUserByUsername(user User) User {
-	statement := "select id_user, username, password, is_admin from user_person where username = $1"
+	statement := "select id_user, username, password, isadmin from user_person where username = $1"
 
 	var u User
 	err := db.QueryRow(statement, user.Username).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
@@ -53,7 +53,7 @@ func GetUserByUsername(user User) User {
 }
 
 func GetUserById(id int) User {
-	statement := "select id_user, username, password, is_admin from user_person where id_user = $1"
+	statement := "select id_user, username, password, isadmin from user_person where id_user = $1"
 
 	var u User
 	err := db.QueryRow(statement, id).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
