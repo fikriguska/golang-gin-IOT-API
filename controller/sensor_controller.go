@@ -88,7 +88,7 @@ func AddSensor(c *gin.Context) {
 
 	sensorService.Add()
 
-	successResponse(c, http.StatusCreated, "success add new sensor")
+	successResponse(c, http.StatusCreated, "Success add new sensor")
 
 }
 
@@ -168,7 +168,7 @@ func UpdateSensor(c *gin.Context) {
 
 	sensorService.Update(json)
 
-	successResponse(c, http.StatusOK, "success edit sensor data")
+	successResponse(c, http.StatusOK, "Success edit sensor data")
 
 }
 
@@ -200,6 +200,6 @@ func DeleteSensor(c *gin.Context) {
 
 	sensorService.Delete()
 
-	successResponse(c, http.StatusOK, fmt.Sprintf("success delete sensor, id: %d", id))
+	successResponse(c, http.StatusOK, fmt.Sprintf("Success delete sensor data, id: %d", id))
 
 }

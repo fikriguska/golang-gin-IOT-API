@@ -53,6 +53,6 @@ func AddChannel(c *gin.Context) {
 
 	channelService.Add()
 
-	successResponse(c, http.StatusCreated, "success add channel")
+	successResponse(c, http.StatusCreated, "Success add channel")
 
 }
