@@ -24,6 +24,7 @@ func Setup(cfg config.Configuration) *sql.DB {
 		cfg.DBPort)
 	// db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	db, _ = sql.Open("postgres", dsn)
+	db.SetMaxOpenConns(4)
 	fmt.Println(db)
 	return db
 }

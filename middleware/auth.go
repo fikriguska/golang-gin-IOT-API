@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	e "src/error"
 	"src/models"
@@ -29,8 +28,6 @@ var JwtMiddleware, _ = jwt.New(&jwt.GinJWTMiddleware{
 	},
 	IdentityHandler: func(c *gin.Context) interface{} {
 		claims := jwt.ExtractClaims(c)
-		log.Println(claims)
-		log.Println(claims["id"])
 		return &models.User{
 			Id:       int(claims["id"].(float64)),
 			Is_admin: claims["is_admin"].(bool),
