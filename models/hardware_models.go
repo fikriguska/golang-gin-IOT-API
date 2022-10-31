@@ -91,6 +91,7 @@ func GetHardwareById(id int) Hardware {
 func GetAllHardwareTypedSensor() []Hardware {
 	var hardware Hardware
 	var hardwares []Hardware
+	hardwares = make([]Hardware, 0)
 	statement := "select id_hardware, name, type, description from hardware where lower(type) = 'sensor'"
 	rows, err := db.Query(cb(), statement)
 	e.PanicIfNeeded(err)
@@ -106,6 +107,7 @@ func GetAllHardwareTypedSensor() []Hardware {
 func GetAllHardwareTypedNode() []Hardware {
 	var hardware Hardware
 	var hardwares []Hardware
+	hardwares = make([]Hardware, 0)
 	statement := "select id_hardware, name, type, description from hardware where lower(type) = 'single-board computer' or lower(type) = 'microcontroller unit'"
 	rows, err := db.Query(cb(), statement)
 	e.PanicIfNeeded(err)

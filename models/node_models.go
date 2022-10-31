@@ -67,6 +67,7 @@ func AddNode(node Node) {
 func GetAllNodeByUserId(id_user int) []NodeList {
 	var node NodeList
 	var nodes []NodeList
+	nodes = make([]NodeList, 0)
 	statement := "select id_node, name, location, id_hardware, id_user from node where id_user = $1"
 	rows, err := db.Query(cb(), statement, id_user)
 	e.PanicIfNeeded(err)
@@ -82,6 +83,7 @@ func GetAllNodeByUserId(id_user int) []NodeList {
 func GetAllNode() []NodeList {
 	var node NodeList
 	var nodes []NodeList
+	nodes = make([]NodeList, 0)
 	statement := "select id_node, name, location, id_hardware, id_user from node"
 	rows, err := db.Query(cb(), statement)
 	e.PanicIfNeeded(err)
@@ -116,6 +118,7 @@ func GetHardwareByNodeId(id int) Hardware {
 func GetSensorByNodeId(id int) []Sensor {
 	var sensors []Sensor
 	var sensor Sensor
+	sensors = make([]Sensor, 0)
 	statement := "select sensor.id_sensor, sensor.name, sensor.unit from sensor left join node on sensor.id_node = node.id_node where sensor.id_node = $1"
 	rows, err := db.Query(cb(), statement, id)
 	e.PanicIfNeeded(err)

@@ -14,7 +14,15 @@ import (
 
 func BasicAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		auth := strings.SplitN(c.Request.Header.Get("Authorization"), " ", 2)
+		authHeader := c.Request.Header.Get("Authorization")
+
+		if authHeader == "" {
+			c.String(http.StatusUnauthorized, "Authentication required")
+			c.Abort()
+			return
+		}
+
+		auth := strings.SplitN(authHeader, " ", 2)
 
 		if len(auth) != 2 || auth[0] != "Basic" {
 			c.String(http.StatusUnauthorized, "invalid authorization key")
@@ -29,7 +37,7 @@ func BasicAuth() gin.HandlerFunc {
 		userService := user_service.User{
 			User: models.User{
 				Username: pair[0],
-				Password: pair[1],
+				Password: strings.TrimSuffix(pair[1], "\n"),
 			},
 		}
 		credCorrect, activated := userService.Auth()

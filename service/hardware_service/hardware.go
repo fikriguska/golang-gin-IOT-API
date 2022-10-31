@@ -39,7 +39,6 @@ func (h *Hardware) GetAll() models.HardwareList {
 	var list models.HardwareList
 	list.Sensor = models.GetAllHardwareTypedSensor()
 	list.Node = models.GetAllHardwareTypedNode()
-
 	return list
 }
 

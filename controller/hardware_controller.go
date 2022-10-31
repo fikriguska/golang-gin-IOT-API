@@ -45,7 +45,7 @@ func AddHardware(c *gin.Context) {
 
 	hardwareService.Add()
 
-	successResponse(c, http.StatusCreated, "success add new hardware")
+	successResponse(c, http.StatusCreated, "Success add new hardware")
 }
 
 func ListHardware(c *gin.Context) {
@@ -121,7 +121,7 @@ func UpdateHardware(c *gin.Context) {
 
 	hardwareService.Update(json)
 
-	successResponse(c, http.StatusOK, "success edit hardware")
+	successResponse(c, http.StatusOK, "Success edit hardware")
 
 }
 
@@ -155,6 +155,6 @@ func DeleteHardware(c *gin.Context) {
 		return
 	}
 
-	successResponse(c, http.StatusOK, fmt.Sprintf("delete hardware, id: %d", id))
+	successResponse(c, http.StatusOK, fmt.Sprintf("Delete hardware, id: %d", id))
 
 }

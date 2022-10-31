@@ -7,9 +7,9 @@ create table user_person(
     email varchar (255) not null,
     username varchar (255) not null,
     password varchar (255) not null,
-    status boolean not null,
+    status boolean default false not null,
     token varchar (255) not null,
-    is_admin boolean not null
+    isadmin boolean default false not null
 );
 create table hardware(
     id_hardware serial primary key,
@@ -41,3 +41,4 @@ create table channel(
     id_sensor integer not null, 
     foreign key (id_sensor) references sensor (id_sensor) on update cascade on delete cascade
 );
+

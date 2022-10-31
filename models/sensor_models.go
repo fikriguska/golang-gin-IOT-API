@@ -59,6 +59,7 @@ func AddSensor(s Sensor) {
 func GetAllSensor() []SensorList {
 	var sensor SensorList
 	var sensors []SensorList
+	sensors = make([]SensorList, 0)
 	statement := "select id_sensor, name, unit, id_hardware, id_node from sensor"
 	rows, err := db.Query(cb(), statement)
 	e.PanicIfNeeded(err)
@@ -75,6 +76,7 @@ func GetAllSensor() []SensorList {
 func GetAllSensorByUserId(id_user int) []SensorList {
 	var sensor SensorList
 	var sensors []SensorList
+	sensors = make([]SensorList, 0)
 	statement := "select sensor.id_sensor, sensor.name, sensor.unit, sensor.id_hardware, sensor.id_node from sensor left join node on sensor.id_node = node.id_node where node.id_user = $1"
 	rows, err := db.Query(cb(), statement, id_user)
 	e.PanicIfNeeded(err)
@@ -106,6 +108,7 @@ func GetSensorById(id int) Sensor {
 func GetChannelBySensorId(id int) []Channel {
 	var channels []Channel
 	var channel Channel
+	channels = make([]Channel, 0)
 	statement := "select time, value from channel where id_sensor = $1"
 	rows, err := db.Query(cb(), statement, id)
 	e.PanicIfNeeded(err)
