@@ -45,7 +45,6 @@ func AddUser(user User) {
 
 func GetUserByUsername(user User) User {
 	statement := "select id_user, username, password, isadmin from user_person where username = $1"
-
 	var u User
 	err := db.QueryRow(cb(), statement, user.Username).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
 	e.PanicIfNeeded(err)
@@ -55,7 +54,6 @@ func GetUserByUsername(user User) User {
 
 func GetUserById(id int) User {
 	statement := "select id_user, username, password, isadmin from user_person where id_user = $1"
-
 	var u User
 	err := db.QueryRow(cb(), statement, id).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
 	e.PanicIfNeeded(err)
@@ -155,7 +153,6 @@ func UpdateUserPasswordById(id int, password string) {
 
 func DeleteUser(id int) error {
 	statement := "delete from user_person where id_user = $1"
-
 	_, err := db.Exec(cb(), statement, id)
 	// e.PanicIfNeeded(err)
 	return err

@@ -1,6 +1,10 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"src/config"
@@ -66,8 +70,37 @@ func SetupRouter() *gin.Engine {
 	return r
 }
 
+var jwtToken = make(map[string]string)
+
+type TokenResponse struct {
+	Token string
+}
+
+func login(username string, password string) string {
+	body := gin.H{
+		"username": username,
+		"password": password,
+	}
+	w := httptest.NewRecorder()
+	data, _ := json.Marshal(body)
+	req, _ := http.NewRequest("POST", "/user/login", bytes.NewBuffer(data))
+	router.ServeHTTP(w, req)
+
+	var tokenResp TokenResponse
+	json.Unmarshal(w.Body.Bytes(), &tokenResp)
+	log.Println(tokenResp.Token)
+
+	return tokenResp.Token
+}
+
 func setAuth(req *http.Request, username string, password string) {
-	req.SetBasicAuth(username, password)
+	var token string
+	if _, ok := jwtToken[username]; !ok {
+		token = login(username, password)
+		jwtToken[username] = token
+	}
+	log.Println(jwtToken[username])
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken[username]))
 }
 
 func checkErrorBody(t *testing.T, recorder *httptest.ResponseRecorder, e error) {

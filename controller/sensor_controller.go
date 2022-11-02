@@ -15,7 +15,7 @@ import (
 )
 
 func SensorRoute(r *gin.Engine) {
-	authorized := r.Group("/sensor", middleware.BasicAuth())
+	authorized := r.Group("/sensor", middleware.JwtMiddleware.MiddlewareFunc())
 
 	authorized.POST("", AddSensor)
 	authorized.GET("", ListSensor)
@@ -42,15 +42,14 @@ func AddSensor(c *gin.Context) {
 		},
 	}
 
-	id_user, _ := c.Get("id_user")
-	isAdmin, _ := c.Get("is_admin")
+	idUser, isAdmin := extractJwt(c)
 
-	exist, owner := nodeService.IsExistAndOwner(id_user.(int))
+	exist, owner := nodeService.IsExistAndOwner(idUser)
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
-	} else if !isAdmin.(bool) && !owner {
+	} else if !isAdmin && !owner {
 		errorResponse(c, http.StatusForbidden, e.ErrUseNodeNotPermitted)
 		return
 	}
@@ -107,15 +106,14 @@ func GetSensor(c *gin.Context) {
 		},
 	}
 
-	id_user, _ := c.Get("id_user")
-	is_admin, _ := c.Get("is_admin")
+	idUser, isAdmin := extractJwt(c)
 
-	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
+	exist, owner := sensorService.IsExistAndOwner(idUser)
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrSensorIdNotFound)
 		return
-	} else if !owner && !is_admin.(bool) {
+	} else if !owner && !isAdmin {
 		errorResponse(c, http.StatusForbidden, e.ErrSeeSensorNotPermitted)
 		return
 	}
@@ -126,10 +124,10 @@ func GetSensor(c *gin.Context) {
 
 func ListSensor(c *gin.Context) {
 	sensorService := sensor_service.Sensor{}
-	id_user, _ := c.Get("id_user")
-	is_admin, _ := c.Get("is_admin")
 
-	sensors := sensorService.GetAll(id_user.(int), is_admin.(bool))
+	idUser, isAdmin := extractJwt(c)
+
+	sensors := sensorService.GetAll(idUser, isAdmin)
 
 	c.IndentedJSON(http.StatusOK, sensors)
 }
@@ -156,15 +154,14 @@ func UpdateSensor(c *gin.Context) {
 		},
 	}
 
-	id_user, _ := c.Get("id_user")
-	is_admin, _ := c.Get("is_admin")
+	idUser, isAdmin := extractJwt(c)
 
-	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
+	exist, owner := sensorService.IsExistAndOwner(idUser)
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
-	} else if !owner && !is_admin.(bool) {
+	} else if !owner && !isAdmin {
 		errorResponse(c, http.StatusForbidden, e.ErrEditSensorNotPermitted)
 		return
 	}
@@ -188,14 +185,15 @@ func DeleteSensor(c *gin.Context) {
 			Id: id,
 		},
 	}
-	id_user, _ := c.Get("id_user")
-	isAdmin, _ := c.Get("is_admin")
-	exist, owner := sensorService.IsExistAndOwner(id_user.(int))
+
+	idUser, isAdmin := extractJwt(c)
+
+	exist, owner := sensorService.IsExistAndOwner(idUser)
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrSensorIdNotFound)
 		return
-	} else if !owner && !isAdmin.(bool) {
+	} else if !owner && !isAdmin {
 		errorResponse(c, http.StatusForbidden, e.ErrDeleteSensorNotPermitted)
 		return
 	}
