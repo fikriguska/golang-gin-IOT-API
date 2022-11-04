@@ -1,7 +1,10 @@
 package node_service
 
 import (
+	"encoding/json"
+	"fmt"
 	"src/models"
+	"src/service/cache_service"
 )
 
 type Node struct {
@@ -23,7 +26,20 @@ func (n *Node) GetAll(id_user int, is_admin bool) []models.NodeList {
 	if is_admin {
 		nodes = models.GetAllNode()
 	} else {
-		nodes = models.GetAllNodeByUserId(id_user)
+		key := fmt.Sprintf("%d-node", id_user)
+		nodes_byte, err := cache_service.Cache.Get(key)
+		if err != nil {
+			nodes = models.GetAllNodeByUserId(id_user)
+			nodesJson, _ := json.Marshal(nodes)
+			cache_service.Cache.Set(key, nodesJson)
+		} else {
+			// fmt.Println(string(nodes_byte))
+			_ = json.Unmarshal(nodes_byte, &nodes)
+			// if err != nil {
+			// 	fmt.Println(err)
+			// }
+			// fmt.Println(nodes)
+		}
 	}
 	return nodes
 }

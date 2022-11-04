@@ -4,6 +4,7 @@ import (
 	"src/config"
 	"src/controller"
 	"src/models"
+	"src/service/cache_service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +21,7 @@ func main() {
 	controller.NodeRoute(r)
 	controller.SensorRoute(r)
 	controller.ChannelRoute(r)
+	cache_service.Init()
 
 	r.Run()
 }
