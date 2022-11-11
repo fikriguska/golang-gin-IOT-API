@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	e "src/error"
@@ -101,17 +100,18 @@ func GetNode(c *gin.Context) {
 		return
 	}
 	key := fmt.Sprintf("%d-node", id)
-	nodes_byte, err := cache_service.Cache.Get(key)
-	if err != nil {
+	nodes_byte, found := cache_service.Cache.Get(key)
+	if !found {
 		node := nodeService.Get()
-		nodeJson, _ := json.Marshal(node)
-		cache_service.Cache.Set(key, nodeJson)
+		// nodeJson, _ := json.Marshal(node)
+		cache_service.Cache.Set(key, node, 0)
 		// log.Println("not cached")
 		c.IndentedJSON(http.StatusOK, node)
 	} else {
 		// log.Println("cached")
-		c.Header("Content-Type", "application/json")
-		c.String(http.StatusOK, string(nodes_byte))
+		// c.Header("Content-Type", "application/json")
+		c.IndentedJSON(http.StatusOK, nodes_byte.(models.NodeGet))
+
 	}
 
 }
