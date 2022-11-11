@@ -45,30 +45,45 @@ func (n *Node) GetAll(id_user int, is_admin bool) []models.NodeList {
 }
 
 func (n *Node) Get() models.NodeGet {
-	node, user := models.GetNodeAndUserByNodeId(n.Id)
-	hardware := models.GetHardwareByNodeId(n.Id)
-	sensors := models.GetSensorByNodeId(n.Id)
 
+	var user models.User
+	var node models.Node
+	var hardware models.Hardware
+	var sensors []models.Sensor
 	var resp models.NodeGet
 
-	resp.Id = node.Id
-	resp.Name = node.Name
-	resp.Location = node.Location
-	resp.Id_user = user.Id
-	resp.Username = user.Username
+	key := fmt.Sprintf("%d-node", n.Id)
+	nodes_byte, err := cache_service.Cache.Get(key)
+	if err != nil {
+		node, user = models.GetNodeAndUserByNodeId(n.Id)
+		hardware = models.GetHardwareByNodeId(n.Id)
+		sensors = models.GetSensorByNodeId(n.Id)
 
-	resp.Hardware = append(resp.Hardware, models.NodeHardwareGet{})
-	resp.Hardware[0].Name = hardware.Name
-	resp.Hardware[0].Type = hardware.Type
+		resp.Id = node.Id
+		resp.Name = node.Name
+		resp.Location = node.Location
+		resp.Id_user = user.Id
+		resp.Username = user.Username
 
-	resp.Sensor = make([]models.NodeSensorGet, 0)
-	for i, s := range sensors {
-		resp.Sensor = append(resp.Sensor, models.NodeSensorGet{})
-		resp.Sensor[i].Id_sensor = s.Id
-		resp.Sensor[i].Name = s.Name
-		resp.Sensor[i].Unit = s.Unit
+		resp.Hardware = append(resp.Hardware, models.NodeHardwareGet{})
+		resp.Hardware[0].Name = hardware.Name
+		resp.Hardware[0].Type = hardware.Type
+
+		resp.Sensor = make([]models.NodeSensorGet, 0)
+		for i, s := range sensors {
+			resp.Sensor = append(resp.Sensor, models.NodeSensorGet{})
+			resp.Sensor[i].Id_sensor = s.Id
+			resp.Sensor[i].Name = s.Name
+			resp.Sensor[i].Unit = s.Unit
+		}
+	} else {
+		// fmt.Println(string(nodes_byte))
+		_ = json.Unmarshal(nodes_byte, &node)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
+		// fmt.Println(nodes)
 	}
-
 	return resp
 
 }
