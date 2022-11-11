@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	e "src/error"
@@ -103,8 +104,13 @@ func GetNode(c *gin.Context) {
 	nodes_byte, err := cache_service.Cache.Get(key)
 	if err != nil {
 		node := nodeService.Get()
+		nodeJson, _ := json.Marshal(node)
+		cache_service.Cache.Set(key, nodeJson)
+		// log.Println("not cached")
 		c.IndentedJSON(http.StatusOK, node)
 	} else {
+		// log.Println("cached")
+		c.Header("Content-Type", "application/json")
 		c.String(http.StatusOK, string(nodes_byte))
 	}
 
