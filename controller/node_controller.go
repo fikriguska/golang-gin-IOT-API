@@ -6,6 +6,7 @@ import (
 	e "src/error"
 	"src/middleware"
 	"src/models"
+	"src/service/cache_service"
 	"src/service/hardware_service"
 	"src/service/node_service"
 	"strconv"
@@ -98,9 +99,14 @@ func GetNode(c *gin.Context) {
 		errorResponse(c, http.StatusForbidden, e.ErrSeeNodeNotPermitted)
 		return
 	}
-
-	node := nodeService.Get()
-	c.IndentedJSON(http.StatusOK, node)
+	key := fmt.Sprintf("%d-node", id)
+	nodes_byte, err := cache_service.Cache.Get(key)
+	if err != nil {
+		node := nodeService.Get()
+		c.IndentedJSON(http.StatusOK, node)
+	} else {
+		c.String(http.StatusOK, string(nodes_byte))
+	}
 
 }
 
