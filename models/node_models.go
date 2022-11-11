@@ -96,26 +96,36 @@ func GetAllNode() []NodeList {
 	return nodes
 }
 
-func GetNodeAndUserByNodeId(id int) (Node, User) {
+func GetNodeAndUserByNodeId(id int, nu chan Nu) (Node, User) {
 	statement := "select node.id_node, node.name, node.location, user_person.id_user, user_person.username from node left join user_person on node.id_user = user_person.id_user where node.id_node = $1"
 	var node Node
 	var user User
+	var nuu Nu
 	err := db.QueryRow(cb(), statement, id).Scan(&node.Id, &node.Name, &node.Location, &user.Id, &user.Username)
 	e.PanicIfNeeded(err)
+	nuu.Node = node
+	nuu.User = user
+	nu <- nuu
 	return node, user
 }
 
-func GetHardwareByNodeId(id int) Hardware {
+type Nu struct {
+	Node
+	User
+}
+
+func GetHardwareByNodeId(id int, h chan Hardware) {
 	statement := "select hardware.name, hardware.type from hardware left join node on hardware.id_hardware = node.id_hardware where id_node = $1"
 	var hardware Hardware
 	err := db.QueryRow(cb(), statement, id).Scan(&hardware.Name, &hardware.Type)
 	if err != nil && err != pgx.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
-	return hardware
+	h <- hardware
+
 }
 
-func GetSensorByNodeId(id int) []Sensor {
+func GetSensorByNodeId(id int, s chan []Sensor) []Sensor {
 	var sensors []Sensor
 	var sensor Sensor
 	sensors = make([]Sensor, 0)
@@ -128,6 +138,7 @@ func GetSensorByNodeId(id int) []Sensor {
 		e.PanicIfNeeded(err)
 		sensors = append(sensors, sensor)
 	}
+	s <- sensors
 	return sensors
 }
 

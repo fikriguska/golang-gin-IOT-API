@@ -29,9 +29,20 @@ func (n *Node) GetAll(id_user int, is_admin bool) []models.NodeList {
 }
 
 func (n *Node) Get() models.NodeGet {
-	node, user := models.GetNodeAndUserByNodeId(n.Id)
-	hardware := models.GetHardwareByNodeId(n.Id)
-	sensors := models.GetSensorByNodeId(n.Id)
+	nu := make(chan models.Nu)
+	h := make(chan models.Hardware)
+	s := make(chan []models.Sensor)
+
+	go models.GetNodeAndUserByNodeId(n.Id, nu)
+	go models.GetHardwareByNodeId(n.Id, h)
+	go models.GetSensorByNodeId(n.Id, s)
+
+	hardware := <-h
+	sensors := <-s
+	Nu := <-nu
+
+	node := Nu.Node
+	user := Nu.User
 
 	var resp models.NodeGet
 
