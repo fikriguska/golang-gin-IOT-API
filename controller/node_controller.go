@@ -6,6 +6,7 @@ import (
 	e "src/error"
 	"src/middleware"
 	"src/models"
+	"src/service/cache_service"
 	"src/service/hardware_service"
 	"src/service/node_service"
 	"strconv"
@@ -100,8 +101,20 @@ func GetNode(c *gin.Context) {
 		return
 	}
 
-	node := nodeService.Get()
-	c.IndentedJSON(http.StatusOK, node)
+	key := fmt.Sprintf("%d-node", id)
+	nodes_byte, found := cache_service.Cache.Get(key)
+	if !found {
+		node := nodeService.Get()
+		// nodeJson, _ := json.Marshal(node)
+		cache_service.Cache.Set(key, node, 0)
+		// log.Println("not cached")
+		c.IndentedJSON(http.StatusOK, node)
+	} else {
+		// log.Println("cached")
+		// c.Header("Content-Type", "application/json")
+		c.IndentedJSON(http.StatusOK, nodes_byte.(models.NodeGet))
+
+	}
 
 }
 
