@@ -46,13 +46,13 @@ type SensorUpdate struct {
 
 func AddSensorNoHardware(s Sensor) {
 	statement := "insert into sensor (name, unit, id_node, id_hardware) values ($1, $2, $3, $4)"
-	_, err := db.Exec(cb(), statement, s.Name, s.Unit, s.Id_node, nil)
+	_, err := db.Exec(statement, s.Name, s.Unit, s.Id_node, nil)
 	e.PanicIfNeeded(err)
 }
 
 func AddSensor(s Sensor) {
 	statement := "insert into sensor (name, unit, id_node, id_hardware) values ($1, $2, $3, $4)"
-	_, err := db.Exec(cb(), statement, s.Name, s.Unit, s.Id_node, s.Id_hardware)
+	_, err := db.Exec(statement, s.Name, s.Unit, s.Id_node, s.Id_hardware)
 	e.PanicIfNeeded(err)
 }
 
@@ -61,7 +61,7 @@ func GetAllSensor() []SensorList {
 	var sensors []SensorList
 	sensors = make([]SensorList, 0)
 	statement := "select id_sensor, name, unit, id_hardware, id_node from sensor"
-	rows, err := db.Query(cb(), statement)
+	rows, err := db.Query(statement)
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -78,7 +78,7 @@ func GetAllSensorByUserId(id_user int) []SensorList {
 	var sensors []SensorList
 	sensors = make([]SensorList, 0)
 	statement := "select sensor.id_sensor, sensor.name, sensor.unit, sensor.id_hardware, sensor.id_node from sensor left join node on sensor.id_node = node.id_node where node.id_user = $1"
-	rows, err := db.Query(cb(), statement, id_user)
+	rows, err := db.Query(statement, id_user)
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -92,7 +92,7 @@ func GetAllSensorByUserId(id_user int) []SensorList {
 func GetUserIdBySensorId(id int) int {
 	statement := "select node.id_user from node left join sensor on sensor.id_node = node.id_node where id_sensor = $1"
 	var id_user int
-	err := db.QueryRow(cb(), statement, id).Scan(&id_user)
+	err := db.QueryRow(statement, id).Scan(&id_user)
 	e.PanicIfNeeded(err)
 	return id_user
 }
@@ -100,7 +100,7 @@ func GetUserIdBySensorId(id int) int {
 func GetSensorById(id int) Sensor {
 	statement := "select id_sensor, name, unit from sensor where id_sensor = $1"
 	var sensor Sensor
-	err := db.QueryRow(cb(), statement, id).Scan(&sensor.Id, &sensor.Name, &sensor.Unit)
+	err := db.QueryRow(statement, id).Scan(&sensor.Id, &sensor.Name, &sensor.Unit)
 	e.PanicIfNeeded(err)
 	return sensor
 }
@@ -110,7 +110,7 @@ func GetChannelBySensorId(id int) []Channel {
 	var channel Channel
 	channels = make([]Channel, 0)
 	statement := "select time, value from channel where id_sensor = $1"
-	rows, err := db.Query(cb(), statement, id)
+	rows, err := db.Query(statement, id)
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -128,12 +128,12 @@ func IsSensorExistById(id int) bool {
 
 func UpdateSensor(s SensorUpdate, id int) {
 	statement := "update sensor SET name=COALESCE($1, name), unit=COALESCE($2, unit) where id_sensor=$3"
-	_, err := db.Exec(cb(), statement, s.Name, s.Unit, id)
+	_, err := db.Exec(statement, s.Name, s.Unit, id)
 	e.PanicIfNeeded(err)
 }
 
 func DeleteSensor(id int) {
 	statement := "delete from sensor where id_sensor = $1"
-	_, err := db.Exec(cb(), statement, id)
+	_, err := db.Exec(statement, id)
 	e.PanicIfNeeded(err)
 }

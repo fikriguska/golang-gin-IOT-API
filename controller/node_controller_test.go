@@ -2,7 +2,6 @@ package controller
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"math/rand"
 	"net/http"
@@ -32,7 +31,7 @@ func randomNode() models.Node {
 func insertNode(n models.Node) int {
 	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4) returning id_node"
 	var id int
-	err := db.QueryRow(context.Background(), statement, n.Name, n.Location, n.Id_user, n.Id_hardware).Scan(&id)
+	err := db.QueryRow(statement, n.Name, n.Location, n.Id_user, n.Id_hardware).Scan(&id)
 	e.PanicIfNeeded(err)
 	return id
 }

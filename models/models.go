@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"encoding/json"
 	"reflect"
 	"src/config"
@@ -12,15 +11,18 @@ import (
 	"fmt"
 
 	// _ "github.com/lib/pq"
-	// _ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	// "github.com/jackc/pgx/v5"
+	// _ "github.com/jackc/pgx/v5"
+	// "github.com/jackc/pgx/v5/pgxpool"
 )
 
-// var db *sql.DB
-var db *pgxpool.Pool
+var db *sql.DB
 
-func Setup(cfg config.Configuration) *pgxpool.Pool {
+// var db *pgxpool.Pool
+
+func Setup(cfg config.Configuration) *sql.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
 		cfg.DBHost,
 		cfg.DBUser,
@@ -28,8 +30,8 @@ func Setup(cfg config.Configuration) *pgxpool.Pool {
 		cfg.DBName,
 		cfg.DBPort)
 	// db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	// db, _ = sql.Open("pgx", dsn)
-	db, _ = pgxpool.New(context.Background(), dsn)
+	db, _ = sql.Open("pgx", dsn)
+	// db, _ = pgxpool.New(context.Background(), dsn)
 	fmt.Println(db)
 	return db
 }
@@ -37,15 +39,11 @@ func Setup(cfg config.Configuration) *pgxpool.Pool {
 func isRowExist(query string, args ...interface{}) bool {
 	var exist bool
 	query = fmt.Sprintf("SELECT exists (%s)", query)
-	err := db.QueryRow(cb(), query, args...).Scan(&exist)
+	err := db.QueryRow(query, args...).Scan(&exist)
 	if err != nil && err != pgx.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
 	return exist
-}
-
-func cb() context.Context {
-	return context.Background()
 }
 
 // func getRows(query string, model interface{}, args ...interface{}) {

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"math/rand"
 	"net/http"
@@ -25,7 +24,7 @@ func randomChannel() models.Channel {
 func insertChannel(c models.Channel) {
 	c.Time = time.Now()
 	statement := "insert into channel (time, value, id_sensor) values (($1), $2, $3)"
-	_, err := db.Exec(context.Background(), statement, c.Time, c.Value, c.Id_sensor)
+	_, err := db.Exec(statement, c.Time, c.Value, c.Id_sensor)
 	e.PanicIfNeeded(err)
 }
 
