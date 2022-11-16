@@ -101,19 +101,14 @@ func GetNode(c *gin.Context) {
 		return
 	}
 
-	key := fmt.Sprintf("%d-node", id)
-	nodes_byte, found := cache_service.Cache.Get(key)
+	// using data from cache if exist
+	node_cached, found := cache_service.Get("node", id)
 	if !found {
 		node := nodeService.Get()
-		// nodeJson, _ := json.Marshal(node)
-		cache_service.Cache.Set(key, node, 0)
-		// log.Println("not cached")
+		cache_service.Set("node", id, node)
 		c.IndentedJSON(http.StatusOK, node)
 	} else {
-		// log.Println("cached")
-		// c.Header("Content-Type", "application/json")
-		c.IndentedJSON(http.StatusOK, nodes_byte.(models.NodeGet))
-
+		c.IndentedJSON(http.StatusOK, node_cached.(models.NodeGet))
 	}
 
 }
@@ -162,6 +157,7 @@ func UpdateNode(c *gin.Context) {
 		return
 	}
 
+	cache_service.Del("node", id)
 	nodeService.Update(json)
 
 	successResponse(c, http.StatusOK, "Success edit node")
