@@ -21,11 +21,11 @@ import (
 var db *pgxpool.Pool
 
 func Setup(cfg config.Configuration) *pgxpool.Pool {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=testing port=%d sslmode=disable",
 		cfg.DBHost,
 		cfg.DBUser,
 		cfg.DBPass,
-		cfg.DBName,
+		// cfg.DBName,
 		cfg.DBPort)
 	// db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	// db, _ = sql.Open("pgx", dsn)
@@ -83,3 +83,9 @@ func (ns NullString) Value() (driver.Value, error) {
 	}
 	return ns.String, nil
 }
+
+// func arrIntToPSQL(val []int) string {
+// 	for i, v := range val {
+
+// 	}
+// }

@@ -10,8 +10,19 @@ type Node struct {
 
 func (n *Node) Add() {
 
+	for i, v := range n.Id_hardware_sensor {
+		if v == 0 {
+			n.Id_hardware_sensor[i] = -1
+		}
+	}
+
+	for i, v := range n.Field_sensor {
+		if v == "" {
+			n.Field_sensor[i] = "NULL"
+		}
+	}
 	// check if there is a hardware
-	if n.Id_hardware != -1 {
+	if n.Id_hardware_node != -1 {
 		models.AddNode(n.Node)
 	} else {
 		models.AddNodeNoHardware(n.Node)

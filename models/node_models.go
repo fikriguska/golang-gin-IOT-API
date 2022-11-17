@@ -1,23 +1,31 @@
 package models
 
 import (
+	"fmt"
 	e "src/error"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 )
 
 type Node struct {
-	Id          int
-	Name        string
-	Location    string
-	Id_user     int
-	Id_hardware int
+	Id                 int
+	Name               string
+	Location           string
+	Id_user            int
+	Id_hardware_node   int
+	Id_hardware_sensor []int `pg:"type:uint[10],array,pk"`
+	Field_sensor       []string
+	Is_public          bool
 }
 
 type NodeAdd struct {
-	Name        string `json:"name" binding:"required"`
-	Location    string `json:"location" binding:"required"`
-	Id_hardware *int   `json:"id_hardware"`
+	Name               string   `json:"name" binding:"required"`
+	Location           string   `json:"location" binding:"required"`
+	Id_hardware_node   *int     `json:"id_hardware_node"`
+	Id_hardware_sensor []int    `json:"id_hardware_sensor" binding:"required"`
+	Field_sensor       []string `json:"field_sensor" binding:"required"`
+	Is_public          *bool    `json:"is_public"`
 }
 
 type NodeList struct {
@@ -53,14 +61,18 @@ type NodeUpdate struct {
 }
 
 func AddNodeNoHardware(node Node) {
-	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
-	_, err := db.Exec(cb(), statement, node.Name, node.Location, node.Id_user, nil)
+	id_sensors := "{" + strings.Replace(strings.Trim(strings.Join(strings.Fields(fmt.Sprint(node.Id_hardware_sensor)), ","), "[]"), "-1", "NULL", -1) + "}"
+	field_sensors := "{" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(node.Field_sensor)), ","), "[]") + "}"
+	statement := "insert into node (name, location, id_user, id_hardware_node, id_hardware_sensor, field_sensor, is_public) values ($1, $2, $3, $4, $5, $6, $7)"
+	_, err := db.Exec(cb(), statement, node.Name, node.Location, node.Id_user, nil, id_sensors, field_sensors, node.Is_public)
 	e.PanicIfNeeded(err)
 }
 
 func AddNode(node Node) {
-	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
-	_, err := db.Exec(cb(), statement, node.Name, node.Location, node.Id_user, node.Id_hardware)
+	id_sensors := "{" + strings.Replace(strings.Trim(strings.Join(strings.Fields(fmt.Sprint(node.Id_hardware_sensor)), ","), "[]"), "-1", "NULL", -1) + "}"
+	field_sensors := "{" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(node.Field_sensor)), ","), "[]") + "}"
+	statement := "insert into node (name, location, id_user, id_hardware_node, id_hardware_sensor, field_sensor, is_public) values ($1, $2, $3, $4, $5, $6, $7)"
+	_, err := db.Exec(cb(), statement, node.Name, node.Location, node.Id_user, node.Id_hardware_node, id_sensors, field_sensors, node.Is_public)
 	e.PanicIfNeeded(err)
 }
 

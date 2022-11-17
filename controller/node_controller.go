@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	e "src/error"
 	"src/middleware"
@@ -26,9 +27,9 @@ func NodeRoute(r *gin.Engine) {
 
 func AddNode(c *gin.Context) {
 	var json models.NodeAdd
-
 	// Check required parameter
 	if err := c.BindJSON(&json); err != nil {
+		log.Println(err)
 		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
 		return
 	}
@@ -38,18 +39,26 @@ func AddNode(c *gin.Context) {
 
 	nodeService := node_service.Node{
 		Node: models.Node{
-			Id_user:  idUser,
-			Name:     json.Name,
-			Location: json.Location,
+			Id_user:            idUser,
+			Name:               json.Name,
+			Location:           json.Location,
+			Id_hardware_sensor: json.Id_hardware_sensor,
+			Field_sensor:       json.Field_sensor,
 		},
 	}
 
+	if json.Is_public != nil {
+		nodeService.Is_public = *json.Is_public
+	} else {
+		nodeService.Is_public = false
+	}
+
 	// check is id_harware passed in request
-	if json.Id_hardware != nil {
-		nodeService.Id_hardware = *json.Id_hardware
+	if json.Id_hardware_node != nil {
+		nodeService.Id_hardware_node = *json.Id_hardware_node
 		hardwareService := hardware_service.Hardware{
 			Hardware: models.Hardware{
-				Id: *json.Id_hardware,
+				Id: *json.Id_hardware_node,
 			},
 		}
 		hardwareExist := hardwareService.IsExist()
@@ -66,7 +75,7 @@ func AddNode(c *gin.Context) {
 		}
 
 	} else {
-		nodeService.Id_hardware = -1
+		nodeService.Id_hardware_node = -1
 	}
 
 	nodeService.Add()
