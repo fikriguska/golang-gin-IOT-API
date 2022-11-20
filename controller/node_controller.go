@@ -78,6 +78,35 @@ func AddNode(c *gin.Context) {
 		nodeService.Id_hardware_node = -1
 	}
 
+	for i, v := range json.Id_hardware_sensor {
+
+		if v != nil {
+			hardwareService := hardware_service.Hardware{
+				Hardware: models.Hardware{
+					Id: *v,
+				},
+			}
+
+			hardwareExist := hardwareService.IsExist()
+			if !hardwareExist {
+				errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
+				return
+			}
+
+			isSensor := hardwareService.CheckHardwareType("sensor")
+
+			if !isSensor {
+				errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeSensor)
+				return
+			}
+
+			if json.Field_sensor[i] == nil {
+				errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+				return
+			}
+		}
+	}
+
 	nodeService.Add()
 
 	successResponse(c, http.StatusCreated, "Success add new node")
@@ -86,6 +115,7 @@ func AddNode(c *gin.Context) {
 
 func GetNode(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
+	limit, _ := strconv.Atoi(c.Query("limit"))
 
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
@@ -100,26 +130,29 @@ func GetNode(c *gin.Context) {
 	idUser, isAdmin := extractJwt(c)
 
 	exist, owner := nodeService.IsExistAndOwner(idUser)
+	public := nodeService.IsPublic()
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
-	} else if !owner && !isAdmin {
+	} else if !owner && !isAdmin && !public {
 		errorResponse(c, http.StatusForbidden, e.ErrSeeNodeNotPermitted)
 		return
 	}
 
-	node := nodeService.Get()
+	node := nodeService.Get(limit)
 	c.IndentedJSON(http.StatusOK, node)
 
 }
 
 func ListNode(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.Query("limit"))
+
 	nodeService := node_service.Node{}
 
 	idUser, isAdmin := extractJwt(c)
 
-	nodes := nodeService.GetAll(idUser, isAdmin)
+	nodes := nodeService.GetAll(idUser, isAdmin, limit)
 
 	c.IndentedJSON(http.StatusOK, nodes)
 }
@@ -158,6 +191,70 @@ func UpdateNode(c *gin.Context) {
 		return
 	}
 
+	// check is id_harware passed in request
+	if json.Id_hardware_node != nil {
+		nodeService.Id_hardware_node = *json.Id_hardware_node
+		hardwareService := hardware_service.Hardware{
+			Hardware: models.Hardware{
+				Id: *json.Id_hardware_node,
+			},
+		}
+		hardwareExist := hardwareService.IsExist()
+		if !hardwareExist {
+			errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
+			return
+		}
+
+		isNode := hardwareService.CheckHardwareType("node")
+
+		if !isNode {
+			errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeNode)
+			return
+		}
+
+	} else {
+		nodeService.Id_hardware_node = -1
+	}
+	current_node := nodeService.Get()
+
+	for i, v := range json.Id_hardware_sensor {
+
+		if v != nil {
+			hardwareService := hardware_service.Hardware{
+				Hardware: models.Hardware{
+					Id: *v,
+				},
+			}
+
+			hardwareExist := hardwareService.IsExist()
+			if !hardwareExist {
+				errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
+				return
+			}
+
+			isSensor := hardwareService.CheckHardwareType("sensor")
+
+			if !isSensor {
+				errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeSensor)
+				return
+			}
+			if current_node.Field_sensor[i] == nil && len(json.Field_sensor) == 0 {
+				errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+				return
+			}
+		}
+	}
+
+	// check if field sensor that passed in request is valid.
+	for i, v := range json.Field_sensor {
+		if v == nil {
+			if current_node.Id_hardware_sensor[i] != nil && json.Id_hardware_sensor[i] != nil {
+				errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+				return
+			}
+		}
+	}
+
 	nodeService.Update(json)
 
 	successResponse(c, http.StatusOK, "Success edit node")
@@ -177,14 +274,14 @@ func DeleteNode(c *gin.Context) {
 		},
 	}
 
-	idUser, _ := extractJwt(c)
+	idUser, isAdmin := extractJwt(c)
 
 	exist, owner := nodeService.IsExistAndOwner(idUser)
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
-	} else if !owner {
+	} else if !owner && !isAdmin {
 		errorResponse(c, http.StatusForbidden, e.ErrDeleteNodeNotPermitted)
 		return
 	}
@@ -192,5 +289,4 @@ func DeleteNode(c *gin.Context) {
 	nodeService.Delete()
 
 	successResponse(c, http.StatusOK, fmt.Sprintf("Success delete node, id: %d", id))
-
 }

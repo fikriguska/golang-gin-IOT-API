@@ -49,16 +49,11 @@ func (h *Hardware) Get() interface{} {
 	hw := models.GetHardwareById(h.Id)
 
 	if isSensor {
-		var hardware models.HardwareSensorGet
+		var hardware models.Hardware
 		hardware.Id = hw.Id
 		hardware.Name = hw.Name
 		hardware.Type = hw.Type
 		hardware.Description = hw.Description
-
-		sensor := models.GetSensorByHardwareId(h.Id)
-		hardware.Sensor.Name = sensor.Name
-		hardware.Sensor.Unit = sensor.Unit
-
 		return hardware
 	} else if IsNode {
 		var hardware models.HardwareNodeGet

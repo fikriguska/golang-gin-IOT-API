@@ -1,5 +1,13 @@
 package controller
 
+import (
+	"context"
+	"math/rand"
+	e "src/error"
+	"src/models"
+	"src/util"
+)
+
 // import (
 // 	"bytes"
 // 	"context"
@@ -22,43 +30,52 @@ package controller
 // 	"github.com/stretchr/testify/require"
 // )
 
-// func randomNode() models.Node {
-// 	return models.Node{
-// 		Name:     util.RandomString(10),
-// 		Location: util.RandomString(7),
-// 	}
-// }
+func randomNode() models.Node {
+	return models.Node{
+		Name:     util.RandomString(10),
+		Location: util.RandomString(7),
+	}
+}
 
-// func insertNode(n models.Node) int {
-// 	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4) returning id_node"
-// 	var id int
-// 	err := db.QueryRow(context.Background(), statement, n.Name, n.Location, n.Id_user, n.Id_hardware).Scan(&id)
-// 	e.PanicIfNeeded(err)
-// 	return id
-// }
+func insertNode(n models.Node) int {
+	statement := "insert into node (name, location, id_user, id_hardware_node, id_hardware_sensor, field_sensor, is_public) values ($1, $2, $3, $4, $5, $6, $7) returning id_node"
+	var id int
+	err := db.QueryRow(context.Background(), statement, n.Name, n.Location, n.Id_user, n.Id_hardware_node, n.Id_hardware_sensor, n.Field_sensor, n.Is_public).Scan(&id)
+	e.PanicIfNeeded(err)
+	return id
+}
 
 // // create for user, hardware, node automatically, and insert it to db
-// func autoInsertNode(hardwareType interface{}) (testUser, models.Hardware, models.Node) {
-// 	node := randomNode()
+func autoInsertNode(hardwareType interface{}) (testUser, models.Hardware, models.Node) {
+	node := randomNode()
 
-// 	hardwareNode := randomHardware()
-// 	if hardwareType != nil {
-// 		hardwareNode.Type = hardwareType.(string)
-// 	} else {
-// 		hardwareNode.Type = []string{"single-board computer", "microcontroller unit"}[rand.Int()%2]
-// 	}
+	hardwareNode := randomHardware()
+	if hardwareType != nil {
+		hardwareNode.Type = hardwareType.(string)
+	} else {
+		hardwareNode.Type = []string{"single-board computer", "microcontroller unit"}[rand.Int()%2]
+	}
 
-// 	hardwareNode.Id = insertHardware(hardwareNode)
+	hardwareNode.Id = insertHardware(hardwareNode)
 
-// 	user := randomUser()
-// 	user.Status = true
-// 	user.Id = insertUser(user)
+	user := randomUser()
+	user.Status = true
+	user.Id = insertUser(user)
 
-// 	node.Id_hardware = hardwareNode.Id
-// 	node.Id_user = user.Id
-// 	node.Id = insertNode(node)
-// 	return user, hardwareNode, node
-// }
+	node.Id_hardware_node = hardwareNode.Id
+	node.Id_user = user.Id
+
+	sensor := autoInsertSensor()
+	sensor2 := autoInsertSensor()
+
+	node.Id_hardware_sensor = []*int{&sensor.Id, &sensor2.Id, nil, nil, nil, nil, nil, nil, nil, nil}
+	field1 := "c"
+	field2 := "m"
+	node.Field_sensor = []*string{&field1, &field2, nil, nil, nil, nil, nil, nil, nil, nil}
+
+	node.Id = insertNode(node)
+	return user, hardwareNode, node
+}
 
 // func checkNodeSensor(node models.NodeGet, sensor models.Sensor) bool {
 // 	containsSensor := false

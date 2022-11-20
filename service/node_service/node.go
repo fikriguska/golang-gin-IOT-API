@@ -10,17 +10,6 @@ type Node struct {
 
 func (n *Node) Add() {
 
-	for i, v := range n.Id_hardware_sensor {
-		if v == 0 {
-			n.Id_hardware_sensor[i] = -1
-		}
-	}
-
-	for i, v := range n.Field_sensor {
-		if v == "" {
-			n.Field_sensor[i] = "NULL"
-		}
-	}
 	// check if there is a hardware
 	if n.Id_hardware_node != -1 {
 		models.AddNode(n.Node)
@@ -29,42 +18,43 @@ func (n *Node) Add() {
 	}
 }
 
-func (n *Node) GetAll(id_user int, is_admin bool) []models.NodeList {
+func (n *Node) GetAll(id_user int, is_admin bool, args ...int) []models.NodeList {
+	// the default of limit is 50
+	limit := 50
+	if len(args) == 1 {
+		if args[0] >= 1 {
+			limit = args[0]
+		}
+	}
 	var nodes []models.NodeList
 	if is_admin {
 		nodes = models.GetAllNode()
 	} else {
 		nodes = models.GetAllNodeByUserId(id_user)
 	}
+
+	for i, n := range nodes {
+		feeds := models.GetFeedByNodeId(n.Id, limit)
+		nodes[i].Feed = feeds
+	}
 	return nodes
 }
 
-func (n *Node) Get() models.NodeGet {
-	node, user := models.GetNodeAndUserByNodeId(n.Id)
-	hardware := models.GetHardwareByNodeId(n.Id)
-	sensors := models.GetSensorByNodeId(n.Id)
+func (n *Node) Get(args ...int) models.NodeGet {
 
-	var resp models.NodeGet
-
-	resp.Id = node.Id
-	resp.Name = node.Name
-	resp.Location = node.Location
-	resp.Id_user = user.Id
-	resp.Username = user.Username
-
-	resp.Hardware = append(resp.Hardware, models.NodeHardwareGet{})
-	resp.Hardware[0].Name = hardware.Name
-	resp.Hardware[0].Type = hardware.Type
-
-	resp.Sensor = make([]models.NodeSensorGet, 0)
-	for i, s := range sensors {
-		resp.Sensor = append(resp.Sensor, models.NodeSensorGet{})
-		resp.Sensor[i].Id_sensor = s.Id
-		resp.Sensor[i].Name = s.Name
-		resp.Sensor[i].Unit = s.Unit
+	// the default of limit is 50
+	limit := 50
+	if len(args) == 1 {
+		if args[0] >= 1 {
+			limit = args[0]
+		}
 	}
 
-	return resp
+	node := models.GetNodeById(n.Id)
+	feed := models.GetFeedByNodeId(n.Id, limit)
+	node.Feed = feed
+
+	return node
 
 }
 
@@ -79,6 +69,10 @@ func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
 	}
 	owner = (models.GetUserIdByNodeId(n.Id) == id_user)
 	return exist, owner
+}
+
+func (n *Node) IsPublic() (public bool) {
+	return models.IsNodePublic(n.Id)
 }
 
 func (n *Node) Delete() {
