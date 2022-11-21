@@ -59,7 +59,7 @@ func BasicAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		id, _, pass, isAdmin := userService.Get()
+		id, _, pass, isAdmin := userService.GetForAuth()
 
 		c.Set("id_user", id)
 		c.Set("username", pair[0])
