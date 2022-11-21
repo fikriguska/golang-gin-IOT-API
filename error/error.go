@@ -39,6 +39,7 @@ var (
 	ErrSeeNodeNotPermitted    = errors.New("you can't see another user's node")
 	ErrEditNodeNotPermitted   = errors.New("you can't edit another user's node")
 	ErrFieldIsEmpty           = errors.New("field sensor is empty")
+	ErrIdSensorIsEmpty        = errors.New("id hardware sensor is empty")
 
 	ErrSensorIdNotFound         = errors.New("sensor not found")
 	ErrDeleteSensorNotPermitted = errors.New("you can't delete another user's sensor")

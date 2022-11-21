@@ -104,6 +104,11 @@ func AddNode(c *gin.Context) {
 				errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
 				return
 			}
+		} else {
+			if json.Field_sensor[i] != nil {
+				errorResponse(c, http.StatusBadRequest, e.ErrIdSensorIsEmpty)
+				return
+			}
 		}
 	}
 
@@ -217,43 +222,130 @@ func UpdateNode(c *gin.Context) {
 	}
 	current_node := nodeService.Get()
 
-	for i, v := range json.Id_hardware_sensor {
-
-		if v != nil {
-			hardwareService := hardware_service.Hardware{
-				Hardware: models.Hardware{
-					Id: *v,
-				},
-			}
-
-			hardwareExist := hardwareService.IsExist()
-			if !hardwareExist {
-				errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
-				return
-			}
-
-			isSensor := hardwareService.CheckHardwareType("sensor")
-
-			if !isSensor {
-				errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeSensor)
-				return
-			}
-			if current_node.Field_sensor[i] == nil && len(json.Field_sensor) == 0 {
+	if len(json.Id_hardware_sensor) == 10 && len(json.Field_sensor) == 10 {
+		for i := 0; i < 10; i++ {
+			if json.Id_hardware_sensor[i] != nil && json.Field_sensor[i] == nil {
 				errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+				return
+			} else if json.Id_hardware_sensor[i] == nil && json.Field_sensor[i] != nil {
+				errorResponse(c, http.StatusBadRequest, e.ErrIdSensorIsEmpty)
+				return
+			}
+			if json.Id_hardware_sensor[i] != nil {
+				hardwareService := hardware_service.Hardware{
+					Hardware: models.Hardware{
+						Id: *json.Id_hardware_sensor[i],
+					},
+				}
+
+				hardwareExist := hardwareService.IsExist()
+				if !hardwareExist {
+					errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
+					return
+				}
+
+				isSensor := hardwareService.CheckHardwareType("sensor")
+
+				if !isSensor {
+					errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeSensor)
+					return
+				}
+			}
+		}
+	} else if len(json.Id_hardware_sensor) == 10 && len(json.Field_sensor) == 0 {
+		for i := 0; i < 10; i++ {
+			if json.Id_hardware_sensor[i] != nil && current_node.Field_sensor[i] == nil {
+				errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+				return
+			} else if json.Id_hardware_sensor[i] == nil && current_node.Field_sensor[i] != nil {
+				errorResponse(c, http.StatusBadRequest, e.ErrIdSensorIsEmpty)
+				return
+			}
+			if json.Id_hardware_sensor[i] != nil {
+				hardwareService := hardware_service.Hardware{
+					Hardware: models.Hardware{
+						Id: *json.Id_hardware_sensor[i],
+					},
+				}
+
+				hardwareExist := hardwareService.IsExist()
+				if !hardwareExist {
+					errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
+					return
+				}
+
+				isSensor := hardwareService.CheckHardwareType("sensor")
+
+				if !isSensor {
+					errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeSensor)
+					return
+				}
+			}
+		}
+	} else if len(json.Id_hardware_sensor) == 0 && len(json.Field_sensor) == 10 {
+		for i := 0; i < 10; i++ {
+			if current_node.Id_hardware_sensor[i] != nil && json.Field_sensor[i] == nil {
+				errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+				return
+			} else if current_node.Id_hardware_sensor[i] == nil && json.Field_sensor[i] != nil {
+				errorResponse(c, http.StatusBadRequest, e.ErrIdSensorIsEmpty)
 				return
 			}
 		}
 	}
 
-	// check if field sensor that passed in request is valid.
-	for i, v := range json.Field_sensor {
-		if v == nil {
-			if current_node.Id_hardware_sensor[i] != nil && json.Id_hardware_sensor[i] != nil {
-				errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
-				return
-			}
-		}
-	}
+	// for i, v := range json.Id_hardware_sensor {
+
+	// 	if v != nil {
+	// 		hardwareService := hardware_service.Hardware{
+	// 			Hardware: models.Hardware{
+	// 				Id: *v,
+	// 			},
+	// 		}
+
+	// 		hardwareExist := hardwareService.IsExist()
+	// 		if !hardwareExist {
+	// 			errorResponse(c, http.StatusNotFound, e.ErrHardwareIdNotFound)
+	// 			return
+	// 		}
+
+	// 		isSensor := hardwareService.CheckHardwareType("sensor")
+
+	// 		if !isSensor {
+	// 			errorResponse(c, http.StatusBadRequest, e.ErrHardwareMustbeSensor)
+	// 			return
+	// 		}
+
+	// 		if len(json.Field_sensor) == 0 && current_node.Field_sensor[i] == nil {
+	// 			errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+	// 			return
+
+	// 		} else if json.Field_sensor[i] == nil {
+	// 			errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+	// 			return
+	// 		}
+
+	// 	} else {
+	// 		if current_node.Field_sensor[i] != nil {
+	// 			errorResponse(c, http.StatusBadRequest, e.ErrIdSensorIsEmpty)
+	// 		}
+	// 	}
+	// }
+
+	// // check if field sensor that passed in request is valid.
+	// for i, v := range json.Field_sensor {
+	// 	if v == nil {
+	// 		if current_node.Id_hardware_sensor[i] != nil && json.Id_hardware_sensor[i] != nil {
+	// 			errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+	// 			return
+	// 		}
+	// 	} else {
+	// 		if current_node.Id_hardware_sensor == nil && len(json.Id_hardware_sensor) == 0 {
+	// 			errorResponse(c, http.StatusBadRequest, e.ErrIdSensorIsEmpty)
+	// 			return
+	// 		}
+	// 	}
+	// }
 
 	nodeService.Update(json)
 

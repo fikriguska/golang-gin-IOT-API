@@ -156,7 +156,7 @@ func TestDeleteHardware(t *testing.T) {
 
 	id := insertHardware(hardware)
 
-	_, hardware2, _ := autoInsertNode(nil)
+	_, hardware2, _ := autoInsertNode(nil, false)
 
 	user := randomUser()
 	user.Status = true
@@ -304,7 +304,7 @@ func TestGetHardwareSensor(t *testing.T) {
 }
 
 func TestGetHardwareNode(t *testing.T) {
-	user, hardware, node := autoInsertNode(nil)
+	user, hardware, node := autoInsertNode(nil, false)
 	hardware2 := randomHardwareNode()
 	hardware2.Id = insertHardware(hardware2)
 
