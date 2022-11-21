@@ -22,6 +22,18 @@ type UserAdd struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type UserGet struct {
+	Id       int    `json:"id_user"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+type UserList struct {
+	Id       int    `json:"id_user"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
 type UserLogin struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -53,12 +65,29 @@ func GetUserByUsername(user User) User {
 }
 
 func GetUserById(id int) User {
-	statement := "select id_user, username, password, isadmin from user_person where id_user = $1"
 	var u User
-	err := db.QueryRow(cb(), statement, id).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
+	statement := "select id_user, email, username, password, isadmin from user_person where id_user = $1"
+	err := db.QueryRow(cb(), statement, id).Scan(&u.Id, &u.Email, &u.Username, &u.Password, &u.Is_admin)
 	e.PanicIfNeeded(err)
 
 	return u
+}
+
+func GetAllUser() []UserList {
+	var user UserList
+	var users []UserList
+	users = make([]UserList, 0)
+	statement := "select id_user, email, username from user_person"
+	rows, err := db.Query(cb(), statement)
+	e.PanicIfNeeded(err)
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&user.Id, &user.Email, &user.Username)
+		e.PanicIfNeeded(err)
+		users = append(users, user)
+	}
+
+	return users
 }
 
 func IsUserUsernameExist(username string) bool {

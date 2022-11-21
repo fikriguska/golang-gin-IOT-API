@@ -60,6 +60,75 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
+// func generate() {
+// 	nUser := 10
+// 	nNode := 10
+// 	nSensor := 5
+// 	nChannel := 10
+// 	for u := 0; u < nUser; u++ {
+// 		user := randomUser()
+// 		if u == 0 {
+// 			user = testUser{
+// 				User: models.User{
+// 					Password: "wkwk",
+// 					Email:    "bintangf00code@gmail.com",
+// 					Username: "perftest",
+// 					Status:   true,
+// 					Token:    "dbb68d97021afbdb7bf0f2beb87705ecd9073a5737a7ced8c9be4680ee9d3549",
+// 					Is_admin: false,
+// 				},
+// 				hashedPass: "3c31bc6fa467cea84245bf86d594f17936880674f320b94b2cef9f73ac71e51f",
+// 			}
+// 		}
+// 		user.Status = true
+// 		user.Id = insertUser(user)
+// 		fmt.Println(u, ". created user: ", user)
+// 		var wgNode sync.WaitGroup
+// 		wgNode.Add(nNode)
+// 		for n := 0; n < nNode; n++ {
+// 			go func() {
+// 				hNode := randomHardwareNode()
+// 				hNode.Id = insertHardware(hNode)
+// 				node := randomNode()
+// 				node.Id_user = user.Id
+// 				node.Id_hardware = hNode.Id
+// 				node.Id = insertNode(node)
+// 				fmt.Println(n, ". created node: ", node)
+// 				// var wgSensor sync.WaitGroup
+// 				// wgSensor.Add(nSensor)
+// 				for s := 0; s < nSensor; s++ {
+// 					// go func() {
+// 					hSensor := randomHardwareSensor()
+// 					hSensor.Id = insertHardware(hSensor)
+// 					sensor := randomSensor()
+// 					sensor.Id_hardware = hSensor.Id
+// 					sensor.Id_node = node.Id
+// 					sensor.Id = insertSensor(sensor)
+// 					fmt.Println(s, ". created sensor: ", sensor)
+// 					// var wgChannel sync.WaitGroup
+// 					// wgChannel.Add(nChannel)
+// 					for c := 0; c < nChannel; c++ {
+// 						// go func() {
+// 						channel := randomChannel()
+// 						channel.Id_sensor = sensor.Id
+// 						insertChannel(channel)
+// 						fmt.Println(c, ". created channel: ", channel)
+// 						// wgChannel.Done()
+// 						// }()
+// 					}
+// 					// wgChannel.Wait()
+// 					// wgSensor.Done()
+// 					// }()
+// 				}
+// 				// wgSensor.Wait()
+// 				wgNode.Done()
+// 			}()
+// 		}
+// 		wgNode.Wait()
+
+// 	}
+// }
+
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	UserRoute(r)

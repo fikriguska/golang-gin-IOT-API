@@ -74,7 +74,7 @@ var JwtMiddleware, _ = jwt.New(&jwt.GinJWTMiddleware{
 			return nil, e.ErrUserNotActive
 		}
 
-		id, _, _, isAdmin := userService.Get()
+		id, _, _, isAdmin := userService.GetForAuth()
 		return &models.User{
 			Id:       id,
 			Is_admin: isAdmin,

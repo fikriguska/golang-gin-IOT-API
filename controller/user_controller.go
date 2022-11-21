@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	e "src/error"
 	"src/middleware"
@@ -18,8 +19,10 @@ func UserRoute(r *gin.Engine) {
 	r.GET("/user/activation", ActivateUser)
 	r.POST("/user/login", middleware.JwtMiddleware.LoginHandler)
 	r.POST("/user/forget-password", ForgetPassword)
+	r.GET("/user", middleware.JwtMiddleware.MiddlewareFunc(), ListUser)
 
 	authorized := r.Group("/user/:id", middleware.JwtMiddleware.MiddlewareFunc())
+	authorized.GET("", GetUser)
 	authorized.DELETE("", DeleteUser)
 	authorized.PUT("", UpdateUser)
 }
@@ -111,6 +114,7 @@ func Login(c *gin.Context) {
 	}
 
 	credCorrect, activated := userService.Auth()
+	log.Println(credCorrect, activated)
 
 	if !credCorrect {
 		errorResponse(c, http.StatusBadRequest, e.ErrUsernameOrPassIncorrect)
@@ -202,7 +206,7 @@ func UpdateUser(c *gin.Context) {
 
 	oldPasswdHash := util.Sha256String(json.OldPasswd)
 
-	_, _, RealOldPasswdHash, _ := userService.Get()
+	_, _, RealOldPasswdHash, _ := userService.GetForAuth()
 	if oldPasswdHash != RealOldPasswdHash {
 		errorResponse(c, http.StatusBadRequest, e.ErrOldPasswordIncorrect)
 		return
@@ -252,4 +256,39 @@ func DeleteUser(c *gin.Context) {
 
 	successResponse(c, http.StatusOK, fmt.Sprintf("delete user, id: %d", id))
 
+}
+
+func ListUser(c *gin.Context) {
+	userService := user_service.User{}
+	users := userService.GetAll()
+	c.IndentedJSON(http.StatusOK, users)
+}
+
+func GetUser(c *gin.Context) {
+
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
+		return
+	}
+
+	is_admin, _ := c.Get("is_admin")
+	if !is_admin.(bool) {
+		errorResponse(c, http.StatusUnauthorized, e.ErrNotAdministrator)
+		return
+	}
+
+	userService := user_service.User{
+		User: models.User{
+			Id: id,
+		},
+	}
+	isExist := userService.IsExist()
+	if !isExist {
+		errorResponse(c, http.StatusOK, e.ErrUserIdNotFound)
+		return
+	}
+	user := userService.Get()
+	c.IndentedJSON(http.StatusOK, user)
 }
