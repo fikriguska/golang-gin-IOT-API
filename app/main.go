@@ -5,6 +5,7 @@ import (
 	"src/controller"
 	"src/models"
 
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,6 +21,6 @@ func main() {
 	controller.NodeRoute(r)
 	controller.SensorRoute(r)
 	controller.ChannelRoute(r)
-
+	pprof.Register(r)
 	r.Run()
 }
