@@ -5,7 +5,8 @@ import (
 	"src/config"
 	"src/controller"
 	"src/models"
-
+	_ "net/http/pprof"
+	"github.com/felixge/fgprof"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
@@ -22,5 +23,6 @@ func main() {
 	runtime.SetBlockProfileRate(1)
 
 	pprof.Register(r)
+	r.GET("/debug/fgprof", gin.WrapH(fgprof.Handler()))
 	r.Run()
 }
