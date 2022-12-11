@@ -51,6 +51,13 @@ type NodeUpdate struct {
 	Location *string `json:"location"`
 }
 
+var getnode *sql.Stmt
+
+func GetNodeInit() {
+	getnode, _ = db.Prepare("select id_node, name, location, id_hardware, id_user from node where id_user = $1")
+	// e.PanicIfNeeded(err)
+}
+
 func AddNodeNoHardware(node Node) {
 	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
 	_, err := db.Exec(statement, node.Name, node.Location, node.Id_user, nil)
@@ -67,8 +74,12 @@ func GetAllNodeByUserId(id_user int) []NodeList {
 	var node NodeList
 	var nodes []NodeList
 	nodes = make([]NodeList, 0)
-	statement := "select id_node, name, location, id_hardware, id_user from node where id_user = $1"
-	rows, err := db.Query(statement, id_user)
+	// statement := "select id_node, name, location, id_hardware, id_user from node where id_user = $1"
+	// rows, err := db.Query(statement, id_user)
+	// getnode, _ = db.Prepare("select id_node, name, location, id_hardware, id_user from node where id_user = $1")
+
+	rows, err := getnode.Query(id_user)
+
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
