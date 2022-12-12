@@ -17,6 +17,7 @@ func main() {
 	controller.NodeRoute(r)
 	controller.SensorRoute(r)
 	controller.ChannelRoute(r)
+	models.NodeInit()
 
 	r.Run()
 }

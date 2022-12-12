@@ -51,6 +51,18 @@ type NodeUpdate struct {
 	Location *string `json:"location"`
 }
 
+var getnode *sql.Stmt
+var getnodeanduser *sql.Stmt
+var gethardware *sql.Stmt
+var getsensor *sql.Stmt
+
+func NodeInit() {
+	getnode, _ = db.Prepare("select id_node, name, location, id_hardware, id_user from node where id_user = $1")
+	getnodeanduser, _ = db.Prepare("select node.id_node, node.name, node.location, user_person.id_user, user_person.username from node left join user_person on node.id_user = user_person.id_user where node.id_node = $1")
+	gethardware, _ = db.Prepare("select hardware.name, hardware.type from hardware left join node on hardware.id_hardware = node.id_hardware where id_node = $1")
+	getsensor, _ = db.Prepare("select sensor.id_sensor, sensor.name, sensor.unit from sensor left join node on sensor.id_node = node.id_node where sensor.id_node = $1")
+}
+
 func AddNodeNoHardware(node Node) {
 	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
 	_, err := db.Exec(statement, node.Name, node.Location, node.Id_user, nil)
@@ -67,8 +79,7 @@ func GetAllNodeByUserId(id_user int) []NodeList {
 	var node NodeList
 	var nodes []NodeList
 	nodes = make([]NodeList, 0)
-	statement := "select id_node, name, location, id_hardware, id_user from node where id_user = $1"
-	rows, err := db.Query(statement, id_user)
+	rows, err := getnode.Query(id_user)
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -96,18 +107,16 @@ func GetAllNode() []NodeList {
 }
 
 func GetNodeAndUserByNodeId(id int) (Node, User) {
-	statement := "select node.id_node, node.name, node.location, user_person.id_user, user_person.username from node left join user_person on node.id_user = user_person.id_user where node.id_node = $1"
 	var node Node
 	var user User
-	err := db.QueryRow(statement, id).Scan(&node.Id, &node.Name, &node.Location, &user.Id, &user.Username)
+	err := getnodeanduser.QueryRow(id).Scan(&node.Id, &node.Name, &node.Location, &user.Id, &user.Username)
 	e.PanicIfNeeded(err)
 	return node, user
 }
 
 func GetHardwareByNodeId(id int) Hardware {
-	statement := "select hardware.name, hardware.type from hardware left join node on hardware.id_hardware = node.id_hardware where id_node = $1"
 	var hardware Hardware
-	err := db.QueryRow(statement, id).Scan(&hardware.Name, &hardware.Type)
+	err := gethardware.QueryRow(id).Scan(&hardware.Name, &hardware.Type)
 	if err != nil && err != sql.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
@@ -118,8 +127,7 @@ func GetSensorByNodeId(id int) []Sensor {
 	var sensors []Sensor
 	var sensor Sensor
 	sensors = make([]Sensor, 0)
-	statement := "select sensor.id_sensor, sensor.name, sensor.unit from sensor left join node on sensor.id_node = node.id_node where sensor.id_node = $1"
-	rows, err := db.Query(statement, id)
+	rows, err := getsensor.Query(id)
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
