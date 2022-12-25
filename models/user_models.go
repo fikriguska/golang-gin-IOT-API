@@ -49,8 +49,8 @@ type UserUpdate struct {
 }
 
 func AddUser(user User) {
-	statement := "insert into user_person (username, email, password, status, token, isadmin) values ($1, $2, $3, $4, $5, $6)"
-	_, err := db.Exec(statement, user.Username, user.Email, user.Password, user.Status, user.Token, user.Is_admin)
+	statement := replaceQueryParam("insert into user_person (username, email, password, status, token, isadmin) values ('%s', '%s', '%s', %t, '%s', %t)", user.Username, user.Email, user.Password, user.Status, user.Token, user.Is_admin)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }
 
@@ -65,10 +65,10 @@ func GetUserByUsername(user User) User {
 }
 
 func GetUserById(id int) User {
-	statement := "select id_user, email, username, password, isadmin from user_person where id_user = $1"
+	statement := replaceQueryParam("select id_user, email, username, password, isadmin from user_person where id_user = %d", id)
 
 	var u User
-	err := db.QueryRow(statement, id).Scan(&u.Id, &u.Email, &u.Username, &u.Password, &u.Is_admin)
+	err := db.QueryRow(statement).Scan(&u.Id, &u.Email, &u.Username, &u.Password, &u.Is_admin)
 	e.PanicIfNeeded(err)
 
 	return u
@@ -92,39 +92,39 @@ func GetAllUser() []UserList {
 }
 
 func IsUserUsernameExist(username string) bool {
-	statement := "select username from user_person where username = $1"
-	return isRowExist(statement, username)
+	statement := replaceQueryParam("select username from user_person where username = '%s'", username)
+	return isRowExist(statement)
 }
 
 func IsUserEmailExist(email string) bool {
-	statement := "select email from user_person where email = $1"
-	return isRowExist(statement, email)
+	statement := replaceQueryParam("select email from user_person where email = '%s'", email)
+	return isRowExist(statement)
 }
 
 func IsUserExistById(id int) bool {
-	statement := "select id_user from user_person where id_user = $1"
-	return isRowExist(statement, id)
+	statement := replaceQueryParam("select id_user from user_person where id_user = %d", id)
+	return isRowExist(statement)
 }
 
 // ******
 func GetUserIdByUsername(username string) int {
-	statement := "select id_user from user_person where username = $1"
+	statement := replaceQueryParam("select id_user from user_person where username = '%s'", username)
 
 	var id int
-	err := db.QueryRow(statement, username).Scan(&id)
+	err := db.QueryRow(statement).Scan(&id)
 	e.PanicIfNeeded(err)
 
 	return id
 }
 
 func IsUserTokenExist(token string) bool {
-	statement := "select token from user_person where token = $1"
-	return isRowExist(statement, token)
+	statement := replaceQueryParam("select token from user_person where token = '%s'", token)
+	return isRowExist(statement)
 }
 
 func IsUserActivatedCheckByToken(token string) bool {
 	// ******
-	statement := "select id_user from user_person where token = $1 and status = true"
+	statement := replaceQueryParam("select id_user from user_person where token = '%s' and status = true", token)
 	// var tmp string
 	// if err := db.QueryRow(statement, token).Scan(&tmp); err != nil {
 	// 	if err == sql.ErrNoRows {
@@ -132,7 +132,7 @@ func IsUserActivatedCheckByToken(token string) bool {
 	// 	}
 	// 	return false, err
 	// }
-	return isRowExist(statement, token)
+	return isRowExist(statement)
 	// return true, nil
 }
 
@@ -150,8 +150,8 @@ func IsUserActivatedCheckByUsername(username string) bool {
 }
 
 func ActivateUser(token string) error {
-	statement := "update user_person set status = true where token = $1"
-	_, err := db.Exec(statement, token)
+	statement := replaceQueryParam("update user_person set status = true where token = '%s'", token)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 	return nil
 }
@@ -163,25 +163,25 @@ func IsUsernameAndPasswordExist(username string, password string) bool {
 }
 
 func IsEmailAndUsernameExist(email string, username string) bool {
-	statement := "select id_user from user_person where email = $1 and username = $2"
-	return isRowExist(statement, email, username)
+	statement := replaceQueryParam("select id_user from user_person where email = '%s' and username = '%s'", email, username)
+	return isRowExist(statement)
 }
 
 func UpdateUserPasswordByEmail(email string, password string) {
-	statement := "update user_person set password = $1 where email = $2"
-	_, err := db.Exec(statement, password, email)
+	statement := replaceQueryParam("update user_person set password = '%s' where email = '%s'", password, email)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }
 
 func UpdateUserPasswordById(id int, password string) {
-	statement := "update user_person set password = $1 where id_user = $2"
-	_, err := db.Exec(statement, password, id)
+	statement := replaceQueryParam("update user_person set password = '%s' where id_user = %d", password, id)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }
 
 func DeleteUser(id int) error {
-	statement := "delete from user_person where id_user = $1"
-	_, err := db.Exec(statement, id)
+	statement := replaceQueryParam("delete from user_person where id_user = %d", id)
+	_, err := db.Exec(statement)
 	// e.PanicIfNeeded(err)
 	return err
 }

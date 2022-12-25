@@ -18,7 +18,7 @@ type ChannelAdd struct {
 }
 
 func AddChannel(c Channel) {
-	statement := "insert into channel (time, value, id_sensor) values (($1), $2, $3)"
-	_, err := db.Exec(statement, c.Time, c.Value, c.Id_sensor)
+	statement := replaceQueryParam("insert into channel (time, value, id_sensor) values (now(), %g, %d)", c.Value, c.Id_sensor)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }

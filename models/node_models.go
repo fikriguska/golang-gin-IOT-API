@@ -52,14 +52,14 @@ type NodeUpdate struct {
 }
 
 func AddNodeNoHardware(node Node) {
-	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
-	_, err := db.Exec(statement, node.Name, node.Location, node.Id_user, nil)
+	statement := replaceQueryParam("insert into node (name, location, id_user, id_hardware) values ('%s', '%s', %d, NULL)", node.Name, node.Location, node.Id_user)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }
 
 func AddNode(node Node) {
-	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
-	_, err := db.Exec(statement, node.Name, node.Location, node.Id_user, node.Id_hardware)
+	statement := replaceQueryParam("insert into node (name, location, id_user, id_hardware) values ('%s', '%s', %d, %d)", node.Name, node.Location, node.Id_user, node.Id_hardware)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }
 
@@ -136,14 +136,15 @@ func IsNodeExistById(id int) bool {
 }
 
 func UpdateNode(n NodeUpdate, id int) {
-	statement := "update node SET name=COALESCE($1, name), location=COALESCE($2, location) where id_node=$3"
-	_, err := db.Exec(statement, n.Name, n.Location, id)
+	fillByNullIfNeeded(&n.Name, &n.Location)
+	statement := replaceQueryParam("update node SET name=COALESCE(%s, name), location=COALESCE(%s, location) where id_node = %d", *n.Name, *n.Location, id)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }
 
 func DeleteNode(id int) {
-	statement := "delete from node where id_node = $1"
-	_, err := db.Exec(statement, id)
+	statement := replaceQueryParam("delete from node where id_node = %d", id)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }
 
