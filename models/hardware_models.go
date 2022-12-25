@@ -56,30 +56,30 @@ type HardwareUpdateSQL struct {
 }
 
 func IsHardwareExistById(id int) bool {
-	statement := "select id_hardware from hardware where id_hardware = $1"
-	return isRowExist(statement, id)
+	statement := replaceQueryParam("select id_hardware from hardware where id_hardware = %d", id)
+	return isRowExist(statement)
 }
 
 func IsHardwareTypedSensorById(id int) bool {
-	statement := "select type from hardware where id_hardware = $1 and (lower(type) = 'sensor')"
-	return isRowExist(statement, id)
+	statement := replaceQueryParam("select type from hardware where id_hardware = %d and (lower(type) = 'sensor')", id)
+	return isRowExist(statement)
 }
 
 func IsHardwareTypedNodeById(id int) bool {
-	statement := "select type from hardware where id_hardware = $1 and (lower(type) = 'single-board computer' or lower(type) = 'microcontroller unit')"
-	return isRowExist(statement, id)
+	statement := replaceQueryParam("select type from hardware where id_hardware = %d and (lower(type) = 'single-board computer' or lower(type) = 'microcontroller unit')", id)
+	return isRowExist(statement)
 }
 
 func AddHardware(h Hardware) {
-	statement := "insert into hardware (name, type, description) values ($1, $2, $3)"
-	_, err := db.Exec(statement, h.Name, h.Type, h.Description)
+	statement := replaceQueryParam("insert into hardware (name, type, description) values ('%s', '%s', '%s')", h.Name, h.Type, h.Description)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }
 
 func GetHardwareById(id int) Hardware {
 	var hardware Hardware
-	statement := "select id_hardware, name, type, description from hardware where id_hardware = $1"
-	err := db.QueryRow(statement, id).Scan(&hardware.Id, &hardware.Name, &hardware.Type, &hardware.Description)
+	statement := replaceQueryParam("select id_hardware, name, type, description from hardware where id_hardware = %d", id)
+	err := db.QueryRow(statement).Scan(&hardware.Id, &hardware.Name, &hardware.Type, &hardware.Description)
 	if err != nil && err != sql.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
@@ -121,8 +121,8 @@ func GetAllHardwareTypedNode() []Hardware {
 
 func GetNodeByHardwareId(id int) Node {
 	var node Node
-	statement := "select name, location from node where id_hardware = $1"
-	err := db.QueryRow(statement, id).Scan(&node.Name, &node.Location)
+	statement := replaceQueryParam("select name, location from node where id_hardware = %d", id)
+	err := db.QueryRow(statement).Scan(&node.Name, &node.Location)
 	if err != nil && err != sql.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
@@ -131,8 +131,8 @@ func GetNodeByHardwareId(id int) Node {
 
 func GetSensorByHardwareId(id int) Sensor {
 	var sensor Sensor
-	statement := "select name, unit from sensor where id_hardware = $1"
-	err := db.QueryRow(statement, id).Scan(&sensor.Name, &sensor.Unit)
+	statement := replaceQueryParam("select name, unit from sensor where id_hardware = %d", id)
+	err := db.QueryRow(statement).Scan(&sensor.Name, &sensor.Unit)
 	if err != nil && err != sql.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
@@ -140,14 +140,15 @@ func GetSensorByHardwareId(id int) Sensor {
 }
 
 func UpdateHardware(h HardwareUpdate, id int) {
-	statement := "update hardware SET name=COALESCE($1, name), type=COALESCE($2, type), description=COALESCE($3, description) where id_hardware=$4"
-	_, err := db.Exec(statement, h.Name, h.Type, h.Description, id)
+	fillByNullIfNeeded(&h.Name, &h.Type, &h.Description)
+	statement := replaceQueryParam("update hardware SET name=COALESCE(%s, name), type=COALESCE(%s, type), description=COALESCE(%s, description) where id_hardware=%d", *h.Name, *h.Type, *h.Description, id)
+	_, err := db.Exec(statement)
 	e.PanicIfNeeded(err)
 }
 
 func DeleteHardware(id int) error {
-	statement := "delete from hardware where id_hardware = $1"
-	_, err := db.Exec(statement, id)
+	statement := replaceQueryParam("delete from hardware where id_hardware = %d", id)
+	_, err := db.Exec(statement)
 	// e.PanicIfNeeded(err)
 	return err
 }

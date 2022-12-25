@@ -29,7 +29,7 @@ func Setup(cfg config.Configuration) *sql.DB {
 	return db
 }
 
-func isRowExist(query string, args ...interface{}) bool {
+func isRowExist(query string) bool {
 	var exist bool
 	query = fmt.Sprintf("SELECT exists (%s)", query)
 	err := db.QueryRow(query).Scan(&exist)
@@ -39,9 +39,26 @@ func isRowExist(query string, args ...interface{}) bool {
 	return exist
 }
 
-// used to prevent unnecessary statement preparation
+// used to prevent unnecessary statement preparation that slow down the performance
 func replaceQueryParam(query string, args ...interface{}) string {
 	return fmt.Sprintf(query, args...)
+}
+
+// to support COALESCE
+func fillByNullIfNeeded(args ...interface{}) {
+	for _, arg := range args {
+		var str string
+		switch v := arg.(type) {
+		case **string:
+			if *v == nil {
+				str = "NULL"
+				*arg.(**string) = &str
+			} else {
+				str = fmt.Sprintf("'%s'", **v)
+				*arg.(**string) = &str
+			}
+		}
+	}
 }
 
 // func getRows(query string, model interface{}, args ...interface{}) {
