@@ -55,10 +55,10 @@ func AddUser(user User) {
 }
 
 func GetUserByUsername(user User) User {
-	statement := "select id_user, username, password, isadmin from user_person where username = $1"
+	statement := replaceQueryParam("select id_user, username, password, isadmin from user_person where username = '%s'", user.Username)
 
 	var u User
-	err := db.QueryRow(statement, user.Username).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
+	err := db.QueryRow(statement).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
 	e.PanicIfNeeded(err)
 
 	return u
@@ -137,10 +137,10 @@ func IsUserActivatedCheckByToken(token string) bool {
 }
 
 func IsUserActivatedCheckByUsername(username string) bool {
-	statement := "select status from user_person where username = $1"
+	statement := replaceQueryParam("select status from user_person where username = '%s'", username)
 
 	var status bool
-	err := db.QueryRow(statement, username).Scan(&status)
+	err := db.QueryRow(statement).Scan(&status)
 	if err == sql.ErrNoRows {
 		return false
 	}
@@ -157,8 +157,8 @@ func ActivateUser(token string) error {
 }
 
 func IsUsernameAndPasswordExist(username string, password string) bool {
-	statement := "select id_user from user_person where username = $1 and password = $2"
-	return isRowExist(statement, username, password)
+	statement := replaceQueryParam("select id_user from user_person where username = '%s' and password = '%s'", username, password)
+	return isRowExist(statement)
 
 }
 
