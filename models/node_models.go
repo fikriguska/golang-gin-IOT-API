@@ -96,18 +96,18 @@ func GetAllNode() []NodeList {
 }
 
 func GetNodeAndUserByNodeId(id int) (Node, User) {
-	statement := "select node.id_node, node.name, node.location, user_person.id_user, user_person.username from node left join user_person on node.id_user = user_person.id_user where node.id_node = $1"
+	statement := replaceQueryParam("select node.id_node, node.name, node.location, user_person.id_user, user_person.username from node left join user_person on node.id_user = user_person.id_user where node.id_node = %d", id)
 	var node Node
 	var user User
-	err := db.QueryRow(statement, id).Scan(&node.Id, &node.Name, &node.Location, &user.Id, &user.Username)
+	err := db.QueryRow(statement).Scan(&node.Id, &node.Name, &node.Location, &user.Id, &user.Username)
 	e.PanicIfNeeded(err)
 	return node, user
 }
 
 func GetHardwareByNodeId(id int) Hardware {
-	statement := "select hardware.name, hardware.type from hardware left join node on hardware.id_hardware = node.id_hardware where id_node = $1"
+	statement := replaceQueryParam("select hardware.name, hardware.type from hardware left join node on hardware.id_hardware = node.id_hardware where id_node = %d", id)
 	var hardware Hardware
-	err := db.QueryRow(statement, id).Scan(&hardware.Name, &hardware.Type)
+	err := db.QueryRow(statement).Scan(&hardware.Name, &hardware.Type)
 	if err != nil && err != sql.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
@@ -118,8 +118,8 @@ func GetSensorByNodeId(id int) []Sensor {
 	var sensors []Sensor
 	var sensor Sensor
 	sensors = make([]Sensor, 0)
-	statement := "select sensor.id_sensor, sensor.name, sensor.unit from sensor left join node on sensor.id_node = node.id_node where sensor.id_node = $1"
-	rows, err := db.Query(statement, id)
+	statement := replaceQueryParam("select sensor.id_sensor, sensor.name, sensor.unit from sensor left join node on sensor.id_node = node.id_node where sensor.id_node = %d", id)
+	rows, err := db.Query(statement)
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -131,8 +131,8 @@ func GetSensorByNodeId(id int) []Sensor {
 }
 
 func IsNodeExistById(id int) bool {
-	statement := "select id_node from node where id_node = $1"
-	return isRowExist(statement, id)
+	statement := replaceQueryParam("select id_node from node where id_node = %d", id)
+	return isRowExist(statement)
 }
 
 func UpdateNode(n NodeUpdate, id int) {
@@ -148,9 +148,9 @@ func DeleteNode(id int) {
 }
 
 func GetUserIdByNodeId(id int) int {
-	statement := "select id_user from node where id_node = $1"
+	statement := replaceQueryParam("select id_user from node where id_node = %d", id)
 	var id_user int
-	err := db.QueryRow(statement, id).Scan(&id_user)
+	err := db.QueryRow(statement).Scan(&id_user)
 	e.PanicIfNeeded(err)
 	return id_user
 }
