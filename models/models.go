@@ -32,11 +32,16 @@ func Setup(cfg config.Configuration) *sql.DB {
 func isRowExist(query string, args ...interface{}) bool {
 	var exist bool
 	query = fmt.Sprintf("SELECT exists (%s)", query)
-	err := db.QueryRow(query, args...).Scan(&exist)
+	err := db.QueryRow(query).Scan(&exist)
 	if err != nil && err != sql.ErrNoRows {
 		e.PanicIfNeeded(err)
 	}
 	return exist
+}
+
+// used to prevent unnecessary statement preparation
+func replaceQueryParam(query string, args ...interface{}) string {
+	return fmt.Sprintf(query, args...)
 }
 
 // func getRows(query string, model interface{}, args ...interface{}) {
