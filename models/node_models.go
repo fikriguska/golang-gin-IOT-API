@@ -67,8 +67,8 @@ func GetAllNodeByUserId(id_user int) []NodeList {
 	var node NodeList
 	var nodes []NodeList
 	nodes = make([]NodeList, 0)
-	statement := "select id_node, name, location, id_hardware, id_user from node where id_user = $1"
-	rows, err := db.Query(statement, id_user)
+	statement := replaceQueryParam("select id_node, name, location, id_hardware, id_user from node where id_user = %d", id_user)
+	rows, err := db.Query(statement)
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
