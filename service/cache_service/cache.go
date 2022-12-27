@@ -15,16 +15,16 @@ var cache, _ = ristretto.NewCache(&ristretto.Config{
 })
 
 func Get(prefix string, id int) (interface{}, bool) {
-	key := fmt.Sprintf("%d-node", id)
+	key := fmt.Sprintf("%s-%d", prefix, id)
 	return cache.Get(key)
 }
 
 func Set(prefix string, id int, val interface{}) {
-	key := fmt.Sprintf("%d-node", id)
+	key := fmt.Sprintf("%s-%d", prefix, id)
 	cache.Set(key, val, 0)
 }
 
 func Del(prefix string, id int) {
-	key := fmt.Sprintf("%d-node", id)
+	key := fmt.Sprintf("%s-%d", prefix, id)
 	cache.Del(key)
 }
