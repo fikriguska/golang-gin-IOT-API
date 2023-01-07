@@ -3,6 +3,7 @@ module src
 go 1.17
 
 require (
+	github.com/felixge/fgprof v0.9.3
 	github.com/gin-gonic/gin v1.8.1
 	github.com/lib/pq v1.10.2
 	github.com/stretchr/testify v1.8.0
@@ -15,6 +16,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
+	github.com/google/pprof v0.0.0-20211214055906-6f57359322fd // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
