@@ -7,6 +7,7 @@ import (
 	e "src/error"
 	"src/middleware"
 	"src/models"
+	"src/service/cache_service"
 	"src/service/hardware_service"
 	"src/service/node_service"
 	"strconv"
@@ -156,10 +157,17 @@ func ListNode(c *gin.Context) {
 	nodeService := node_service.Node{}
 
 	idUser, isAdmin := extractJwt(c)
+  
+	nodes_cached, found := cache_service.Get("node", 0)
+  
+	if !found {
+    nodes := nodeService.GetAll(idUser, isAdmin, limit)
 
-	nodes := nodeService.GetAll(idUser, isAdmin, limit)
-
-	c.IndentedJSON(http.StatusOK, nodes)
+		cache_service.Set("node", 0, nodes)
+		c.IndentedJSON(http.StatusOK, nodes)
+	} else {
+		c.IndentedJSON(http.StatusOK, nodes_cached.([]models.NodeList))
+	}
 }
 
 func UpdateNode(c *gin.Context) {
@@ -348,6 +356,8 @@ func UpdateNode(c *gin.Context) {
 	// }
 
 	nodeService.Update(json)
+	cache_service.Del("node", id)
+	cache_service.Del("nodes-admin", 0)
 
 	successResponse(c, http.StatusOK, "Success edit node")
 }
