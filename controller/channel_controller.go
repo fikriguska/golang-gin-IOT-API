@@ -1,12 +1,13 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 	e "src/error"
 	"src/middleware"
 	"src/models"
 	"src/service/channel_service"
-	"src/service/sensor_service"
+	"src/service/node_service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,32 +23,45 @@ func AddChannel(c *gin.Context) {
 
 	// Check required parameter
 	if err := c.BindJSON(&json); err != nil {
+		log.Println(err)
 		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
 		return
 	}
 
-	sensorService := sensor_service.Sensor{
-		Sensor: models.Sensor{
-			Id: json.Id_sensor,
+	nodeService := node_service.Node{
+		Node: models.Node{
+			Id: json.Id_node,
 		},
 	}
 
-	idUser, _ := extractJwt(c)
+	current_node := nodeService.Get()
 
-	exist, owner := sensorService.IsExistAndOwner(idUser)
+	idUser, isAdmin := extractJwt(c)
+
+	exist, owner := nodeService.IsExistAndOwner(idUser)
 
 	if !exist {
-		errorResponse(c, http.StatusNotFound, e.ErrSensorIdNotFound)
+		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)
 		return
-	} else if !owner {
-		errorResponse(c, http.StatusForbidden, e.ErrUseSensorNotPermitted)
+	} else if !owner && !isAdmin {
+		errorResponse(c, http.StatusForbidden, e.ErrUseNodeNotPermitted)
 		return
+	}
+
+	for i, v := range json.Value {
+
+		if v != nil {
+			if current_node.Field_sensor[i] == nil {
+				errorResponse(c, http.StatusBadRequest, e.ErrFieldIsEmpty)
+				return
+			}
+		}
 	}
 
 	channelService := channel_service.Channel{
 		Channel: models.Channel{
-			Value:     json.Value,
-			Id_sensor: json.Id_sensor,
+			Value:   json.Value,
+			Id_node: json.Id_node,
 		},
 	}
 

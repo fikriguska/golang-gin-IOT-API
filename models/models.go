@@ -25,7 +25,7 @@ func Setup(cfg config.Configuration) *pgxpool.Pool {
 		cfg.DBHost,
 		cfg.DBUser,
 		cfg.DBPass,
-		cfg.DBName,
+		// cfg.DBName,
 		cfg.DBPort)
 	// db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	// db, _ = sql.Open("pgx", dsn)
@@ -83,3 +83,9 @@ func (ns NullString) Value() (driver.Value, error) {
 	}
 	return ns.String, nil
 }
+
+// func arrIntToPSQL(val []int) string {
+// 	for i, v := range val {
+
+// 	}
+// }

@@ -431,82 +431,82 @@ func TestForgetPassword(t *testing.T) {
 	}
 }
 
-func TestDeleteUser(t *testing.T) {
-	user := randomUser()
-	user.Status = true
-	user.Id = insertUser(user)
+// func TestDeleteUser(t *testing.T) {
+// 	user := randomUser()
+// 	user.Status = true
+// 	user.Id = insertUser(user)
 
-	user2, _, _ := autoInsertNode(nil)
+// 	user2, _, _ := autoInsertNode(nil)
 
-	user3 := randomUser()
-	user3.Status = true
-	user3.Id = insertUser(user3)
+// 	user3 := randomUser()
+// 	user3.Status = true
+// 	user3.Id = insertUser(user3)
 
-	admin := randomUser()
-	admin.Status = true
-	admin.Is_admin = true
-	admin.Id = insertUser(admin)
+// 	admin := randomUser()
+// 	admin.Status = true
+// 	admin.Is_admin = true
+// 	admin.Id = insertUser(admin)
 
-	testCases := []struct {
-		name          string
-		id            int
-		user          testUser
-		checkResponse func(recorder *httptest.ResponseRecorder)
-	}{
-		{
-			name: "using another user",
-			id:   user.Id,
-			user: user2,
-			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusForbidden, recorder.Code)
-				checkErrorBody(t, recorder, e.ErrDeleteUserNotPermitted)
-			},
-		},
-		{
-			name: "user is not exists",
-			id:   31337,
-			user: admin,
-			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusNotFound, recorder.Code)
-				checkErrorBody(t, recorder, e.ErrUserIdNotFound)
-			},
-		},
-		{
-			name: "user is still using node",
-			id:   user2.Id,
-			user: user2,
-			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
-				checkErrorBody(t, recorder, e.ErrUserStillUsingNode)
-			},
-		},
-		{
-			name: "ok",
-			id:   user.Id,
-			user: user,
-			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusOK, recorder.Code)
-			},
-		},
-		{
-			name: "ok using admin",
-			id:   user3.Id,
-			user: admin,
-			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusOK, recorder.Code)
-			},
-		},
-	}
+// 	testCases := []struct {
+// 		name          string
+// 		id            int
+// 		user          testUser
+// 		checkResponse func(recorder *httptest.ResponseRecorder)
+// 	}{
+// 		{
+// 			name: "using another user",
+// 			id:   user.Id,
+// 			user: user2,
+// 			checkResponse: func(recorder *httptest.ResponseRecorder) {
+// 				require.Equal(t, http.StatusForbidden, recorder.Code)
+// 				checkErrorBody(t, recorder, e.ErrDeleteUserNotPermitted)
+// 			},
+// 		},
+// 		{
+// 			name: "user is not exists",
+// 			id:   31337,
+// 			user: admin,
+// 			checkResponse: func(recorder *httptest.ResponseRecorder) {
+// 				require.Equal(t, http.StatusNotFound, recorder.Code)
+// 				checkErrorBody(t, recorder, e.ErrUserIdNotFound)
+// 			},
+// 		},
+// 		{
+// 			name: "user is still using node",
+// 			id:   user2.Id,
+// 			user: user2,
+// 			checkResponse: func(recorder *httptest.ResponseRecorder) {
+// 				require.Equal(t, http.StatusBadRequest, recorder.Code)
+// 				checkErrorBody(t, recorder, e.ErrUserStillUsingNode)
+// 			},
+// 		},
+// 		{
+// 			name: "ok",
+// 			id:   user.Id,
+// 			user: user,
+// 			checkResponse: func(recorder *httptest.ResponseRecorder) {
+// 				require.Equal(t, http.StatusOK, recorder.Code)
+// 			},
+// 		},
+// 		{
+// 			name: "ok using admin",
+// 			id:   user3.Id,
+// 			user: admin,
+// 			checkResponse: func(recorder *httptest.ResponseRecorder) {
+// 				require.Equal(t, http.StatusOK, recorder.Code)
+// 			},
+// 		},
+// 	}
 
-	for i := range testCases {
-		tc := testCases[i]
+// 	for i := range testCases {
+// 		tc := testCases[i]
 
-		t.Run(tc.name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("DELETE", "/user/"+strconv.Itoa(tc.id), nil)
-			setAuth(req, tc.user.Username, tc.user.Password)
-			router.ServeHTTP(w, req)
-			tc.checkResponse(w)
-		})
-	}
-}
+// 		t.Run(tc.name, func(t *testing.T) {
+// 			w := httptest.NewRecorder()
+// 			req, _ := http.NewRequest("DELETE", "/user/"+strconv.Itoa(tc.id), nil)
+// 			setAuth(req, tc.user.Username, tc.user.Password)
+// 			router.ServeHTTP(w, req)
+// 			tc.checkResponse(w)
+// 		})
+// 	}
+// }

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -50,7 +50,7 @@ func insertHardware(h models.Hardware) int {
 	return id
 }
 
-func chekHardwareSensorBody(t *testing.T, recorder *httptest.ResponseRecorder, h models.Hardware, s models.Sensor) {
+func chekHardwareSensorBody(t *testing.T, recorder *httptest.ResponseRecorder, h models.Hardware) {
 	var hardware models.HardwareSensorGet
 	json.Unmarshal(recorder.Body.Bytes(), &hardware)
 	// checkHardware(t, hardware, h)
@@ -58,8 +58,6 @@ func chekHardwareSensorBody(t *testing.T, recorder *httptest.ResponseRecorder, h
 	require.Equal(t, hardware.Name, h.Name)
 	require.Equal(t, hardware.Type, h.Type)
 	require.Equal(t, hardware.Description, h.Description)
-	require.Equal(t, hardware.Sensor.Name, s.Name)
-	require.Equal(t, hardware.Sensor.Unit, s.Unit)
 }
 
 func chekHardwareNodeBody(t *testing.T, recorder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
@@ -74,11 +72,29 @@ func chekHardwareNodeBody(t *testing.T, recorder *httptest.ResponseRecorder, h m
 	require.Equal(t, hardware.Node.Location, n.Location)
 }
 
+func autoInsertSensor() models.Hardware {
+
+	hardwareSensor := randomHardwareSensor()
+	hardwareSensor.Id = insertHardware(hardwareSensor)
+
+	return hardwareSensor
+}
+
 func TestAddHardware(t *testing.T) {
+	user := randomUser()
+	user.Is_admin = true
+	user.Status = true
+	insertUser(user)
+
+	user2 := randomUser()
+	user2.Status = true
+	insertUser(user2)
+
 	hardware := randomHardware()
 	testCases := []struct {
 		name          string
 		body          gin.H
+		user          testUser
 		checkResponse func(recorder *httptest.ResponseRecorder)
 	}{
 		{
@@ -88,8 +104,22 @@ func TestAddHardware(t *testing.T) {
 				"type":        hardware.Type,
 				"description": hardware.Description,
 			},
+			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusCreated, recorder.Code)
+			},
+		},
+		{
+			name: "user is not admin",
+			body: gin.H{
+				"name":        hardware.Name,
+				"type":        hardware.Type,
+				"description": hardware.Description,
+			},
+			user: user2,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrNotAdministrator)
 			},
 		},
 		{
@@ -99,6 +129,7 @@ func TestAddHardware(t *testing.T) {
 				"type":        "namikaze satellite",
 				"description": hardware.Description,
 			},
+			user: user,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 				checkErrorBody(t, recorder, e.ErrInvalidHardwareType)
@@ -112,6 +143,8 @@ func TestAddHardware(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
 			req, _ := http.NewRequest("POST", "/hardware", bytes.NewBuffer(data))
+			fmt.Println(tc.user.Username, tc.user.Password)
+			setAuth(req, tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 		})
@@ -125,21 +158,43 @@ func TestDeleteHardware(t *testing.T) {
 
 	_, hardware2, _ := autoInsertNode(nil)
 
+	user := randomUser()
+	user.Status = true
+	insertUser(user)
+
+	useradmin := randomUser()
+	useradmin.Status = true
+	useradmin.Is_admin = true
+	insertUser(useradmin)
+
 	testCases := []struct {
 		name          string
 		id            int
+		user          testUser
 		checkResponse func(recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "ok",
 			id:   id,
+			user: useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
 		},
 		{
+			name: "user is not admin",
+			id:   id,
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrNotAdministrator)
+
+			},
+		},
+		{
 			name: "not found hardware",
 			id:   1337,
+			user: useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 				checkErrorBody(t, recorder, e.ErrHardwareIdNotFound)
@@ -148,6 +203,7 @@ func TestDeleteHardware(t *testing.T) {
 		{
 			name: "hardware is still used",
 			id:   hardware2.Id,
+			user: useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 				checkErrorBody(t, recorder, e.ErrHardwareStillUsed)
@@ -161,6 +217,7 @@ func TestDeleteHardware(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("DELETE", "/hardware/"+strconv.Itoa(tc.id), nil)
+			setAuth(req, tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 		})
@@ -168,45 +225,65 @@ func TestDeleteHardware(t *testing.T) {
 }
 
 func TestGetHardwareSensor(t *testing.T) {
-	_, _, _, hardware, sensor := autoInsertSensor()
-	hardware2 := randomHardwareSensor()
-	hardware2.Id = insertHardware(hardware2)
+	hardware := autoInsertSensor()
+	user := randomUser()
+	user.Status = true
+	insertUser(user)
+
+	user2 := randomUser()
+	user2.Status = true
+	insertUser(user2)
+
+	useradmin := randomUser()
+	useradmin.Status = true
+	useradmin.Is_admin = true
+	insertUser(useradmin)
 
 	testCases := []struct {
 		name          string
 		id            int
 		hardware      models.Hardware
-		sensor        models.Sensor
-		checkResponse func(recoder *httptest.ResponseRecorder, h models.Hardware, s models.Sensor)
+		user          testUser
+		checkResponse func(recoder *httptest.ResponseRecorder, h models.Hardware)
 	}{
 		{
 			name:     "ok",
 			id:       hardware.Id,
 			hardware: hardware,
-			sensor:   sensor,
-			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, s models.Sensor) {
+			user:     user,
+			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware) {
 				require.Equal(t, http.StatusOK, recorder.Code)
-				chekHardwareSensorBody(t, recorder, h, s)
+				chekHardwareSensorBody(t, recorder, h)
+			},
+		},
+		{
+			name:     "ok using another user",
+			id:       hardware.Id,
+			hardware: hardware,
+			user:     user2,
+			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				chekHardwareSensorBody(t, recorder, h)
+			},
+		},
+		{
+			name:     "ok using admin",
+			id:       hardware.Id,
+			hardware: hardware,
+			user:     useradmin,
+			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				chekHardwareSensorBody(t, recorder, h)
 			},
 		},
 		{
 			name:     "hardware not found",
 			id:       1337,
 			hardware: hardware,
-			sensor:   sensor,
-			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, s models.Sensor) {
+			user:     user,
+			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 				checkErrorBody(t, recorder, e.ErrHardwareIdNotFound)
-			},
-		},
-		{
-			name:     "ok but sensor is empty",
-			id:       hardware2.Id,
-			hardware: hardware2,
-			sensor:   models.Sensor{},
-			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, s models.Sensor) {
-				require.Equal(t, http.StatusOK, recorder.Code)
-				chekHardwareSensorBody(t, recorder, h, s)
 			},
 		},
 	}
@@ -217,11 +294,9 @@ func TestGetHardwareSensor(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/hardware/"+strconv.Itoa(tc.id), nil)
+			setAuth(req, tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
-			log.Println(w.Body)
-			log.Println(tc.hardware)
-			log.Println(tc.sensor)
-			tc.checkResponse(w, tc.hardware, tc.sensor)
+			tc.checkResponse(w, tc.hardware)
 
 		})
 	}
@@ -229,15 +304,25 @@ func TestGetHardwareSensor(t *testing.T) {
 }
 
 func TestGetHardwareNode(t *testing.T) {
-	_, hardware, node := autoInsertNode(nil)
+	user, hardware, node := autoInsertNode(nil)
 	hardware2 := randomHardwareNode()
 	hardware2.Id = insertHardware(hardware2)
+
+	user2 := randomUser()
+	user2.Status = true
+	insertUser(user2)
+
+	useradmin := randomUser()
+	useradmin.Status = true
+	useradmin.Is_admin = true
+	insertUser(useradmin)
 
 	testCases := []struct {
 		name          string
 		id            int
 		hardware      models.Hardware
 		node          models.Node
+		user          testUser
 		checkResponse func(recoder *httptest.ResponseRecorder, h models.Hardware, n models.Node)
 	}{
 		{
@@ -245,6 +330,29 @@ func TestGetHardwareNode(t *testing.T) {
 			id:       hardware.Id,
 			hardware: hardware,
 			node:     node,
+			user:     user,
+			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				chekHardwareNodeBody(t, recorder, h, n)
+			},
+		},
+		{
+			name:     "ok using another user",
+			id:       hardware.Id,
+			hardware: hardware,
+			node:     node,
+			user:     user2,
+			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				chekHardwareNodeBody(t, recorder, h, n)
+			},
+		},
+		{
+			name:     "ok using admin",
+			id:       hardware.Id,
+			hardware: hardware,
+			node:     node,
+			user:     useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 				chekHardwareNodeBody(t, recorder, h, n)
@@ -255,6 +363,7 @@ func TestGetHardwareNode(t *testing.T) {
 			id:       1337,
 			hardware: hardware,
 			node:     node,
+			user:     user,
 			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 				// chekHardwareNodeBody(t, recorder, h, n)
@@ -266,6 +375,7 @@ func TestGetHardwareNode(t *testing.T) {
 			id:       hardware2.Id,
 			hardware: hardware2,
 			node:     models.Node{},
+			user:     user,
 			checkResponse: func(recorder *httptest.ResponseRecorder, h models.Hardware, n models.Node) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 				chekHardwareNodeBody(t, recorder, h, n)
@@ -279,10 +389,8 @@ func TestGetHardwareNode(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/hardware/"+strconv.Itoa(tc.id), nil)
+			setAuth(req, tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
-			// log.Println(w.Body)
-			// log.Println(tc.hardware)
-			// log.Println(tc.node)
 			tc.checkResponse(w, tc.hardware, tc.node)
 
 		})
@@ -297,10 +405,20 @@ func TestUpdateHardware(t *testing.T) {
 	hardware2 := randomHardware()
 	hardware3 := randomHardware()
 
+	user := randomUser()
+	user.Status = true
+	insertUser(user)
+
+	useradmin := randomUser()
+	useradmin.Status = true
+	useradmin.Is_admin = true
+	insertUser(useradmin)
+
 	testCases := []struct {
 		name          string
 		id            int
 		body          gin.H
+		user          testUser
 		checkResponse func(recorder *httptest.ResponseRecorder)
 		checkInDB     func(id int)
 	}{
@@ -310,6 +428,7 @@ func TestUpdateHardware(t *testing.T) {
 			body: gin.H{
 				"name": hardware2.Name,
 			},
+			user: useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
@@ -318,11 +437,25 @@ func TestUpdateHardware(t *testing.T) {
 				require.Equal(t, hardware2.Name, h.Name)
 			},
 		},
-
+		{
+			name: "user is not admin",
+			id:   hardware.Id,
+			body: gin.H{
+				"name": hardware2.Name,
+			},
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrNotAdministrator)
+			},
+			checkInDB: func(id int) {
+			},
+		},
 		{
 			name: "hardware not found",
 			id:   1337,
 			body: gin.H{},
+			user: useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 				checkErrorBody(t, recorder, e.ErrHardwareIdNotFound)
@@ -336,6 +469,7 @@ func TestUpdateHardware(t *testing.T) {
 			body: gin.H{
 				"type": hardware2.Type,
 			},
+			user: useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
@@ -351,6 +485,7 @@ func TestUpdateHardware(t *testing.T) {
 			body: gin.H{
 				"type": "bakugan",
 			},
+			user: useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 				checkErrorBody(t, recorder, e.ErrInvalidHardwareType)
@@ -365,6 +500,7 @@ func TestUpdateHardware(t *testing.T) {
 			body: gin.H{
 				"description": hardware2.Description,
 			},
+			user: useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
@@ -385,6 +521,7 @@ func TestUpdateHardware(t *testing.T) {
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
+			user: useradmin,
 			checkInDB: func(id int) {
 				h := models.GetHardwareById(id)
 				require.Equal(t, hardware3.Name, h.Name)
@@ -402,6 +539,7 @@ func TestUpdateHardware(t *testing.T) {
 			w := httptest.NewRecorder()
 			data, _ := json.Marshal(tc.body)
 			req, _ := http.NewRequest("PUT", "/hardware/"+strconv.Itoa(tc.id), bytes.NewBuffer(data))
+			setAuth(req, tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 			tc.checkInDB(tc.id)
@@ -414,12 +552,31 @@ func TestListHardware(t *testing.T) {
 	hardware := randomHardware()
 
 	hardware.Id = insertHardware(hardware)
+
+	user := randomUser()
+	user.Status = true
+	insertUser(user)
+
+	useradmin := randomUser()
+	useradmin.Status = true
+	useradmin.Is_admin = true
+	insertUser(useradmin)
+
 	testCases := []struct {
 		name          string
+		user          testUser
 		checkResponse func(recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "ok",
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name: "ok using admin",
+			user: useradmin,
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
@@ -432,6 +589,7 @@ func TestListHardware(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/hardware", nil)
+			setAuth(req, tc.user.Username, tc.user.Password)
 			router.ServeHTTP(w, req)
 			tc.checkResponse(w)
 		})

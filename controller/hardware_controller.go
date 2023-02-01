@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	e "src/error"
+	"src/middleware"
 	"src/models"
 	"src/service/hardware_service"
 	"strconv"
@@ -12,14 +13,24 @@ import (
 )
 
 func HardwareRoute(r *gin.Engine) {
-	r.POST("/hardware", AddHardware)
-	r.GET("/hardware", ListHardware)
-	r.GET("/hardware/:id", GetHardware)
-	r.PUT("/hardware/:id", UpdateHardware)
-	r.DELETE("/hardware/:id", DeleteHardware)
+
+	authorized := r.Group("/hardware", middleware.JwtMiddleware.MiddlewareFunc())
+	authorized.POST("", AddHardware)
+	authorized.GET("", ListHardware)
+	authorized.GET("/:id", GetHardware)
+	authorized.PUT("/:id", UpdateHardware)
+	authorized.DELETE("/:id", DeleteHardware)
 }
 
 func AddHardware(c *gin.Context) {
+
+	_, isAdmin := extractJwt(c)
+
+	if !isAdmin {
+		errorResponse(c, http.StatusUnauthorized, e.ErrNotAdministrator)
+		return
+	}
+
 	var json models.HardwareAdd
 
 	// Check required parameter
@@ -81,6 +92,14 @@ func GetHardware(c *gin.Context) {
 }
 
 func UpdateHardware(c *gin.Context) {
+
+	_, isAdmin := extractJwt(c)
+
+	if !isAdmin {
+		errorResponse(c, http.StatusUnauthorized, e.ErrNotAdministrator)
+		return
+	}
+
 	var json models.HardwareUpdate
 
 	// Check required parameter
@@ -126,6 +145,14 @@ func UpdateHardware(c *gin.Context) {
 }
 
 func DeleteHardware(c *gin.Context) {
+
+	_, isAdmin := extractJwt(c)
+
+	if !isAdmin {
+		errorResponse(c, http.StatusUnauthorized, e.ErrNotAdministrator)
+		return
+	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {

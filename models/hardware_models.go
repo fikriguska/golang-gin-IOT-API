@@ -122,7 +122,7 @@ func GetAllHardwareTypedNode() []Hardware {
 
 func GetNodeByHardwareId(id int) Node {
 	var node Node
-	statement := "select name, location from node where id_hardware = $1"
+	statement := "select name, location from node where id_hardware_node = $1"
 	err := db.QueryRow(cb(), statement, id).Scan(&node.Name, &node.Location)
 	if err != nil && err != pgx.ErrNoRows {
 		e.PanicIfNeeded(err)
