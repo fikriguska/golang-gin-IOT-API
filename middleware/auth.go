@@ -13,7 +13,7 @@ import (
 
 var JwtMiddleware, _ = jwt.New(&jwt.GinJWTMiddleware{
 	Realm:       "test zone",
-	Key:         []byte("secret key"),
+	Key:         []byte("s3cr3tz_k3y"),
 	Timeout:     time.Hour,
 	MaxRefresh:  time.Hour,
 	IdentityKey: "identity",

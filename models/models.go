@@ -21,7 +21,7 @@ import (
 var db *pgxpool.Pool
 
 func Setup(cfg config.Configuration) *pgxpool.Pool {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=testing port=%d sslmode=disable",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable pool_max_conns=8",
 		cfg.DBHost,
 		cfg.DBUser,
 		cfg.DBPass,
