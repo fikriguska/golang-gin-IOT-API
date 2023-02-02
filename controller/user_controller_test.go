@@ -510,3 +510,49 @@ func TestDeleteUser(t *testing.T) {
 		})
 	}
 }
+
+func TestUserList(t *testing.T) {
+	user := randomUser()
+	user.Status = true
+	user.Id = insertUser(user)
+
+	admin := randomUser()
+	admin.Status = true
+	admin.Is_admin = true
+	admin.Id = insertUser(admin)
+
+	testCases := []struct {
+		name          string
+		user          testUser
+		checkResponse func(recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "using not admin",
+			user: user,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrNotAdministrator)
+			},
+		},
+		{
+			name: "using admin",
+			user: admin,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/user", nil)
+			setAuth(req, tc.user.Username, tc.user.Password)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+		})
+	}
+
+}
