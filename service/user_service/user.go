@@ -75,6 +75,11 @@ func (u *User) Get() (int, string, string, bool) {
 	return res.Id, res.Username, res.Password, res.Is_admin
 }
 
+func (u *User) GetAll() []models.UserList {
+	res := models.GetAllUser()
+	return res
+}
+
 func (u *User) IsEmailAndUsernameMatched() (bool, bool) {
 	match := models.IsEmailAndUsernameExist(u.Email, u.Username)
 	activated := models.IsUserActivatedCheckByUsername(u.Username)

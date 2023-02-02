@@ -22,6 +22,14 @@ type UserAdd struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type UserList struct {
+	Id       int    `json:"id"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Status   bool   `json:"status"`
+	Is_admin bool   `json:"is_admin"`
+}
+
 type UserLogin struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -59,6 +67,22 @@ func GetUserById(id int) User {
 	e.PanicIfNeeded(err)
 
 	return u
+}
+
+func GetAllUser() []UserList {
+	var user UserList
+	var users []UserList
+	users = make([]UserList, 0)
+	statement := "select id_user, email, username, status, isadmin from user_person"
+	rows, err := db.Query(cb(), statement)
+	e.PanicIfNeeded(err)
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&user.Id, &user.Email, &user.Username, &user.Status, &user.Is_admin)
+		e.PanicIfNeeded(err)
+		users = append(users, user)
+	}
+	return users
 }
 
 func IsUserUsernameExist(username string) bool {

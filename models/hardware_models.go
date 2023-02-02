@@ -130,16 +130,6 @@ func GetNodeByHardwareId(id int) Node {
 	return node
 }
 
-func GetSensorByHardwareId(id int) Sensor {
-	var sensor Sensor
-	statement := "select name, unit from sensor where id_hardware = $1"
-	err := db.QueryRow(cb(), statement, id).Scan(&sensor.Name, &sensor.Unit)
-	if err != nil && err != pgx.ErrNoRows {
-		e.PanicIfNeeded(err)
-	}
-	return sensor
-}
-
 func UpdateHardware(h HardwareUpdate, id int) {
 	statement := "update hardware SET name=COALESCE($1, name), type=COALESCE($2, type), description=COALESCE($3, description) where id_hardware=$4"
 	_, err := db.Exec(cb(), statement, h.Name, h.Type, h.Description, id)

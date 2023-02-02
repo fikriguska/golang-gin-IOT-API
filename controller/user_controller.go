@@ -19,6 +19,8 @@ func UserRoute(r *gin.Engine) {
 	r.POST("/user/login", middleware.JwtMiddleware.LoginHandler)
 	r.POST("/user/forget-password", ForgetPassword)
 
+	r.GET("/user", middleware.JwtMiddleware.MiddlewareFunc(), ListUser)
+
 	authorized := r.Group("/user/:id", middleware.JwtMiddleware.MiddlewareFunc())
 	authorized.DELETE("", DeleteUser)
 	authorized.PUT("", UpdateUser)
@@ -211,7 +213,7 @@ func UpdateUser(c *gin.Context) {
 	userService.Password = json.NewPasswd
 	userService.SetPassword()
 
-	successResponse(c, http.StatusOK, "success change password, check your email")
+	successResponse(c, http.StatusOK, "success change password")
 
 }
 
@@ -252,4 +254,17 @@ func DeleteUser(c *gin.Context) {
 
 	successResponse(c, http.StatusOK, fmt.Sprintf("delete user, id: %d", id))
 
+}
+
+func ListUser(c *gin.Context) {
+	_, isAdmin := extractJwt(c)
+
+	if !isAdmin {
+		errorResponse(c, http.StatusUnauthorized, e.ErrNotAdministrator)
+		return
+	}
+
+	userService := user_service.User{}
+	users := userService.GetAll()
+	c.IndentedJSON(http.StatusOK, users)
 }

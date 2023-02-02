@@ -148,22 +148,6 @@ func GetHardwareByNodeId(id int) Hardware {
 	return hardware
 }
 
-func GetSensorByNodeId(id int) []Sensor {
-	var sensors []Sensor
-	var sensor Sensor
-	sensors = make([]Sensor, 0)
-	statement := "select sensor.id_sensor, sensor.name, sensor.unit from sensor left join node on sensor.id_node = node.id_node where sensor.id_node = $1"
-	rows, err := db.Query(cb(), statement, id)
-	e.PanicIfNeeded(err)
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&sensor.Id, &sensor.Name, &sensor.Unit)
-		e.PanicIfNeeded(err)
-		sensors = append(sensors, sensor)
-	}
-	return sensors
-}
-
 func IsNodeExistById(id int) bool {
 	statement := "select id_node from node where id_node = $1"
 	return isRowExist(statement, id)

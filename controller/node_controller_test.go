@@ -346,96 +346,94 @@ func TestGetNode(t *testing.T) {
 	}
 }
 
-// func TestDeleteNode(t *testing.T) {
+func TestDeleteNode(t *testing.T) {
 
-// 	// create node user 1
-// 	node := randomNode()
-// 	hardware := randomHardwareNode()
-// 	id_hardware := insertHardware(hardware)
+	// create node user 1
+	// node := randomNode()
+	// hardware := randomHardwareNode()
+	// id_hardware := insertHardware(hardware)
 
-// 	user := randomUser()
-// 	user.Status = true
+	// user := randomUser()
+	// user.Status = true
 
-// 	id_user := insertUser(user)
+	// id_user := insertUser(user)
 
-// 	node.Id_hardware = id_hardware
-// 	node.Id_user = id_user
-// 	id_node := insertNode(node)
-// 	log.Println(id_node)
-// 	log.Println(node)
+	// node.Id_hardware_node = id_hardware
+	// node.Id_user = id_user
+	// id_node := insertNode(node)
+	user, _, node := autoInsertNode(nil, false)
 
-// 	// create node user 2
-// 	node2 := randomNode()
-// 	hardware2 := randomHardwareNode()
-// 	id_hardware2 := insertHardware(hardware2)
+	// create node user 2
+	// node2 := randomNode()
+	// hardware2 := randomHardwareNode()
+	// id_hardware2 := insertHardware(hardware2)
 
-// 	user2 := randomUser()
-// 	user2.Status = true
+	// user2 := randomUser()
+	// user2.Status = true
 
-// 	id_user2 := insertUser(user2)
-// 	node2.Id_hardware = id_hardware2
-// 	node2.Id_user = id_user2
+	// id_user2 := insertUser(user2)
+	// node2.Id_hardware_node = id_hardware2
+	// node2.Id_user = id_user2
 
-// 	id_node2 := insertNode(node2)
-// 	log.Println(id_node2)
-// 	log.Println(node2)
+	// id_node2 := insertNode(node2)
+	user2, _, node2 := autoInsertNode(nil, false)
 
-// 	testCases := []struct {
-// 		name          string
-// 		user          testUser
-// 		id            int
-// 		checkResponse func(recorder *httptest.ResponseRecorder)
-// 	}{
-// 		{
-// 			name: "forbidden to delete another user's node (1)",
-// 			user: user,
-// 			id:   id_node2,
-// 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusForbidden, recorder.Code)
-// 				checkErrorBody(t, recorder, e.ErrDeleteNodeNotPermitted)
-// 			},
-// 		},
-// 		{
-// 			name: "forbidden to delete another user's node (2)",
-// 			user: user2,
-// 			id:   id_node,
-// 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusForbidden, recorder.Code)
-// 				checkErrorBody(t, recorder, e.ErrDeleteNodeNotPermitted)
-// 			},
-// 		},
-// 		{
-// 			name: "ok",
-// 			user: user,
-// 			id:   id_node,
-// 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusOK, recorder.Code)
-// 			},
-// 		},
-// 		{
-// 			name: "not found node",
-// 			user: user,
-// 			id:   id_node,
-// 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusNotFound, recorder.Code)
-// 				checkErrorBody(t, recorder, e.ErrNodeIdNotFound)
-// 			},
-// 		},
-// 	}
-// 	for i := range testCases {
-// 		tc := testCases[i]
+	testCases := []struct {
+		name          string
+		user          testUser
+		id            int
+		checkResponse func(recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "forbidden to delete another user's node (1)",
+			user: user,
+			id:   node2.Id,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrDeleteNodeNotPermitted)
+			},
+		},
+		{
+			name: "forbidden to delete another user's node (2)",
+			user: user2,
+			id:   node.Id,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrDeleteNodeNotPermitted)
+			},
+		},
+		{
+			name: "ok",
+			user: user,
+			id:   node.Id,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name: "not found node",
+			user: user,
+			id:   node.Id,
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+				checkErrorBody(t, recorder, e.ErrNodeIdNotFound)
+			},
+		},
+	}
+	for i := range testCases {
+		tc := testCases[i]
 
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			w := httptest.NewRecorder()
-// 			req, _ := http.NewRequest("DELETE", "/node/"+strconv.Itoa(tc.id), nil)
-// 			setAuth(req, tc.user.Username, tc.user.Password)
-// 			log.Println(req.Header)
-// 			router.ServeHTTP(w, req)
-// 			tc.checkResponse(w)
-// 		})
-// 	}
+		t.Run(tc.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("DELETE", "/node/"+strconv.Itoa(tc.id), nil)
+			setAuth(req, tc.user.Username, tc.user.Password)
+			log.Println(req.Header)
+			router.ServeHTTP(w, req)
+			tc.checkResponse(w)
+		})
+	}
 
-// }
+}
 
 func TestListNode(t *testing.T) {
 	user, _, _ := autoInsertNode(nil, false)
