@@ -20,7 +20,6 @@ type Configuration struct {
 }
 
 func Setup() Configuration {
-
 	projectName := regexp.MustCompile(`^(.*` + "olang-gin-IOT-API" + `)`)
 	currentWorkDirectory, _ := os.Getwd()
 	fmt.Println(currentWorkDirectory)
