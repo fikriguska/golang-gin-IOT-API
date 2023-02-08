@@ -4,7 +4,9 @@ go 1.19
 
 require (
 	github.com/appleboy/gin-jwt/v2 v2.9.0
+	github.com/caarlos0/env/v6 v6.10.1
 	github.com/gin-gonic/gin v1.8.1
+	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.2
 	github.com/stretchr/testify v1.8.0
 )
