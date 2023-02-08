@@ -1,37 +1,35 @@
 package config
 
 import (
-	"os"
-	"strconv"
+	"fmt"
+	"log"
+
+	"github.com/caarlos0/env/v6"
+	"github.com/joho/godotenv"
 )
 
 type Configuration struct {
-	Port   int
-	DBHost string
-	DBUser string
-	DBPass string
-	DBName string
-	DBPort int
+	Port   int    `env:"PORT" binding:"required"`
+	DBHost string `env:"DB_HOST" binding:"required"`
+	DBUser string `env:"DB_USER" binding:"required"`
+	DBPass string `env:"DB_PASS" binding:"required"`
+	DBName string `env:"DB_NAME" binding:"required"`
+	DBPort int    `env:"DB_PORT" binding:"required"`
 }
 
 func Setup() Configuration {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	cfg := Configuration{}
 
-	cfg.Port, _ = strconv.Atoi(getEnv("PORT", "8080"))
-	cfg.DBHost = getEnv("DB_HOST", "localhost")
-	cfg.DBUser = getEnv("DB_USER", "postgres")
-	cfg.DBPass = getEnv("DB_PASS", "postgres")
-	cfg.DBName = getEnv("DB_NAME", "iot")
-	cfg.DBPort, _ = strconv.Atoi(getEnv("DB_PORT", "5432"))
-
-	return cfg
-}
-
-func getEnv(key string, defaultVal string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
+	err = env.Parse(&cfg)
+	if err != nil {
+		log.Fatalf("Unable to parse env")
 	}
 
-	return defaultVal
+	fmt.Println(cfg)
+	return cfg
 }
