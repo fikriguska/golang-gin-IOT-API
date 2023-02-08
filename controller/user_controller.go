@@ -273,8 +273,8 @@ func GetUser(c *gin.Context) {
 		return
 	}
 
-	is_admin, _ := c.Get("is_admin")
-	if !is_admin.(bool) {
+	_, is_admin := extractJwt(c)
+	if !is_admin {
 		errorResponse(c, http.StatusUnauthorized, e.ErrNotAdministrator)
 		return
 	}
