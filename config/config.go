@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"log"
+	"os"
+	"regexp"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
@@ -18,7 +20,13 @@ type Configuration struct {
 }
 
 func Setup() Configuration {
-	err := godotenv.Load(".env")
+	projectName := regexp.MustCompile(`^(.*` + "olang-gin-IOT-API" + `)`)
+	currentWorkDirectory, _ := os.Getwd()
+	fmt.Println(currentWorkDirectory)
+	rootPath := projectName.Find([]byte(currentWorkDirectory))
+
+	err := godotenv.Load(string(rootPath) + `/.env`)
+
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
