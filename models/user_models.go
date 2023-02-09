@@ -30,6 +30,14 @@ type UserList struct {
 	Is_admin bool   `json:"is_admin"`
 }
 
+type UserGet struct {
+	Id       int    `json:"id"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Status   bool   `json:"status"`
+	Is_admin bool   `json:"is_admin"`
+}
+
 type UserLogin struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -61,9 +69,9 @@ func GetUserByUsername(user User) User {
 }
 
 func GetUserById(id int) User {
-	statement := "select id_user, username, password, isadmin from user_person where id_user = $1"
+	statement := "select id_user, email, username, password, isadmin from user_person where id_user = $1"
 	var u User
-	err := db.QueryRow(cb(), statement, id).Scan(&u.Id, &u.Username, &u.Password, &u.Is_admin)
+	err := db.QueryRow(cb(), statement, id).Scan(&u.Id, &u.Email, &u.Username, &u.Password, &u.Is_admin)
 	e.PanicIfNeeded(err)
 
 	return u

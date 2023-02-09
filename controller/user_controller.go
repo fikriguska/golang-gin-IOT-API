@@ -22,6 +22,7 @@ func UserRoute(r *gin.Engine) {
 	r.GET("/user", middleware.JwtMiddleware.MiddlewareFunc(), ListUser)
 
 	authorized := r.Group("/user/:id", middleware.JwtMiddleware.MiddlewareFunc())
+	authorized.GET("", GetUser)
 	authorized.DELETE("", DeleteUser)
 	authorized.PUT("", UpdateUser)
 }
@@ -204,7 +205,7 @@ func UpdateUser(c *gin.Context) {
 
 	oldPasswdHash := util.Sha256String(json.OldPasswd)
 
-	_, _, RealOldPasswdHash, _ := userService.Get()
+	_, _, RealOldPasswdHash, _ := userService.GetForAuth()
 	if oldPasswdHash != RealOldPasswdHash {
 		errorResponse(c, http.StatusBadRequest, e.ErrOldPasswordIncorrect)
 		return
@@ -267,4 +268,33 @@ func ListUser(c *gin.Context) {
 	userService := user_service.User{}
 	users := userService.GetAll()
 	c.IndentedJSON(http.StatusOK, users)
+}
+
+func GetUser(c *gin.Context) {
+
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
+		return
+	}
+
+	_, is_admin := extractJwt(c)
+	if !is_admin {
+		errorResponse(c, http.StatusUnauthorized, e.ErrNotAdministrator)
+		return
+	}
+
+	userService := user_service.User{
+		User: models.User{
+			Id: id,
+		},
+	}
+	isExist := userService.IsExist()
+	if !isExist {
+		errorResponse(c, http.StatusOK, e.ErrUserIdNotFound)
+		return
+	}
+	user := userService.Get()
+	c.IndentedJSON(http.StatusOK, user)
 }

@@ -63,7 +63,7 @@ func (u *User) Auth() (bool, bool) {
 	return credCorrect, activated
 }
 
-func (u *User) Get() (int, string, string, bool) {
+func (u *User) GetForAuth() (int, string, string, bool) {
 
 	var res models.User
 
@@ -73,6 +73,15 @@ func (u *User) Get() (int, string, string, bool) {
 		res = models.GetUserByUsername(u.User)
 	}
 	return res.Id, res.Username, res.Password, res.Is_admin
+}
+
+func (u *User) Get() models.UserGet {
+	user := models.GetUserById(u.Id)
+	return models.UserGet{
+		Id:       user.Id,
+		Username: user.Username,
+		Email:    user.Email,
+	}
 }
 
 func (u *User) GetAll() []models.UserList {
