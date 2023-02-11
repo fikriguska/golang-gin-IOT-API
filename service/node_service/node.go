@@ -28,6 +28,7 @@ func (n *Node) GetAll(id_user int, is_admin bool) []models.NodeList {
 		nodes_cached, found := cache_service.Get("nodes", id_user)
 		if !found {
 			nodes = models.GetAllNodeByUserId(id_user)
+			cache_service.Set("nodes", id_user, nodes)
 		} else {
 			nodes = nodes_cached.([]models.NodeList)
 		}
@@ -80,7 +81,6 @@ func (n *Node) Get() models.NodeGet {
 
 func (n *Node) Update(node models.NodeUpdate) {
 	models.UpdateNode(node, n.Id)
-	cache_service.Del("node", n.Id)
 }
 
 func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
