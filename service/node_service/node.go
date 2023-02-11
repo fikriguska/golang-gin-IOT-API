@@ -80,6 +80,7 @@ func (n *Node) Get() models.NodeGet {
 
 func (n *Node) Update(node models.NodeUpdate) {
 	models.UpdateNode(node, n.Id)
+	cache_service.Del("node", n.Id)
 }
 
 func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {

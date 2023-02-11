@@ -166,7 +166,6 @@ func UpdateNode(c *gin.Context) {
 	}
 
 	nodeService.Update(json)
-	cache_service.Del("node", id)
 
 	successResponse(c, http.StatusOK, "Success edit node")
 }
