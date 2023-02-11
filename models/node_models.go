@@ -52,6 +52,11 @@ type NodeUpdate struct {
 	Location *string `json:"location"`
 }
 
+type CachedNode struct {
+	Node
+	User
+}
+
 func AddNodeNoHardware(node Node) {
 	statement := "insert into node (name, location, id_user, id_hardware) values ($1, $2, $3, $4)"
 	_, err := db.Exec(cb(), statement, node.Name, node.Location, node.Id_user, nil)

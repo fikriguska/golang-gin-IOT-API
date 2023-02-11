@@ -2,6 +2,7 @@ package node_service
 
 import (
 	"src/models"
+	"src/service/cache_service"
 )
 
 type Node struct {
@@ -19,17 +20,37 @@ func (n *Node) Add() {
 }
 
 func (n *Node) GetAll(id_user int, is_admin bool) []models.NodeList {
+
 	var nodes []models.NodeList
 	if is_admin {
 		nodes = models.GetAllNode()
 	} else {
-		nodes = models.GetAllNodeByUserId(id_user)
+		nodes_cached, found := cache_service.Get("nodes", id_user)
+		if !found {
+			nodes = models.GetAllNodeByUserId(id_user)
+		} else {
+			nodes = nodes_cached.([]models.NodeList)
+		}
 	}
 	return nodes
 }
 
 func (n *Node) Get() models.NodeGet {
-	node, user := models.GetNodeAndUserByNodeId(n.Id)
+
+	var node models.Node
+	var user models.User
+	node_cached, found := cache_service.Get("node", n.Id)
+	if !found {
+		node, user = models.GetNodeAndUserByNodeId(n.Id)
+		var cn models.CachedNode
+		cn.Node = node
+		cn.User = user
+		cache_service.Set("node", n.Id, cn)
+	} else {
+		node = node_cached.(models.CachedNode).Node
+		user = node_cached.(models.CachedNode).User
+	}
+
 	hardware := models.GetHardwareByNodeId(n.Id)
 	sensors := models.GetSensorByNodeId(n.Id)
 

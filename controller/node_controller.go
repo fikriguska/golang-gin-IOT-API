@@ -71,6 +71,7 @@ func AddNode(c *gin.Context) {
 	}
 
 	nodeService.Add()
+	cache_service.Del("nodes", idUser)
 
 	successResponse(c, http.StatusCreated, "Success add new node")
 
@@ -103,7 +104,6 @@ func GetNode(c *gin.Context) {
 
 	node := nodeService.Get()
 	c.IndentedJSON(http.StatusOK, node)
-
 }
 
 func ListNode(c *gin.Context) {
@@ -111,11 +111,20 @@ func ListNode(c *gin.Context) {
 
 	idUser, isAdmin := extractJwt(c)
 
-	nodes_cached, found := cache_service.Get("node", 0)
+	var found bool
+	var nodes_cached interface{}
+
+	if isAdmin {
+		found = false
+	} else {
+		nodes_cached, found = cache_service.Get("nodes", idUser)
+	}
+
 	if !found {
 		nodes := nodeService.GetAll(idUser, isAdmin)
-
-		cache_service.Set("node", 0, nodes)
+		if !isAdmin {
+			cache_service.Set("nodes", idUser, nodes)
+		}
 		c.IndentedJSON(http.StatusOK, nodes)
 	} else {
 		c.IndentedJSON(http.StatusOK, nodes_cached.([]models.NodeList))
@@ -158,7 +167,6 @@ func UpdateNode(c *gin.Context) {
 
 	nodeService.Update(json)
 	cache_service.Del("node", id)
-	cache_service.Del("nodes-admin", 0)
 
 	successResponse(c, http.StatusOK, "Success edit node")
 }
