@@ -1,8 +1,10 @@
 package node_service
 
 import (
+	"log"
 	"src/models"
 	"src/service/cache_service"
+	"src/service/hardware_service"
 )
 
 type Node struct {
@@ -40,6 +42,7 @@ func (n *Node) Get() models.NodeGet {
 
 	var node models.Node
 	var user models.User
+	var hardware interface{}
 	node_cached, found := cache_service.Get("node", n.Id)
 	if !found {
 		node, user = models.GetNodeAndUserByNodeId(n.Id)
@@ -52,7 +55,19 @@ func (n *Node) Get() models.NodeGet {
 		user = node_cached.(models.CachedNode).User
 	}
 
-	hardware := models.GetHardwareByNodeId(n.Id)
+	hardware_cached, found := cache_service.Get("hardware", node.Id_hardware)
+	log.Println(found)
+	if !found {
+		hardwareService := hardware_service.Hardware{
+			Hardware: models.Hardware{
+				Id: node.Id_hardware,
+			},
+		}
+		hardware = hardwareService.Get().(models.HardwareNodeGet)
+		cache_service.Set("hardware", node.Id_hardware, hardware)
+	} else {
+		hardware = hardware_cached.(models.HardwareNodeGet)
+	}
 	sensors := models.GetSensorByNodeId(n.Id)
 
 	var resp models.NodeGet
@@ -64,8 +79,8 @@ func (n *Node) Get() models.NodeGet {
 	resp.Username = user.Username
 
 	resp.Hardware = append(resp.Hardware, models.NodeHardwareGet{})
-	resp.Hardware[0].Name = hardware.Name
-	resp.Hardware[0].Type = hardware.Type
+	resp.Hardware[0].Name = hardware.(models.HardwareNodeGet).Name
+	resp.Hardware[0].Type = hardware.(models.HardwareNodeGet).Type
 
 	resp.Sensor = make([]models.NodeSensorGet, 0)
 	for i, s := range sensors {

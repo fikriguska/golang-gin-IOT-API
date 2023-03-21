@@ -5,6 +5,7 @@ import (
 	"net/http"
 	e "src/error"
 	"src/models"
+	"src/service/cache_service"
 	"src/service/hardware_service"
 	"strconv"
 
@@ -120,7 +121,7 @@ func UpdateHardware(c *gin.Context) {
 	}
 
 	hardwareService.Update(json)
-
+	cache_service.Del("hardware", id)
 	successResponse(c, http.StatusOK, "Success edit hardware")
 
 }

@@ -102,10 +102,10 @@ func GetAllNode() []NodeList {
 }
 
 func GetNodeAndUserByNodeId(id int) (Node, User) {
-	statement := "select node.id_node, node.name, node.location, user_person.id_user, user_person.username from node left join user_person on node.id_user = user_person.id_user where node.id_node = $1"
+	statement := "select node.id_node, node.name, node.location, node.id_hardware, user_person.id_user, user_person.username from node left join user_person on node.id_user = user_person.id_user where node.id_node = $1"
 	var node Node
 	var user User
-	err := db.QueryRow(cb(), statement, id).Scan(&node.Id, &node.Name, &node.Location, &user.Id, &user.Username)
+	err := db.QueryRow(cb(), statement, id).Scan(&node.Id, &node.Name, &node.Location, &node.Id_hardware, &user.Id, &user.Username)
 	e.PanicIfNeeded(err)
 	return node, user
 }
