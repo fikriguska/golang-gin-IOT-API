@@ -1,7 +1,6 @@
 package node_service
 
 import (
-	"log"
 	"src/models"
 	"src/service/cache_service"
 	"src/service/hardware_service"
@@ -56,7 +55,6 @@ func (n *Node) Get() models.NodeGet {
 	}
 
 	hardware_cached, found := cache_service.Get("hardware", node.Id_hardware)
-	log.Println(found)
 	if !found {
 		hardwareService := hardware_service.Hardware{
 			Hardware: models.Hardware{
