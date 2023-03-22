@@ -157,17 +157,19 @@ func ListNode(c *gin.Context) {
 	nodeService := node_service.Node{}
 
 	idUser, isAdmin := extractJwt(c)
-  
-	nodes_cached, found := cache_service.Get("node", 0)
-  
-	if !found {
-    nodes := nodeService.GetAll(idUser, isAdmin, limit)
+	nodes := nodeService.GetAll(idUser, isAdmin, limit)
+	c.IndentedJSON(http.StatusOK, nodes)
+	// nodes_cached, found := cache_service.Get("node", 0)
 
-		cache_service.Set("node", 0, nodes)
-		c.IndentedJSON(http.StatusOK, nodes)
-	} else {
-		c.IndentedJSON(http.StatusOK, nodes_cached.([]models.NodeList))
-	}
+	// if !found {
+	// nodes := nodeService.GetAll(idUser, isAdmin, limit)
+
+	// 	cache_service.Set("node", 0, nodes)
+	// 	c.IndentedJSON(http.StatusOK, nodes)
+	// } else {
+	// 	c.IndentedJSON(http.StatusOK, nodes_cached.([]models.NodeList))
+	// }
+
 }
 
 func UpdateNode(c *gin.Context) {

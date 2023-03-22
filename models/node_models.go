@@ -93,12 +93,12 @@ func GetAllNodeByUserId(id_user int) []NodeList {
 	var node NodeList
 	var nodes []NodeList
 	nodes = make([]NodeList, 0)
-	statement := "select id_node, name, location, id_hardware_node, id_hardware_sensor, field_sensor from node where id_user = $1"
+	statement := "select id_node, name, location, id_user, id_hardware_node, id_hardware_sensor, field_sensor from node where id_user = $1"
 	rows, err := db.Query(cb(), statement, id_user)
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&node.Id, &node.Name, &node.Location, &node.Id_hardware_node, &node.Id_hardware_sensor, &node.Field_sensor)
+		err := rows.Scan(&node.Id, &node.Name, &node.Location, &node.Id_user, &node.Id_hardware_node, &node.Id_hardware_sensor, &node.Field_sensor)
 		e.PanicIfNeeded(err)
 		nodes = append(nodes, node)
 	}
@@ -109,12 +109,12 @@ func GetAllNode() []NodeList {
 	var node NodeList
 	var nodes []NodeList
 	nodes = make([]NodeList, 0)
-	statement := "select id_node, name, location, id_hardware_node, id_hardware_sensor, field_sensor from node"
+	statement := "select id_node, name, location, id_user, id_hardware_node, id_hardware_sensor, field_sensor from node"
 	rows, err := db.Query(cb(), statement)
 	e.PanicIfNeeded(err)
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&node.Id, &node.Name, &node.Location, &node.Id_hardware_node, &node.Id_hardware_sensor, &node.Field_sensor)
+		err := rows.Scan(&node.Id, &node.Name, &node.Location, &node.Id_user, &node.Id_hardware_node, &node.Id_hardware_sensor, &node.Field_sensor)
 		e.PanicIfNeeded(err)
 		nodes = append(nodes, node)
 	}
