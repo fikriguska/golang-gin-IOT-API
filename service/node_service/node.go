@@ -2,6 +2,7 @@ package node_service
 
 import (
 	"src/models"
+	"src/service/cache_service"
 )
 
 type Node struct {
@@ -27,10 +28,16 @@ func (n *Node) GetAll(id_user int, is_admin bool, args ...int) []models.NodeList
 		}
 	}
 	var nodes []models.NodeList
-	if is_admin {
-		nodes = models.GetAllNode()
+	nodes_cached, found := cache_service.Get("nodes", id_user)
+	if !found {
+		if is_admin {
+			nodes = models.GetAllNode()
+		} else {
+			nodes = models.GetAllNodeByUserId(id_user)
+		}
+		cache_service.Set("nodes", id_user, nodes)
 	} else {
-		nodes = models.GetAllNodeByUserId(id_user)
+		nodes = nodes_cached.([]models.NodeList)
 	}
 
 	for i, n := range nodes {
@@ -50,7 +57,17 @@ func (n *Node) Get(args ...int) models.NodeGet {
 		}
 	}
 
-	node := models.GetNodeById(n.Id)
+	var node models.NodeGet
+
+	node_cached, found := cache_service.Get("node", n.Id)
+
+	if !found {
+		node = models.GetNodeById(n.Id)
+		cache_service.Set("node", n.Id, node)
+	} else {
+		node = node_cached.(models.NodeGet)
+	}
+
 	feed := models.GetFeedByNodeId(n.Id, limit)
 	node.Feed = feed
 
