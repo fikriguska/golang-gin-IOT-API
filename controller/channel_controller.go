@@ -34,11 +34,11 @@ func AddChannel(c *gin.Context) {
 		},
 	}
 
-	current_node := nodeService.Get()
-
 	idUser, isAdmin := extractJwt(c)
 
 	exist, owner := nodeService.IsExistAndOwner(idUser)
+
+	current_node := nodeService.GetNodeOnly()
 
 	if !exist {
 		errorResponse(c, http.StatusNotFound, e.ErrNodeIdNotFound)

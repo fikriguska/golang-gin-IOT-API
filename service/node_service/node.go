@@ -75,6 +75,11 @@ func (n *Node) Get(args ...int) models.NodeGet {
 
 }
 
+func (n *Node) GetNodeOnly() models.NodeGet {
+	node := models.GetNodeById(n.Id)
+	return node
+}
+
 func (n *Node) Update(node models.NodeUpdate) {
 	models.UpdateNode(node, n.Id)
 }
