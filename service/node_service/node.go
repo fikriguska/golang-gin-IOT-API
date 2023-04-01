@@ -76,7 +76,16 @@ func (n *Node) Get(args ...int) models.NodeGet {
 }
 
 func (n *Node) GetNodeOnly() models.NodeGet {
-	node := models.GetNodeById(n.Id)
+	var node models.NodeGet
+
+	node_cached, found := cache_service.Get("node", n.Id)
+
+	if !found {
+		node = models.GetNodeById(n.Id)
+		cache_service.Set("node", n.Id, node)
+	} else {
+		node = node_cached.(models.NodeGet)
+	}
 	return node
 }
 
