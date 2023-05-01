@@ -2,16 +2,15 @@ package controller
 
 import (
 	"reflect"
-	"src/models"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
 func extractJwt(c *gin.Context) (int, bool) {
-	jwt.ExtractClaims(c)
-	user, _ := c.Get("identity")
-	return user.(*models.User).Id, user.(*models.User).Is_admin
+	claims := jwt.ExtractClaims(c)
+
+	return int(claims["id"].(float64)), claims["is_admin"].(bool)
 }
 
 func errorResponse(c *gin.Context, statusCode int, err error) {
