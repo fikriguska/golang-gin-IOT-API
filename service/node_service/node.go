@@ -92,8 +92,10 @@ func (n *Node) Get() models.NodeGet {
 
 }
 
-func (n *Node) Update(node models.NodeUpdate) {
+func (n *Node) Update(node models.NodeUpdate, idUser int) {
 	models.UpdateNode(node, n.Id)
+	cache_service.Del("node", n.Id)
+	cache_service.Del("nodes", idUser)
 }
 
 func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
