@@ -1,0 +1,1172 @@
+[ POST /channel 200][1]
+
+Summary:
+  Total:	60.0214 secs
+  Slowest:	0.5443 secs
+  Fastest:	0.0016 secs
+  Average:	0.0230 secs
+  Requests/sec:	2173.0909
+  
+  Total data:	2478208 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.056 [121685]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.110 [8160]	|■■■
+  0.164 [504]	|
+  0.219 [32]	|
+  0.273 [0]	|
+  0.327 [0]	|
+  0.381 [0]	|
+  0.436 [0]	|
+  0.490 [0]	|
+  0.544 [50]	|
+
+
+Latency distribution:
+  10% in 0.0049 secs
+  25% in 0.0089 secs
+  50% in 0.0170 secs
+  75% in 0.0305 secs
+  90% in 0.0482 secs
+  95% in 0.0616 secs
+  99% in 0.0933 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0016 secs, 0.5443 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0052 secs
+  resp wait:	0.0229 secs, 0.0014 secs, 0.5442 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0055 secs
+
+Status code distribution:
+  [201]	130432 responses
+
+
+
+[ POST /channel 200][2]
+
+Summary:
+  Total:	60.0176 secs
+  Slowest:	0.2318 secs
+  Fastest:	0.0016 secs
+  Average:	0.0233 secs
+  Requests/sec:	2142.9532
+  
+  Total data:	2443685 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.025 [84162]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.048 [30825]	|■■■■■■■■■■■■■■■
+  0.071 [9462]	|■■■■
+  0.094 [2884]	|■
+  0.117 [921]	|
+  0.140 [252]	|
+  0.163 [79]	|
+  0.186 [21]	|
+  0.209 [6]	|
+  0.232 [2]	|
+
+
+Latency distribution:
+  10% in 0.0052 secs
+  25% in 0.0094 secs
+  50% in 0.0175 secs
+  75% in 0.0310 secs
+  90% in 0.0488 secs
+  95% in 0.0625 secs
+  99% in 0.0936 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0016 secs, 0.2318 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0059 secs
+  resp wait:	0.0232 secs, 0.0016 secs, 0.2317 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0063 secs
+
+Status code distribution:
+  [201]	128615 responses
+
+
+
+[ POST /channel 200][3]
+
+Summary:
+  Total:	60.0194 secs
+  Slowest:	0.2601 secs
+  Fastest:	0.0015 secs
+  Average:	0.0231 secs
+  Requests/sec:	2160.1181
+  
+  Total data:	2463331 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.027 [91138]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.053 [28542]	|■■■■■■■■■■■■■
+  0.079 [7372]	|■■■
+  0.105 [1907]	|■
+  0.131 [490]	|
+  0.157 [143]	|
+  0.183 [37]	|
+  0.208 [13]	|
+  0.234 [3]	|
+  0.260 [3]	|
+
+
+Latency distribution:
+  10% in 0.0053 secs
+  25% in 0.0094 secs
+  50% in 0.0175 secs
+  75% in 0.0307 secs
+  90% in 0.0482 secs
+  95% in 0.0613 secs
+  99% in 0.0923 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.2601 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0066 secs
+  resp wait:	0.0231 secs, 0.0015 secs, 0.2600 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0066 secs
+
+Status code distribution:
+  [201]	129649 responses
+
+
+
+[ POST /channel 200][4]
+
+Summary:
+  Total:  60.0178 secs
+  Slowest:  0.6555 secs
+  Fastest:  0.0016 secs
+  Average:  0.0236 secs
+  Requests/sec: 2120.2882
+  
+  Total data: 2417845 bytes
+  Size/request: 19 bytes
+
+Response time histogram:
+  0.002 [1] |
+  0.067 [121989]  |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.132 [4906]  |■■
+  0.198 [248] |
+  0.263 [11]  |
+  0.329 [0] |
+  0.394 [0] |
+  0.459 [11]  |
+  0.525 [37]  |
+  0.590 [49]  |
+  0.656 [3] |
+
+
+Latency distribution:
+  10% in 0.0049 secs
+  25% in 0.0091 secs
+  50% in 0.0172 secs
+  75% in 0.0309 secs
+  90% in 0.0491 secs
+  95% in 0.0631 secs
+  99% in 0.0978 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup: 0.0000 secs, 0.0016 secs, 0.6555 secs
+  DNS-lookup: 0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:  0.0000 secs, 0.0000 secs, 0.0049 secs
+  resp wait:  0.0235 secs, 0.0015 secs, 0.6554 secs
+  resp read:  0.0000 secs, 0.0000 secs, 0.0067 secs
+
+Status code distribution:
+  [201] 127255 responses
+
+
+
+[ POST /channel 200][5]
+
+Summary:
+  Total:	60.0197 secs
+  Slowest:	0.2260 secs
+  Fastest:	0.0016 secs
+  Average:	0.0227 secs
+  Requests/sec:	2198.6288
+  
+  Total data:	2507259 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.024 [86501]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.046 [31042]	|■■■■■■■■■■■■■■
+  0.069 [9800]	|■■■■■
+  0.091 [3195]	|■
+  0.114 [967]	|
+  0.136 [319]	|
+  0.159 [84]	|
+  0.181 [37]	|
+  0.204 [12]	|
+  0.226 [3]	|
+
+
+Latency distribution:
+  10% in 0.0048 secs
+  25% in 0.0088 secs
+  50% in 0.0169 secs
+  75% in 0.0303 secs
+  90% in 0.0483 secs
+  95% in 0.0619 secs
+  99% in 0.0927 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0016 secs, 0.2260 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0065 secs
+  resp wait:	0.0227 secs, 0.0015 secs, 0.2259 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0062 secs
+
+Status code distribution:
+  [201]	131961 responses
+
+
+
+[ POST /channel 400][1]
+
+Summary:
+  Total:	60.0159 secs
+  Slowest:	0.2576 secs
+  Fastest:	0.0016 secs
+  Average:	0.0233 secs
+  Requests/sec:	2148.0477
+  
+  Total data:	2449423 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.027 [89979]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.053 [28290]	|■■■■■■■■■■■■■
+  0.078 [7760]	|■■■
+  0.104 [2069]	|■
+  0.130 [566]	|
+  0.155 [166]	|
+  0.181 [56]	|
+  0.206 [20]	|
+  0.232 [6]	|
+  0.258 [4]	|
+
+
+Latency distribution:
+  10% in 0.0051 secs
+  25% in 0.0092 secs
+  50% in 0.0174 secs
+  75% in 0.0309 secs
+  90% in 0.0490 secs
+  95% in 0.0627 secs
+  99% in 0.0945 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0016 secs, 0.2576 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0061 secs
+  resp wait:	0.0232 secs, 0.0015 secs, 0.2575 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0070 secs
+
+Status code distribution:
+  [201]	128917 responses
+
+
+
+[ POST /channel 400][2]
+
+Summary:
+  Total:	60.0219 secs
+  Slowest:	0.2239 secs
+  Fastest:	0.0015 secs
+  Average:	0.0227 secs
+  Requests/sec:	2202.0309
+  
+  Total data:	2511230 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.001 [1]	|
+  0.024 [85797]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.046 [32026]	|■■■■■■■■■■■■■■■
+  0.068 [9768]	|■■■■■
+  0.090 [3149]	|■
+  0.113 [956]	|
+  0.135 [323]	|
+  0.157 [102]	|
+  0.179 [37]	|
+  0.202 [8]	|
+  0.224 [3]	|
+
+
+Latency distribution:
+  10% in 0.0049 secs
+  25% in 0.0090 secs
+  50% in 0.0170 secs
+  75% in 0.0302 secs
+  90% in 0.0476 secs
+  95% in 0.0610 secs
+  99% in 0.0920 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.2239 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0053 secs
+  resp wait:	0.0226 secs, 0.0014 secs, 0.2238 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0052 secs
+
+Status code distribution:
+  [201]	132170 responses
+
+
+
+[ POST /channel 400][3]
+
+Summary:
+  Total:	60.0171 secs
+  Slowest:	0.2555 secs
+  Fastest:	0.0015 secs
+  Average:	0.0224 secs
+  Requests/sec:	2228.4641
+  
+  Total data:	2541174 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.001 [1]	|
+  0.027 [94529]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.052 [29039]	|■■■■■■■■■■■■
+  0.078 [7565]	|■■■
+  0.103 [1889]	|■
+  0.129 [534]	|
+  0.154 [144]	|
+  0.179 [26]	|
+  0.205 [15]	|
+  0.230 [2]	|
+  0.256 [2]	|
+
+
+Latency distribution:
+  10% in 0.0049 secs
+  25% in 0.0089 secs
+  50% in 0.0168 secs
+  75% in 0.0299 secs
+  90% in 0.0469 secs
+  95% in 0.0603 secs
+  99% in 0.0907 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.2555 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0048 secs
+  resp wait:	0.0224 secs, 0.0014 secs, 0.2555 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0077 secs
+
+Status code distribution:
+  [201]	133746 responses
+
+
+
+[ POST /channel 400][4]
+
+Summary:
+  Total:  60.0227 secs
+  Slowest:  0.2437 secs
+  Fastest:  0.0014 secs
+  Average:  0.0227 secs
+  Requests/sec: 2200.4006
+  
+  Total data: 2509406 bytes
+  Size/request: 19 bytes
+
+Response time histogram:
+  0.001 [1] |
+  0.026 [90088] |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.050 [30164] |■■■■■■■■■■■■■
+  0.074 [8422]  |■■■■
+  0.098 [2442]  |■
+  0.123 [694] |
+  0.147 [181] |
+  0.171 [59]  |
+  0.195 [18]  |
+  0.219 [3] |
+  0.244 [2] |
+
+
+Latency distribution:
+  10% in 0.0049 secs
+  25% in 0.0090 secs
+  50% in 0.0170 secs
+  75% in 0.0302 secs
+  90% in 0.0478 secs
+  95% in 0.0611 secs
+  99% in 0.0922 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup: 0.0000 secs, 0.0014 secs, 0.2437 secs
+  DNS-lookup: 0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:  0.0000 secs, 0.0000 secs, 0.0055 secs
+  resp wait:  0.0226 secs, 0.0013 secs, 0.2437 secs
+  resp read:  0.0000 secs, 0.0000 secs, 0.0065 secs
+
+Status code distribution:
+  [201] 132074 responses
+
+
+
+[ POST /channel 400][5]
+
+Summary:
+  Total:  60.0193 secs
+  Slowest:  1.1337 secs
+  Fastest:  0.0016 secs
+  Average:  0.0237 secs
+  Requests/sec: 2108.2704
+  
+  Total data: 2404203 bytes
+  Size/request: 19 bytes
+
+Response time histogram:
+  0.002 [1] |
+  0.115 [126018]  |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.228 [467] |
+  0.341 [1] |
+  0.454 [0] |
+  0.568 [0] |
+  0.681 [0] |
+  0.794 [0] |
+  0.907 [0] |
+  1.020 [0] |
+  1.134 [50]  |
+
+
+Latency distribution:
+  10% in 0.0051 secs
+  25% in 0.0093 secs
+  50% in 0.0175 secs
+  75% in 0.0309 secs
+  90% in 0.0490 secs
+  95% in 0.0624 secs
+  99% in 0.0955 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup: 0.0000 secs, 0.0016 secs, 1.1337 secs
+  DNS-lookup: 0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:  0.0000 secs, 0.0000 secs, 0.0088 secs
+  resp wait:  0.0236 secs, 0.0016 secs, 1.1336 secs
+  resp read:  0.0000 secs, 0.0000 secs, 0.0089 secs
+
+Status code distribution:
+  [201] 126537 responses
+
+
+
+[ POST /channel 600][1]
+
+Summary:
+  Total:	60.0195 secs
+  Slowest:	0.2706 secs
+  Fastest:	0.0015 secs
+  Average:	0.0230 secs
+  Requests/sec:	2176.9933
+  
+  Total data:	2482578 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.028 [94149]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.055 [27317]	|■■■■■■■■■■■■
+  0.082 [6875]	|■■■
+  0.109 [1702]	|■
+  0.136 [462]	|
+  0.163 [119]	|
+  0.190 [28]	|
+  0.217 [5]	|
+  0.244 [2]	|
+  0.271 [2]	|
+
+
+Latency distribution:
+  10% in 0.0049 secs
+  25% in 0.0089 secs
+  50% in 0.0172 secs
+  75% in 0.0307 secs
+  90% in 0.0485 secs
+  95% in 0.0619 secs
+  99% in 0.0935 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.2706 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0101 secs
+  resp wait:	0.0229 secs, 0.0014 secs, 0.2706 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0058 secs
+
+Status code distribution:
+  [201]	130662 responses
+
+
+
+[ POST /channel 600][2]
+
+Summary:
+  Total:	60.0151 secs
+  Slowest:	0.9410 secs
+  Fastest:	0.0017 secs
+  Average:	0.0237 secs
+  Requests/sec:	2106.2883
+  
+  Total data:	2401771 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.096 [125072]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.190 [1176]	|
+  0.283 [60]	|
+  0.377 [11]	|
+  0.471 [39]	|
+  0.565 [0]	|
+  0.659 [0]	|
+  0.753 [0]	|
+  0.847 [48]	|
+  0.941 [2]	|
+
+
+Latency distribution:
+  10% in 0.0052 secs
+  25% in 0.0093 secs
+  50% in 0.0174 secs
+  75% in 0.0309 secs
+  90% in 0.0487 secs
+  95% in 0.0625 secs
+  99% in 0.0968 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0017 secs, 0.9410 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0081 secs
+  resp wait:	0.0236 secs, 0.0016 secs, 0.9410 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0062 secs
+
+Status code distribution:
+  [201]	126409 responses
+
+
+
+[ POST /channel 600][3]
+
+Summary:
+  Total:	60.0173 secs
+  Slowest:	1.8016 secs
+  Fastest:	0.0017 secs
+  Average:	0.0239 secs
+  Requests/sec:	2092.5981
+  
+  Total data:	2386248 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.182 [125529]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.362 [12]	|
+  0.542 [0]	|
+  0.722 [0]	|
+  0.902 [0]	|
+  1.082 [0]	|
+  1.262 [0]	|
+  1.442 [0]	|
+  1.622 [0]	|
+  1.802 [50]	|
+
+
+Latency distribution:
+  10% in 0.0050 secs
+  25% in 0.0091 secs
+  50% in 0.0173 secs
+  75% in 0.0309 secs
+  90% in 0.0490 secs
+  95% in 0.0629 secs
+  99% in 0.0950 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0017 secs, 1.8016 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0052 secs
+  resp wait:	0.0238 secs, 0.0017 secs, 1.8016 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0059 secs
+
+Status code distribution:
+  [201]	125592 responses
+
+
+
+[ POST /channel 600][4]
+
+Summary:
+  Total:	60.0205 secs
+  Slowest:	0.2183 secs
+  Fastest:	0.0015 secs
+  Average:	0.0228 secs
+  Requests/sec:	2188.4517
+  
+  Total data:	2495688 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.023 [83782]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.045 [31962]	|■■■■■■■■■■■■■■■
+  0.067 [10428]	|■■■■■
+  0.088 [3481]	|■■
+  0.110 [1145]	|■
+  0.132 [360]	|
+  0.153 [131]	|
+  0.175 [44]	|
+  0.197 [13]	|
+  0.218 [5]	|
+
+
+Latency distribution:
+  10% in 0.0049 secs
+  25% in 0.0089 secs
+  50% in 0.0170 secs
+  75% in 0.0304 secs
+  90% in 0.0483 secs
+  95% in 0.0618 secs
+  99% in 0.0931 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.2183 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0060 secs
+  resp wait:	0.0228 secs, 0.0015 secs, 0.2182 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0172 secs
+
+Status code distribution:
+  [201]	131352 responses
+
+
+
+[ POST /channel 600][5]
+
+Summary:
+  Total:	60.0195 secs
+  Slowest:	0.2660 secs
+  Fastest:	0.0016 secs
+  Average:	0.0234 secs
+  Requests/sec:	2136.5902
+  
+  Total data:	2436503 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.028 [90626]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.054 [27697]	|■■■■■■■■■■■■
+  0.081 [7321]	|■■■
+  0.107 [1919]	|■
+  0.134 [489]	|
+  0.160 [138]	|
+  0.187 [34]	|
+  0.213 [11]	|
+  0.240 [0]	|
+  0.266 [1]	|
+
+
+Latency distribution:
+  10% in 0.0051 secs
+  25% in 0.0092 secs
+  50% in 0.0175 secs
+  75% in 0.0312 secs
+  90% in 0.0494 secs
+  95% in 0.0631 secs
+  99% in 0.0950 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0016 secs, 0.2660 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0069 secs
+  resp wait:	0.0233 secs, 0.0015 secs, 0.2659 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0061 secs
+
+Status code distribution:
+  [201]	128237 responses
+
+
+
+[ POST /channel 800][1]
+
+Summary:
+  Total:  60.0200 secs
+  Slowest:  0.2508 secs
+  Fastest:  0.0015 secs
+  Average:  0.0231 secs
+  Requests/sec: 2161.7630
+  
+  Total data: 2465231 bytes
+  Size/request: 19 bytes
+
+Response time histogram:
+  0.002 [1] |
+  0.026 [89224] |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.051 [29303] |■■■■■■■■■■■■■
+  0.076 [8119]  |■■■■
+  0.101 [2247]  |■
+  0.126 [615] |
+  0.151 [168] |
+  0.176 [50]  |
+  0.201 [18]  |
+  0.226 [2] |
+  0.251 [2] |
+
+
+Latency distribution:
+  10% in 0.0050 secs
+  25% in 0.0092 secs
+  50% in 0.0174 secs
+  75% in 0.0307 secs
+  90% in 0.0486 secs
+  95% in 0.0620 secs
+  99% in 0.0930 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup: 0.0000 secs, 0.0015 secs, 0.2508 secs
+  DNS-lookup: 0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:  0.0000 secs, 0.0000 secs, 0.0052 secs
+  resp wait:  0.0230 secs, 0.0015 secs, 0.2508 secs
+  resp read:  0.0000 secs, 0.0000 secs, 0.0063 secs
+
+Status code distribution:
+  [201] 129749 responses
+
+
+
+[ POST /channel 800][2]
+
+Summary:
+  Total:	60.0183 secs
+  Slowest:	0.2608 secs
+  Fastest:	0.0015 secs
+  Average:	0.0234 secs
+  Requests/sec:	2140.1155
+  
+  Total data:	2440474 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.027 [89950]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.053 [28420]	|■■■■■■■■■■■■■
+  0.079 [7410]	|■■■
+  0.105 [1940]	|■
+  0.131 [531]	|
+  0.157 [134]	|
+  0.183 [41]	|
+  0.209 [13]	|
+  0.235 [4]	|
+  0.261 [2]	|
+
+
+Latency distribution:
+  10% in 0.0053 secs
+  25% in 0.0095 secs
+  50% in 0.0176 secs
+  75% in 0.0310 secs
+  90% in 0.0486 secs
+  95% in 0.0622 secs
+  99% in 0.0939 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.2608 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0075 secs
+  resp wait:	0.0233 secs, 0.0015 secs, 0.2608 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0070 secs
+
+Status code distribution:
+  [201]	128446 responses
+
+
+
+[ POST /channel 800][3]
+
+Summary:
+  Total:	60.0190 secs
+  Slowest:	0.2474 secs
+  Fastest:	0.0015 secs
+  Average:	0.0232 secs
+  Requests/sec:	2153.1015
+  
+  Total data:	2455313 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.001 [1]	|
+  0.026 [87836]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.051 [29658]	|■■■■■■■■■■■■■■
+  0.075 [8473]	|■■■■
+  0.100 [2298]	|■
+  0.124 [689]	|
+  0.149 [186]	|
+  0.174 [58]	|
+  0.198 [20]	|
+  0.223 [4]	|
+  0.247 [4]	|
+
+
+Latency distribution:
+  10% in 0.0050 secs
+  25% in 0.0092 secs
+  50% in 0.0175 secs
+  75% in 0.0309 secs
+  90% in 0.0489 secs
+  95% in 0.0622 secs
+  99% in 0.0938 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.2474 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0094 secs
+  resp wait:	0.0231 secs, 0.0014 secs, 0.2474 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0058 secs
+
+Status code distribution:
+  [201]	129227 responses
+
+
+
+[ POST /channel 800][4]
+
+Summary:
+  Total:	60.0181 secs
+  Slowest:	0.2405 secs
+  Fastest:	0.0016 secs
+  Average:	0.0238 secs
+  Requests/sec:	2101.5483
+  
+  Total data:	2396489 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.025 [83178]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.049 [30302]	|■■■■■■■■■■■■■■■
+  0.073 [8904]	|■■■■
+  0.097 [2590]	|■
+  0.121 [817]	|
+  0.145 [242]	|
+  0.169 [63]	|
+  0.193 [26]	|
+  0.217 [5]	|
+  0.241 [3]	|
+
+
+Latency distribution:
+  10% in 0.0054 secs
+  25% in 0.0097 secs
+  50% in 0.0180 secs
+  75% in 0.0315 secs
+  90% in 0.0495 secs
+  95% in 0.0631 secs
+  99% in 0.0955 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0016 secs, 0.2405 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0058 secs
+  resp wait:	0.0237 secs, 0.0016 secs, 0.2404 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0103 secs
+
+Status code distribution:
+  [201]	126131 responses
+
+
+
+[ POST /channel 800][5]
+
+Summary:
+  Total:	60.0169 secs
+  Slowest:	0.2324 secs
+  Fastest:	0.0016 secs
+  Average:	0.0231 secs
+  Requests/sec:	2160.1588
+  
+  Total data:	2463274 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.025 [85196]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.048 [30741]	|■■■■■■■■■■■■■■
+  0.071 [9445]	|■■■■
+  0.094 [2945]	|■
+  0.117 [901]	|
+  0.140 [291]	|
+  0.163 [76]	|
+  0.186 [34]	|
+  0.209 [8]	|
+  0.232 [8]	|
+
+
+Latency distribution:
+  10% in 0.0049 secs
+  25% in 0.0090 secs
+  50% in 0.0173 secs
+  75% in 0.0308 secs
+  90% in 0.0489 secs
+  95% in 0.0628 secs
+  99% in 0.0942 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0016 secs, 0.2324 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0059 secs
+  resp wait:	0.0231 secs, 0.0015 secs, 0.2324 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0058 secs
+
+Status code distribution:
+  [201]	129646 responses
+
+
+
+[ POST /channel 1000][1]
+
+Summary:
+  Total:	60.0175 secs
+  Slowest:	0.3318 secs
+  Fastest:	0.0015 secs
+  Average:	0.0229 secs
+  Requests/sec:	2183.4293
+  
+  Total data:	2489836 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.035 [104660]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.068 [21779]	|■■■■■■■■
+  0.101 [3794]	|■
+  0.134 [674]	|
+  0.167 [119]	|
+  0.200 [13]	|
+  0.233 [3]	|
+  0.266 [0]	|
+  0.299 [0]	|
+  0.332 [1]	|
+
+
+Latency distribution:
+  10% in 0.0052 secs
+  25% in 0.0093 secs
+  50% in 0.0173 secs
+  75% in 0.0304 secs
+  90% in 0.0476 secs
+  95% in 0.0608 secs
+  99% in 0.0915 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.3318 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0097 secs
+  resp wait:	0.0228 secs, 0.0014 secs, 0.3317 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0062 secs
+
+Status code distribution:
+  [201]	131044 responses
+
+
+
+[ POST /channel 1000][2]
+
+Summary:
+  Total:	60.0223 secs
+  Slowest:	0.2581 secs
+  Fastest:	0.0015 secs
+  Average:	0.0228 secs
+  Requests/sec:	2190.1211
+  
+  Total data:	2497664 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.027 [92743]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.053 [28563]	|■■■■■■■■■■■■
+  0.079 [7467]	|■■■
+  0.104 [1962]	|■
+  0.130 [547]	|
+  0.155 [133]	|
+  0.181 [34]	|
+  0.207 [4]	|
+  0.232 [1]	|
+  0.258 [1]	|
+
+
+Latency distribution:
+  10% in 0.0051 secs
+  25% in 0.0091 secs
+  50% in 0.0171 secs
+  75% in 0.0303 secs
+  90% in 0.0478 secs
+  95% in 0.0611 secs
+  99% in 0.0923 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.2581 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0058 secs
+  resp wait:	0.0227 secs, 0.0015 secs, 0.2581 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0055 secs
+
+Status code distribution:
+  [201]	131456 responses
+
+
+
+[ POST /channel 1000][3]
+
+Summary:
+  Total:	60.0187 secs
+  Slowest:	0.2055 secs
+  Fastest:	0.0014 secs
+  Average:	0.0230 secs
+  Requests/sec:	2173.4886
+  
+  Total data:	2478550 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.001 [1]	|
+  0.022 [79122]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.042 [33509]	|■■■■■■■■■■■■■■■■■
+  0.063 [11577]	|■■■■■■
+  0.083 [4056]	|■■
+  0.103 [1420]	|■
+  0.124 [494]	|
+  0.144 [166]	|
+  0.165 [67]	|
+  0.185 [23]	|
+  0.205 [15]	|
+
+
+Latency distribution:
+  10% in 0.0050 secs
+  25% in 0.0092 secs
+  50% in 0.0172 secs
+  75% in 0.0305 secs
+  90% in 0.0483 secs
+  95% in 0.0617 secs
+  99% in 0.0937 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0014 secs, 0.2055 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0053 secs
+  resp wait:	0.0229 secs, 0.0013 secs, 0.2054 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0089 secs
+
+Status code distribution:
+  [201]	130450 responses
+
+
+
+[ POST /channel 1000][4]
+
+Summary:
+  Total:	60.0167 secs
+  Slowest:	0.2817 secs
+  Fastest:	0.0014 secs
+  Average:	0.0228 secs
+  Requests/sec:	2192.4052
+  
+  Total data:	2500039 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.001 [1]	|
+  0.029 [96997]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.058 [26390]	|■■■■■■■■■■■
+  0.086 [6276]	|■■■
+  0.114 [1473]	|■
+  0.142 [337]	|
+  0.170 [80]	|
+  0.198 [20]	|
+  0.226 [4]	|
+  0.254 [2]	|
+  0.282 [1]	|
+
+
+Latency distribution:
+  10% in 0.0048 secs
+  25% in 0.0089 secs
+  50% in 0.0170 secs
+  75% in 0.0305 secs
+  90% in 0.0481 secs
+  95% in 0.0617 secs
+  99% in 0.0928 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0014 secs, 0.2817 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0052 secs
+  resp wait:	0.0227 secs, 0.0014 secs, 0.2816 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0078 secs
+
+Status code distribution:
+  [201]	131581 responses
+
+
+
+[ POST /channel 1000][5]
+
+Summary:
+  Total:	60.0230 secs
+  Slowest:	0.2141 secs
+  Fastest:	0.0015 secs
+  Average:	0.0231 secs
+  Requests/sec:	2160.2904
+  
+  Total data:	2463673 bytes
+  Size/request:	19 bytes
+
+Response time histogram:
+  0.002 [1]	|
+  0.023 [80646]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.044 [32777]	|■■■■■■■■■■■■■■■■
+  0.065 [10903]	|■■■■■
+  0.087 [3548]	|■■
+  0.108 [1161]	|■
+  0.129 [411]	|
+  0.150 [152]	|
+  0.172 [51]	|
+  0.193 [13]	|
+  0.214 [4]	|
+
+
+Latency distribution:
+  10% in 0.0051 secs
+  25% in 0.0093 secs
+  50% in 0.0174 secs
+  75% in 0.0308 secs
+  90% in 0.0484 secs
+  95% in 0.0617 secs
+  99% in 0.0927 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0015 secs, 0.2141 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0066 secs
+  resp wait:	0.0231 secs, 0.0015 secs, 0.2141 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0092 secs
+
+Status code distribution:
+  [201]	129667 responses
