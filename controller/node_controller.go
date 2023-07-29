@@ -90,6 +90,7 @@ func GetNode(c *gin.Context) {
 			Id: id,
 		},
 	}
+
 	idUser, isAdmin := extractJwt(c)
 
 	exist, owner := nodeService.IsExistAndOwner(idUser)
