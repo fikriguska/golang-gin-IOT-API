@@ -11,25 +11,30 @@ type Sensor struct {
 
 func (s *Sensor) IsExistAndOwner(id_user int) (exist bool, owner bool) {
 	sensor_cached, found := cache_service.Get("sensor", s.Id)
+
 	if !found {
 		exist = models.IsSensorExistById(s.Id)
 		if !exist {
 			return exist, false
+		} else {
+			var sensor_cached models.CachedSensor
+			sensor := models.GetSensorById(s.Id)
+			sensor_cached.Sensor = sensor
+			cache_service.Set("sensor", sensor.Id, sensor_cached)
 		}
 		owner = (models.GetUserIdBySensorId(s.Id) == id_user)
 		return exist, owner
 	} else {
 		var userId int
-
-		// check id user is in the cache or not
 		if sensor_cached.(models.CachedSensor).User.Id == 0 {
-			userId = (models.GetUserIdBySensorId(s.Id))
+			userId = models.GetUserIdBySensorId(s.Id)
+			sc := sensor_cached.(models.CachedSensor)
+			sc.User.Id = userId
+			cache_service.Set("sensor", s.Id, sc)
 		} else {
 			userId = sensor_cached.(models.CachedSensor).User.Id
 		}
-
-		owner = userId == id_user
-		return true, owner
+		return true, (userId == id_user)
 	}
 }
 
