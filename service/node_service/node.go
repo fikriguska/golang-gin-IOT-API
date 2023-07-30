@@ -46,12 +46,21 @@ func (n *Node) Get() models.NodeGet {
 	if !found {
 		node, user = models.GetNodeAndUserByNodeId(n.Id)
 		var cn models.CachedNode
-		cn.Node = node
-		cn.User = user
+		cn.Id = node.Id
+		cn.Name = node.Name
+		cn.Location = node.Location
+		cn.Id_hardware = node.Id_hardware
+		cn.Id_user = user.Id
+		cn.Username = user.Username
 		cache_service.Set("node", n.Id, cn)
 	} else {
-		node = node_cached.(models.CachedNode).Node
-		user = node_cached.(models.CachedNode).User
+		cn := node_cached.(models.CachedNode)
+		node.Id = cn.Id
+		node.Name = cn.Name
+		node.Location = cn.Location
+		node.Id_hardware = cn.Id_hardware
+		user.Id = cn.Id_user
+		user.Username = cn.Username
 	}
 
 	hardware_cached, found := cache_service.Get("hardware", node.Id_hardware)
@@ -110,7 +119,7 @@ func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
 		owner = (models.GetUserIdByNodeId(n.Id) == id_user)
 		return exist, owner
 	} else {
-		owner = node_cached.(models.CachedNode).User.Id == id_user
+		owner = node_cached.(models.CachedNode).Id_user == id_user
 		return true, owner
 	}
 

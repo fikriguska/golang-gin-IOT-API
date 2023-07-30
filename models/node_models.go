@@ -52,9 +52,18 @@ type NodeUpdate struct {
 	Location *string `json:"location"`
 }
 
+// type CachedNode struct {
+// 	Node
+// 	User
+// }
+
 type CachedNode struct {
-	Node
-	User
+	Id          int
+	Name        string
+	Location    string
+	Id_hardware int
+	Id_user     int
+	Username    string
 }
 
 func AddNodeNoHardware(node Node) {
