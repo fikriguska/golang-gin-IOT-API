@@ -2,6 +2,7 @@ package sensor_service
 
 import (
 	"src/models"
+	"src/service/cache_service"
 )
 
 type Sensor struct {
@@ -9,12 +10,27 @@ type Sensor struct {
 }
 
 func (s *Sensor) IsExistAndOwner(id_user int) (exist bool, owner bool) {
-	exist = models.IsSensorExistById(s.Id)
-	if !exist {
-		return exist, false
+	sensor_cached, found := cache_service.Get("sensor", s.Id)
+	if !found {
+		exist = models.IsSensorExistById(s.Id)
+		if !exist {
+			return exist, false
+		}
+		owner = (models.GetUserIdBySensorId(s.Id) == id_user)
+		return exist, owner
+	} else {
+		var userId int
+
+		// check id user is in the cache or not
+		if sensor_cached.(models.CachedSensor).User.Id == 0 {
+			userId = (models.GetUserIdBySensorId(s.Id))
+		} else {
+			userId = sensor_cached.(models.CachedSensor).User.Id
+		}
+
+		owner = userId == id_user
+		return true, owner
 	}
-	owner = (models.GetUserIdBySensorId(s.Id) == id_user)
-	return exist, owner
 }
 
 func (s *Sensor) Add() {

@@ -44,6 +44,11 @@ type SensorUpdate struct {
 	Unit *string `json:"unit"`
 }
 
+type CachedSensor struct {
+	Sensor
+	User
+}
+
 func AddSensorNoHardware(s Sensor) {
 	statement := "insert into sensor (name, unit, id_node, id_hardware) values ($1, $2, $3, $4)"
 	_, err := db.Exec(cb(), statement, s.Name, s.Unit, s.Id_node, nil)
