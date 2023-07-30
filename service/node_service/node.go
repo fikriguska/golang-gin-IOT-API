@@ -75,7 +75,15 @@ func (n *Node) Get() models.NodeGet {
 	} else {
 		hardware = hardware_cached.(models.HardwareNodeGet)
 	}
-	sensors := models.GetSensorByNodeId(n.Id)
+
+	sensors_cached, found := cache_service.Get("sensors-bynode", n.Id)
+	var sensors []models.Sensor
+	if !found {
+		sensors = models.GetSensorByNodeId(n.Id)
+		cache_service.Set("sensors-bynode", n.Id, sensors)
+	} else {
+		sensors = sensors_cached.([]models.Sensor)
+	}
 
 	var resp models.NodeGet
 
