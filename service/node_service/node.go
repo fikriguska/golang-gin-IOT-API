@@ -111,7 +111,9 @@ func (n *Node) Get() models.NodeGet {
 
 func (n *Node) Update(node models.NodeUpdate, idUser int) {
 	models.UpdateNode(node, n.Id)
-	updateCache(n, idUser)
+	// updateCache(n, idUser)
+	cache_service.Del("node", n.Id)
+	cache_service.Del("nodes", idUser)
 
 }
 func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
@@ -120,11 +122,12 @@ func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
 
 	if !found {
 		exist = models.IsNodeExistById(n.Id)
+		var cn models.CachedNode
+
 		if !exist {
 			return exist, false
 		} else {
 			node, user := models.GetNodeAndUserByNodeId(n.Id)
-			var cn models.CachedNode
 			cn.Id = node.Id
 			cn.Name = node.Name
 			cn.Location = node.Location
@@ -133,7 +136,7 @@ func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
 			cn.Username = user.Username
 			cache_service.Set("node", n.Id, cn)
 		}
-		owner = (models.GetUserIdByNodeId(n.Id) == id_user)
+		owner = (cn.Id_user == id_user)
 		return exist, owner
 	} else {
 		// log.Println("aaaa")
@@ -148,18 +151,18 @@ func (n *Node) Delete() {
 	models.DeleteNode(n.Id)
 }
 
-func updateCache(n *Node, idUser int) {
-	// cache_service.Set("node", n.Id, n)
-	nodes, found := cache_service.Get("nodes", idUser)
-	if found {
-		ns := nodes.([]models.NodeList)
-		for idx, node := range ns {
-			if node.Id == n.Id {
-				ns[idx].Id_hardware = node.Id_hardware
-				ns[idx].Location = node.Location
-				ns[idx].Name = node.Name
-			}
-		}
-		cache_service.Set("nodes", idUser, ns)
-	}
-}
+// func updateCache(n *Node, idUser int) {
+// 	// cache_service.Set("node", n.Id, n)
+// 	nodes, found := cache_service.Get("nodes", idUser)
+// 	if found {
+// 		ns := nodes.([]models.NodeList)
+// 		for idx, node := range ns {
+// 			if node.Id == n.Id {
+// 				ns[idx].Id_hardware = node.Id_hardware
+// 				ns[idx].Location = node.Location
+// 				ns[idx].Name = node.Name
+// 			}
+// 		}
+// 		cache_service.Set("nodes", idUser, ns)
+// 	}
+// }
