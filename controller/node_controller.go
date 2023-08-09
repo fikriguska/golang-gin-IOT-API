@@ -229,7 +229,7 @@ func UpdateNode(c *gin.Context) {
 	} else {
 		nodeService.Id_hardware_node = -1
 	}
-	current_node := nodeService.Get()
+	current_node := nodeService.GetNodeOnly()
 
 	if len(json.Id_hardware_sensor) == 10 && len(json.Field_sensor) == 10 {
 		for i := 0; i < 10; i++ {
