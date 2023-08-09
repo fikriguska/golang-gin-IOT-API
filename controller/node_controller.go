@@ -182,6 +182,8 @@ func DeleteNode(c *gin.Context) {
 	}
 
 	nodeService.Delete()
+	cache_service.Del("node", id)
+	cache_service.Del("nodes", idUser)
 
 	successResponse(c, http.StatusOK, fmt.Sprintf("Success delete node, id: %d", id))
 

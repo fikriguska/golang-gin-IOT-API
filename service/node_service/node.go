@@ -144,6 +144,7 @@ func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
 }
 
 func (n *Node) Delete() {
+
 	models.DeleteNode(n.Id)
 }
 
