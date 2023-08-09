@@ -1,7 +1,6 @@
 package node_service
 
 import (
-	"log"
 	"src/models"
 	"src/service/cache_service"
 	"src/service/hardware_service"
@@ -124,7 +123,6 @@ func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
 		if !exist {
 			return exist, false
 		} else {
-			log.Println("aaa")
 			node, user := models.GetNodeAndUserByNodeId(n.Id)
 			var cn models.CachedNode
 			cn.Id = node.Id
