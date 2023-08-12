@@ -7,7 +7,6 @@ import (
 	e "src/error"
 	"src/middleware"
 	"src/models"
-	"src/service/cache_service"
 	"src/service/hardware_service"
 	"src/service/node_service"
 	"strconv"
@@ -369,9 +368,10 @@ func UpdateNode(c *gin.Context) {
 	// 	}
 	// }
 
-	nodeService.Update(json)
-	cache_service.Del("node", id)
-	cache_service.Del("nodes", idUser)
+	nodeService.Update(json, idUser)
+
+	// cache_service.Del("node", id)
+	// cache_service.Del("nodes", idUser)
 
 	successResponse(c, http.StatusOK, "Success edit node")
 }
