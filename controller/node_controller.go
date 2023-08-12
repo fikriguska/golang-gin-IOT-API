@@ -121,7 +121,7 @@ func AddNode(c *gin.Context) {
 
 func GetNode(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-	limit, _ := strconv.Atoi(c.Query("limit"))
+	limitstr, limitexist := c.GetQuery("limit")
 
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, e.ErrInvalidParams)
@@ -146,18 +146,30 @@ func GetNode(c *gin.Context) {
 		return
 	}
 
-	node := nodeService.Get(limit)
+	var node models.NodeGet
+	if !limitexist {
+		node = nodeService.Get(50)
+	} else {
+		limit, _ := strconv.Atoi(limitstr)
+		node = nodeService.Get(limit)
+	}
 	c.IndentedJSON(http.StatusOK, node)
 
 }
 
 func ListNode(c *gin.Context) {
-	limit, _ := strconv.Atoi(c.Query("limit"))
+	limitstr, limitexist := c.GetQuery("limit")
 
 	nodeService := node_service.Node{}
 
 	idUser, isAdmin := extractJwt(c)
-	nodes := nodeService.GetAll(idUser, isAdmin, limit)
+	var nodes []models.NodeList
+	if !limitexist {
+		nodes = nodeService.GetAll(idUser, isAdmin, 50)
+	} else {
+		limit, _ := strconv.Atoi(limitstr)
+		nodes = nodeService.GetAll(idUser, isAdmin, limit)
+	}
 	c.IndentedJSON(http.StatusOK, nodes)
 	// nodes_cached, found := cache_service.Get("node", 0)
 

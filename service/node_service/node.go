@@ -19,14 +19,8 @@ func (n *Node) Add() {
 	}
 }
 
-func (n *Node) GetAll(id_user int, is_admin bool, args ...int) []models.NodeList {
+func (n *Node) GetAll(id_user int, is_admin bool, limit int) []models.NodeList {
 	// the default of limit is 50
-	limit := 50
-	if len(args) == 1 {
-		if args[0] >= 1 {
-			limit = args[0]
-		}
-	}
 	var nodes []models.NodeList
 	nodes_cached, found := cache_service.Get("nodes", id_user)
 	if !found {
@@ -41,21 +35,19 @@ func (n *Node) GetAll(id_user int, is_admin bool, args ...int) []models.NodeList
 	}
 
 	for i, n := range nodes {
-		feeds := models.GetFeedByNodeId(n.Id, limit)
-		nodes[i].Feed = feeds
+		if limit > 0 {
+			feeds := models.GetFeedByNodeId(n.Id, limit)
+			nodes[i].Feed = feeds
+		} else {
+			nodes[i].Feed = nil
+		}
 	}
 	return nodes
 }
 
-func (n *Node) Get(args ...int) models.NodeGet {
+func (n *Node) Get(limit int) models.NodeGet {
 
 	// the default of limit is 50
-	limit := 50
-	if len(args) == 1 {
-		if args[0] >= 1 {
-			limit = args[0]
-		}
-	}
 
 	var node models.NodeGet
 
@@ -68,8 +60,12 @@ func (n *Node) Get(args ...int) models.NodeGet {
 		node = node_cached.(models.NodeGet)
 	}
 
-	feed := models.GetFeedByNodeId(n.Id, limit)
-	node.Feed = feed
+	if limit > 0 {
+		feed := models.GetFeedByNodeId(n.Id, limit)
+		node.Feed = feed
+	} else {
+		node.Feed = nil
+	}
 
 	return node
 
