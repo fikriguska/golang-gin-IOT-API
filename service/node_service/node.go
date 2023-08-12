@@ -90,12 +90,19 @@ func (n *Node) Update(node models.NodeUpdate) {
 }
 
 func (n *Node) IsExistAndOwner(id_user int) (exist bool, owner bool) {
-	exist = models.IsNodeExistById(n.Id)
-	if !exist {
-		return exist, false
+	node_cached, found := cache_service.Get("node", n.Id)
+
+	if !found {
+		exist = models.IsNodeExistById(n.Id)
+		if !exist {
+			return exist, false
+		}
+		owner = (models.GetUserIdByNodeId(n.Id) == id_user)
+		return exist, owner
+	} else {
+		owner = node_cached.(models.NodeGet).Id_user == id_user
+		return true, owner
 	}
-	owner = (models.GetUserIdByNodeId(n.Id) == id_user)
-	return exist, owner
 }
 
 func (n *Node) IsPublic() (public bool) {

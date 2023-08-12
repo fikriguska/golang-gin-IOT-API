@@ -2,6 +2,7 @@ package hardware_service
 
 import (
 	"src/models"
+	"src/service/cache_service"
 	"strings"
 )
 
@@ -17,7 +18,12 @@ func (h *Hardware) IsTypeValid() bool {
 }
 
 func (h *Hardware) IsExist() bool {
-	return models.IsHardwareExistById(h.Id)
+	_, found := cache_service.Get("hardware", h.Id)
+	if !found {
+		return models.IsHardwareExistById(h.Id)
+	} else {
+		return true
+	}
 }
 
 func (h *Hardware) CheckHardwareType(type_ string) bool {
